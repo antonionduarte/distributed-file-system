@@ -1,11 +1,11 @@
-package sd2122.aula3.clients;
+package tp1.clients;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
 
-import sd2122.aula3.api.User;
+import tp1.api.User;
 
 import util.Debug;
 

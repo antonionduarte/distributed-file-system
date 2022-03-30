@@ -1,4 +1,4 @@
-package sd2122.aula3.server;
+package tp1.server;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

@@ -1,4 +1,4 @@
-package sd2122.aula3.server;
+package tp1.server;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import sd2122.aula3.server.resources.UsersResource;
-import sd2122.aula3.server.util.CustomLoggingFilter;
-import sd2122.aula3.server.util.GenericExceptionMapper;
+import tp1.server.resources.UsersResource;
+import tp1.server.util.CustomLoggingFilter;
+import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 
 public class UsersServer {

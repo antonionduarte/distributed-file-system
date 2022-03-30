@@ -1,4 +1,4 @@
-package sd2122.aula3.clients;
+package tp1.clients;
 
 import java.net.URI;
 import java.util.function.Supplier;

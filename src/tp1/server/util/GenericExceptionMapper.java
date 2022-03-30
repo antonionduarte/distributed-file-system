@@ -1,4 +1,4 @@
-package sd2122.aula3.server.util;
+package tp1.server.util;
 
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;

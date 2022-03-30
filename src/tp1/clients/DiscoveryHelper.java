@@ -1,10 +1,10 @@
-package sd2122.aula3.clients;
+package tp1.clients;
 
 import java.net.URI;
 import java.util.ArrayList;
 
-import sd2122.aula3.server.Discovery;
-import sd2122.aula3.server.UsersServer;
+import tp1.server.Discovery;
+import tp1.server.UsersServer;
 
 public class DiscoveryHelper {
 

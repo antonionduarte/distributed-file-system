@@ -16,7 +16,7 @@ import tp1.api.FileInfo;
 @Path(RestDirectory.PATH)
 public interface RestDirectory {
 
-	static final String PATH="/dir";
+	String PATH= "/dir";
 
 	/**
 	 * Write a new version of a file. If the file exists, its contents are overwritten.

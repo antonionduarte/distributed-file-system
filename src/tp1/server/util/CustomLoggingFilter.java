@@ -1,4 +1,4 @@
-package sd2122.aula3.server.util;
+package tp1.server.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

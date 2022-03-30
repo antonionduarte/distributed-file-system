@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 @Path(RestFiles.PATH)
 public interface RestFiles {
 
-	static final String PATH="/files";
+	String PATH = "/files";
 
 	/**
 	 * Write a file. If the file exists, overwrites the contents.

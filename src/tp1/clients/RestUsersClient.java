@@ -1,4 +1,4 @@
-package sd2122.aula3.clients;
+package tp1.clients;
 
 import java.net.URI;
 import java.util.List;
@@ -9,10 +9,8 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import sd2122.aula3.api.User;
-import sd2122.aula3.api.service.RestUsers;
-
-import javax.print.attribute.standard.Media;
+import tp1.api.User;
+import tp1.api.service.rest.RestUsers;
 
 public class RestUsersClient extends RestClient implements RestUsers {
 

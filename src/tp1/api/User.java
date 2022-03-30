@@ -9,8 +9,7 @@ public class User {
 	private String fullName;
 	private String password;
 	
-	public User(){	
-	}
+	public User() {}
 	
 	public User(String userId, String fullName, String email, String password) {
 		super();
@@ -56,11 +55,8 @@ public class User {
 		} else if (!password.equals(other.password))
 			return false;
 		if (userId == null) {
-			if (other.userId != null)
-				return false;
-		} else if (!userId.equals(other.userId))
-			return false;
-		return true;
+			return other.userId == null;
+		} else return userId.equals(other.userId);
 	}
 
 	public String getEmail() {
