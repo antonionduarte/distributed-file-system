@@ -8,7 +8,7 @@ import tp1.server.UsersServer;
 
 public class DiscoveryHelper {
 
-	public static URI findServiceURI(String userID, String userURI) {
+	public static URI findServiceURI() {
 		Discovery discovery = Discovery.getInstance();
 		discovery.listener();
 		ArrayList<URI> serverURIs = discovery.knownUrisOf(UsersServer.SERVICE);
