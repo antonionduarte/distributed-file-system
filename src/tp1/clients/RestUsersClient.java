@@ -16,37 +16,29 @@ public class RestUsersClient extends RestClient implements RestUsers {
 
 	final WebTarget target;
 
-	RestUsersClient(URI serverURI) {
+	public RestUsersClient(URI serverURI) {
 		super(serverURI);
 		target = client.target(serverURI).path(RestUsers.PATH);
 	}
 
 	@Override
 	public String createUser(User user) {
-		return super.reTry(() -> {
-			return clt_createUser(user);
-		});
+		return super.reTry(() -> clt_createUser(user));
 	}
 
 	@Override
 	public User getUser(String userId, String password) {
-		return super.reTry(() -> {
-			return clt_getUser(userId, password);
-		});
+		return super.reTry(() -> clt_getUser(userId, password));
 	}
 
 	@Override
 	public User updateUser(String userId, String password, User user) {
-		return super.reTry(() -> {
-			return clt_updateUser(userId, password, user);
-		});
+		return super.reTry(() -> clt_updateUser(userId, password, user));
 	}
 
 	@Override
 	public User deleteUser(String userId, String password) {
-		return super.reTry(() -> {
-			return clt_deleteUser(userId, password);
-		});
+		return super.reTry(() -> clt_deleteUser(userId, password));
 	}
 
 	@Override
