@@ -44,21 +44,19 @@ public class Discovery {
 	// Used separate the two fields that make up a service announcement.
 	private static final String DELIMITER = "\t";
 
-	private final InetSocketAddress addr;
-	private final String serviceName;
-	private final String serviceURI;
-
 	private final Map<String, ArrayList<URI>> services;
 
-	/**
-	 * @param serviceName the name of the service to announce
-	 * @param serviceURI  an uri string - representing the contact endpoint of the service being announced
-	 */
-	public Discovery(InetSocketAddress addr, String serviceName, String serviceURI) {
-		this.addr = addr;
-		this.serviceName = serviceName;
-		this.serviceURI = serviceURI;
+	private static Discovery instance;
+
+	private Discovery() {
 		this.services = new ConcurrentHashMap<>();
+	}
+
+	public static Discovery getInstance() {
+		if(instance == null) {
+			instance = new Discovery();
+		}
+		return instance;
 	}
 
 	/**
@@ -154,7 +152,7 @@ public class Discovery {
 		do {
 			ArrayList<URI> service = services.get(serviceName);
 			if (service != null) return service;
-		} while (System.currentTimeMillis() - startTime <= DISCOVERY_PERIOD);
+		} while (System.currentTimeMillis() - startTime <= DISCOVERY_TIMEOUT);
 		return null;
 	}
 
@@ -173,16 +171,8 @@ public class Discovery {
 	/**
 	 * Starts sending service announcements at regular intervals...
 	 */
-	public void start() {
+	public void start(String serviceName, String serviceURI) {
 		announce(serviceName, serviceURI);
 		listener();
-	}
-
-	/**
-	 * Main just for testing
-	 */
-	public static void main(String[] args) throws Exception {
-		Discovery discovery = new Discovery(DISCOVERY_ADDR, "user-resource", "http://" + InetAddress.getLocalHost().getHostAddress());
-		discovery.start();
 	}
 }
