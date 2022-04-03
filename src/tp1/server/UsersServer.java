@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import tp1.clients.DiscoveryHelper;
 import tp1.server.resources.UsersResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
@@ -40,8 +41,8 @@ public class UsersServer {
 
 			Log.info(String.format("%s Server ready @ %s\n", SERVICE, serverURI));
 
-			Discovery discovery = new Discovery(Discovery.DISCOVERY_ADDR, SERVICE, serverURI);
-			discovery.start();
+			Discovery discovery = Discovery.getInstance();
+			discovery.start(SERVICE, serverURI);
 
 			// More code can be executed here...
 		} catch (Exception e) {
