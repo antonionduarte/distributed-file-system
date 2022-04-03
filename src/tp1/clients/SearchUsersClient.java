@@ -30,7 +30,7 @@ public class SearchUsersClient {
 
 		System.out.println("Sending request to server.");
 
-		URI serverURI = DiscoveryHelper.findServiceURI(userId, userURI);
+		URI serverURI = DiscoveryHelper.findServiceURI();
 		var result = new RestUsersClient(URI.create(serverURI.toString())).searchUsers(userId);
 		System.out.println("Result: " + result);
 	}

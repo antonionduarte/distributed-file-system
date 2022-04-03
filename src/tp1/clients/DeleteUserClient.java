@@ -31,7 +31,7 @@ public class DeleteUserClient {
 
 		System.out.println("Sending request to server.");
 
-		URI serverURI = DiscoveryHelper.findServiceURI(userId, userURI);
+		URI serverURI = DiscoveryHelper.findServiceURI();
 		var result = new RestUsersClient(serverURI).deleteUser(userId, password);
 		System.out.println("Result: " + result);
 	}

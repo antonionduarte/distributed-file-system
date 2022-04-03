@@ -38,7 +38,7 @@ public class UpdateUserClient {
 
 		System.out.println("Sending request to server.");
 
-		URI serverURI = DiscoveryHelper.findServiceURI(userId, userURI);
+		URI serverURI = DiscoveryHelper.findServiceURI();
 		var result = new RestUsersClient(serverURI).updateUser(userId, oldpwd, user);
 		System.out.println("Result: " + result);
 	}

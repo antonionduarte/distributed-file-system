@@ -39,8 +39,8 @@ public class DirectoryServer {
 
 			Log.info(String.format("%s Server ready @ %s\n", SERVICE, serverURI));
 
-			Discovery discovery = new Discovery(Discovery.DISCOVERY_ADDR, SERVICE, serverURI);
-			discovery.start();
+			Discovery discovery = Discovery.getInstance();
+			discovery.start(SERVICE, SERVER_URI_FMT);
 
 			// More code can be executed here...
 		} catch (Exception e) {
