@@ -1,13 +1,23 @@
 package tp1.server.resources;
 
+import jakarta.inject.Singleton;
 import tp1.api.FileInfo;
+import tp1.api.User;
 import tp1.api.service.rest.RestDirectory;
+import tp1.clients.DiscoveryHelper;
+import tp1.clients.GetUserClient;
+import tp1.clients.RestUsersClient;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
+@Singleton
 public class DirectoryResource implements RestDirectory {
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
+
+
 		return null;
 	}
 

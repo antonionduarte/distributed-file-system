@@ -16,8 +16,7 @@ public class UsersResource implements RestUsers {
 
 	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
 
-	public UsersResource() {
-	}
+	public UsersResource() {}
 
 	@Override
 	public String createUser(User user) {

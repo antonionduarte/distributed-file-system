@@ -1,5 +1,6 @@
 package tp1.api.service.rest;
 
+import java.io.IOException;
 import java.util.*;
 
 import jakarta.ws.rs.Consumes;
@@ -22,7 +23,7 @@ public interface RestDirectory {
 	 * Write a new version of a file. If the file exists, its contents are overwritten. Only the owner (userId) can
 	 * write the file.
 	 * <p>
-	 * A file resource will has the full path "userId/filename".
+	 * A file resource will have the full path "userId/filename".
 	 *
 	 * @param filename - name of the file.
 	 * @param data     - contents of the file.
@@ -36,7 +37,7 @@ public interface RestDirectory {
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
 	@Produces(MediaType.APPLICATION_JSON)
 	FileInfo writeFile(@PathParam("filename") String filename, byte[] data,
-	                   @PathParam("userId") String userId, @QueryParam("password") String password);
+	                   @PathParam("userId") String userId, @QueryParam("password") String password) throws IOException;
 
 	/**
 	 * Delete an existing file ("userId/filename"). Only the owner (userId) can delete the file.

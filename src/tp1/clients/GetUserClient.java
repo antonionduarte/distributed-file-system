@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
 
+import tp1.api.User;
 import util.Debug;
 
 public class GetUserClient {
@@ -35,5 +36,4 @@ public class GetUserClient {
 		var result = new RestUsersClient(serverURI).getUser(userId, password);
 		System.out.println("Result: " + result);
 	}
-
 }

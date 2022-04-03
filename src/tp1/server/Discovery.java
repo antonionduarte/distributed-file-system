@@ -53,7 +53,7 @@ public class Discovery {
 	}
 
 	public static Discovery getInstance() {
-		if(instance == null) {
+		if (instance == null) {
 			instance = new Discovery();
 		}
 		return instance;
