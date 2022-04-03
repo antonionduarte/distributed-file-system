@@ -8,9 +8,10 @@ public class User {
 	private String userId;
 	private String fullName;
 	private String password;
-	
-	public User() {}
-	
+
+	public User() {
+	}
+
 	public User(String userId, String fullName, String email, String password) {
 		super();
 		this.email = email;
@@ -96,6 +97,6 @@ public class User {
 		return "User [email=" + email + ", userId=" + userId + ", fullName=" + fullName + ", password=" + password
 				+ "]";
 	}
-	
-	
+
+
 }

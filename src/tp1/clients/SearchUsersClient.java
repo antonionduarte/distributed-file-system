@@ -14,10 +14,10 @@ public class SearchUsersClient {
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 	}
-	
+
 	public static void main(String[] args) throws IOException {
 		Debug.setLogLevel(Level.FINE, Debug.SD2122);
-		
+
 		if (args.length != 1) {
 			System.err.println("Use: java sd2122.aula3.clients.SearchUsersClient userId ");
 			return;

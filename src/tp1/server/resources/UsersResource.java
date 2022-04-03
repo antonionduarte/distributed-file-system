@@ -14,25 +14,26 @@ public class UsersResource implements RestUsers {
 
 	private final Map<String, User> users = new HashMap<>();
 
-	private static Logger Log = Logger.getLogger(UsersResource.class.getName());
-	
-	public UsersResource() {}
-		
+	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
+
+	public UsersResource() {
+	}
+
 	@Override
 	public String createUser(User user) {
 		Log.info("createUser : " + user);
 
 		// Check if user data is valid
-		if (user.getUserId() == null || user.getPassword() == null || user.getFullName() == null || 
+		if (user.getUserId() == null || user.getPassword() == null || user.getFullName() == null ||
 				user.getEmail() == null) {
 			Log.info("User object invalid.");
-			throw new WebApplicationException( Status.BAD_REQUEST );
+			throw new WebApplicationException(Status.BAD_REQUEST);
 		}
-		
+
 		// Check if userId already exists
 		if (users.containsKey(user.getUserId())) {
 			Log.info("User already exists.");
-			throw new WebApplicationException( Status.CONFLICT );
+			throw new WebApplicationException(Status.CONFLICT);
 		}
 
 		// Add the user to the map of users
@@ -44,27 +45,27 @@ public class UsersResource implements RestUsers {
 	@Override
 	public User getUser(String userId, String password) {
 		Log.info("getUser : user = " + userId + "; pwd = " + password);
-		
+
 		// Check if user is valid
 		if (userId == null) {
 			Log.info("UserId or passwrod null.");
 			throw new WebApplicationException(Status.BAD_REQUEST);
 		}
-		
+
 		User user = users.get(userId);
-		
+
 		// Check if user exists 
 		if (user == null) {
 			Log.info("User does not exist.");
 			throw new WebApplicationException(Status.NOT_FOUND);
 		}
-		
+
 		// Check if the password is correct
 		if (!user.getPassword().equals(password)) {
 			Log.info("Password is incorrect.");
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
-		
+
 		return user;
 	}
 
@@ -135,7 +136,7 @@ public class UsersResource implements RestUsers {
 
 		List<User> users = new ArrayList<>();
 
-		if (pattern == null || pattern.length() == 0)  {
+		if (pattern == null || pattern.length() == 0) {
 			users.addAll(this.users.values());
 			return users;
 		}
@@ -145,7 +146,7 @@ public class UsersResource implements RestUsers {
 		for (User nextUser : this.users.values()) {
 			if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {
 				User cleansedUser = new User(nextUser.getUserId(), nextUser.getFullName(),
-										nextUser.getEmail(), "");
+						nextUser.getEmail(), "");
 				users.add(cleansedUser);
 			}
 		}

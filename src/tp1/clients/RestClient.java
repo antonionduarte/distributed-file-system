@@ -12,7 +12,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 
 public class RestClient {
-	private static Logger Log = Logger.getLogger(RestClient.class.getName());
+	private static final Logger Log = Logger.getLogger(RestClient.class.getName());
 
 	protected static final int READ_TIMEOUT = 5000;
 	protected static final int CONNECT_TIMEOUT = 5000;

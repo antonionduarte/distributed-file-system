@@ -15,12 +15,12 @@ import tp1.api.service.rest.RestUsers;
 public class RestUsersClient extends RestClient implements RestUsers {
 
 	final WebTarget target;
-	
+
 	RestUsersClient(URI serverURI) {
 		super(serverURI);
 		target = client.target(serverURI).path(RestUsers.PATH);
 	}
-	
+
 	@Override
 	public String createUser(User user) {
 		return super.reTry(() -> {
@@ -56,14 +56,14 @@ public class RestUsersClient extends RestClient implements RestUsers {
 
 	private User clt_getUser(String userId, String password) {
 		Response response = target.path(userId)
-			.queryParam(RestUsers.PASSWORD, password).request()
-			.accept(MediaType.APPLICATION_JSON)
-			.get();
+				.queryParam(RestUsers.PASSWORD, password).request()
+				.accept(MediaType.APPLICATION_JSON)
+				.get();
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			System.out.println("Success:");
 			User user = response.readEntity(User.class);
-			System.out.println( "User : " + user);
+			System.out.println("User : " + user);
 			return user;
 		} else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
@@ -102,29 +102,30 @@ public class RestUsersClient extends RestClient implements RestUsers {
 
 	private String clt_createUser(User user) {
 		Response response = target.request()
-			.accept(MediaType.APPLICATION_JSON)
-			.post(Entity.entity(user, MediaType.APPLICATION_JSON));
+				.accept(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(user, MediaType.APPLICATION_JSON));
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
 			return response.readEntity(String.class);
-		else 
+		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
-		
+
 		return null;
 	}
-	
+
 	private List<User> clt_searchUsers(String pattern) {
 		Response response = target
-			.queryParam(QUERY, pattern)
-			.request()
-			.accept(MediaType.APPLICATION_JSON)
-			.get();
+				.queryParam(QUERY, pattern)
+				.request()
+				.accept(MediaType.APPLICATION_JSON)
+				.get();
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
-			return response.readEntity(new GenericType<List<User>>() {});
-		else 
+			return response.readEntity(new GenericType<List<User>>() {
+			});
+		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
-		
+
 		return null;
 	}
 }

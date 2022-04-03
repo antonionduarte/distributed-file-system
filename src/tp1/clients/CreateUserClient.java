@@ -13,16 +13,16 @@ import util.Debug;
 public class CreateUserClient {
 	static final String USER_URI = "http://%s:%s";
 	static final String PORT = "8080";
-	
+
 	private static final Logger Log = Logger.getLogger(CreateUserClient.class.getName());
 
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 	}
-	
+
 	public static void main(String[] args) throws IOException {
-		Debug.setLogLevel( Level.FINE, Debug.SD2122 );
-		
+		Debug.setLogLevel(Level.FINE, Debug.SD2122);
+
 		if (args.length != 4) {
 			System.err.println("Use: java sd2122.aula3.clients.CreateUserClient userId fullName email password");
 			return;
@@ -40,7 +40,7 @@ public class CreateUserClient {
 
 		Log.info("Sending request to server.");
 
-		URI serverURI = DiscoveryHelper.findServiceURI(userId,userURI);
+		URI serverURI = DiscoveryHelper.findServiceURI(userId, userURI);
 		var result = new RestUsersClient(serverURI).createUser(user);
 		System.out.println("Result: " + result);
 	}

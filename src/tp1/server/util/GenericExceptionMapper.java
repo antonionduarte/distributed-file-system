@@ -8,22 +8,19 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
 /**
- * 
  * Utility class for catching server exceptions and showing the stack trace.
- * 
- * 
- * @author smd
  *
+ * @author smd
  */
 @Provider
 public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
-	
+
 	@Override
 	public Response toResponse(Throwable ex) {
 
 		if (ex instanceof WebApplicationException wex) {
-			Response r = wex.getResponse();			
+			Response r = wex.getResponse();
 			if (r.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode())
 				ex.printStackTrace();
 			return r;

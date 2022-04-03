@@ -20,10 +20,10 @@ public class FileInfo {
 	 * List of user with whom the file has been shared
 	 */
 	private Set<String> sharedWith;
-	
+
 	public FileInfo() {
 	}
-	
+
 	public FileInfo(String owner, String filename, String fileURL, Set<String> sharedWith) {
 		this.owner = owner;
 		this.filename = filename;
@@ -85,7 +85,6 @@ public class FileInfo {
 		return "FileInfo [owner=" + owner + ", filename=" + filename + ", fileURL=" + fileURL + ", sharedWith="
 				+ sharedWith + "]";
 	}
-	
-	
-	
+
+
 }

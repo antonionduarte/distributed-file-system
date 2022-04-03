@@ -16,14 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 /**
- * <p>A class to perform service discovery, based on periodic service contact endpoint 
+ * <p>A class to perform service discovery, based on periodic service contact endpoint
  * announcements over multicast communication.</p>
- * 
+ *
  * <p>Servers announce their *name* and contact *uri* at regular intervals. The server actively
  * collects received announcements.</p>
- * 
+ *
  * <p>Service announcements have the following format:</p>
- * 
+ *
  * <p>&lt;service-name-string&gt;&lt;delimiter-char&gt;&lt;service-uri-string&gt;</p>
  */
 public class Discovery {
@@ -35,7 +35,7 @@ public class Discovery {
 		// summarizes the logging format
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s");
 	}
-	
+
 	// The pre-agreed multicast endpoint assigned to perform discovery.
 	public static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress("227.227.227.227", 2277);
 	static final int DISCOVERY_PERIOD = 1000;
@@ -44,28 +44,28 @@ public class Discovery {
 	// Used separate the two fields that make up a service announcement.
 	private static final String DELIMITER = "\t";
 
-	private InetSocketAddress addr;
+	private final InetSocketAddress addr;
 	private final String serviceName;
 	private final String serviceURI;
 
-	private Map<String, ArrayList<URI>> services;
+	private final Map<String, ArrayList<URI>> services;
 
 	/**
 	 * @param serviceName the name of the service to announce
-	 * @param serviceURI an uri string - representing the contact endpoint of the service being announced
+	 * @param serviceURI  an uri string - representing the contact endpoint of the service being announced
 	 */
 	public Discovery(InetSocketAddress addr, String serviceName, String serviceURI) {
 		this.addr = addr;
 		this.serviceName = serviceName;
-		this.serviceURI  = serviceURI;
+		this.serviceURI = serviceURI;
 		this.services = new ConcurrentHashMap<>();
 	}
 
 	/**
 	 * Continuously announces a service given its name and uri
-	 * 
+	 *
 	 * @param serviceName the composite service name: <domain:service>
-	 * @param serviceURI - the uri of the service
+	 * @param serviceURI  - the uri of the service
 	 */
 	public void announce(String serviceName, String serviceURI) {
 		Log.info(String.format("Starting Discovery announcements on: %s for: %s -> %s\n", DISCOVERY_ADDR, serviceName, serviceURI));
@@ -76,7 +76,7 @@ public class Discovery {
 		// start thread to send periodic announcements
 		new Thread(() -> {
 			try (var ds = new DatagramSocket()) {
-				for (;;) {
+				for (; ; ) {
 					try {
 						Thread.sleep(DISCOVERY_PERIOD);
 						ds.send(pkt);
@@ -100,14 +100,14 @@ public class Discovery {
 		var pkt = new DatagramPacket(new byte[MAX_DATAGRAM_SIZE], MAX_DATAGRAM_SIZE);
 
 		new Thread(() -> {
-		    try (var ms = new MulticastSocket(DISCOVERY_ADDR.getPort())) {
-			    joinGroupInAllInterfaces(ms);
+			try (var ms = new MulticastSocket(DISCOVERY_ADDR.getPort())) {
+				joinGroupInAllInterfaces(ms);
 				// long startTime = System.currentTimeMillis();
-				for(;;) {
+				for (; ; ) {
 					try {
 						pkt.setLength(MAX_DATAGRAM_SIZE);
 						ms.receive(pkt);
-					
+
 						var msg = new String(pkt.getData(), 0, pkt.getLength());
 						System.out.printf("FROM %s (%s) : %s\n", pkt.getAddress().getCanonicalHostName(),
 								pkt.getAddress().getHostAddress(), msg);
@@ -137,15 +137,16 @@ public class Discovery {
 						Log.finest("Still listening...");
 					}
 				}
-  		    } catch (IOException e) {
-			    e.printStackTrace();
-		    }
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}).start();
 	}
 
 	/**
 	 * Returns the known servers for a service.
-	 * @param  serviceName the name of the service being discovered
+	 *
+	 * @param serviceName the name of the service being discovered
 	 * @return an array of URI with the service instances discovered.
 	 */
 	public ArrayList<URI> knownUrisOf(String serviceName) {
@@ -156,7 +157,7 @@ public class Discovery {
 		} while (System.currentTimeMillis() - startTime <= DISCOVERY_PERIOD);
 		return null;
 	}
-	
+
 	private void joinGroupInAllInterfaces(MulticastSocket ms) throws SocketException {
 		Enumeration<NetworkInterface> ifs = NetworkInterface.getNetworkInterfaces();
 		while (ifs.hasMoreElements()) {
@@ -167,10 +168,10 @@ public class Discovery {
 				x.printStackTrace();
 			}
 		}
-	}	
+	}
 
 	/**
-	 * Starts sending service announcements at regular intervals... 
+	 * Starts sending service announcements at regular intervals...
 	 */
 	public void start() {
 		announce(serviceName, serviceURI);

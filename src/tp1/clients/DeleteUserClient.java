@@ -19,10 +19,10 @@ public class DeleteUserClient {
 		Debug.setLogLevel(Level.FINE, Debug.SD2122);
 
 		if (args.length != 2) {
-			System.err.println( "Use: java sd2122.aula2.clients.DeleteUserClient userId password");
+			System.err.println("Use: java sd2122.aula2.clients.DeleteUserClient userId password");
 			return;
 		}
-		
+
 		String userId = args[0];
 		String password = args[1];
 
@@ -31,9 +31,9 @@ public class DeleteUserClient {
 
 		System.out.println("Sending request to server.");
 
-		URI serverURI = DiscoveryHelper.findServiceURI(userId,userURI);
+		URI serverURI = DiscoveryHelper.findServiceURI(userId, userURI);
 		var result = new RestUsersClient(serverURI).deleteUser(userId, password);
 		System.out.println("Result: " + result);
 	}
-	
+
 }
