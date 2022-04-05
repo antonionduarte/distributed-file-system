@@ -1,29 +1,28 @@
-package tp1.server;
+package tp1.server.rest;
+
+import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
+import org.glassfish.jersey.server.ResourceConfig;
+import tp1.server.Discovery;
+import tp1.server.resources.FilesResource;
+import tp1.server.util.CustomLoggingFilter;
+import tp1.server.util.GenericExceptionMapper;
+import util.Debug;
 
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
-import org.glassfish.jersey.server.ResourceConfig;
+public class FilesServer {
 
-import tp1.clients.DiscoveryHelper;
-import tp1.server.resources.UsersResource;
-import tp1.server.util.CustomLoggingFilter;
-import tp1.server.util.GenericExceptionMapper;
-import util.Debug;
-
-public class UsersServer {
-
-	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
+	private static final Logger Log = Logger.getLogger(FilesServer.class.getName());
 
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 	}
 
 	public static final int PORT = 8080;
-	public static final String SERVICE = "users";
+	public static final String SERVICE = "files";
 	private static final String SERVER_URI_FMT = "http://%s:%s/rest";
 
 	public static void main(String[] args) {
@@ -31,7 +30,7 @@ public class UsersServer {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(UsersResource.class);
+			config.register(FilesResource.class);
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 

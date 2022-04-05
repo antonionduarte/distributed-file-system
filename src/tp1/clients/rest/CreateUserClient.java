@@ -1,17 +1,20 @@
-package tp1.clients;
+package tp1.clients.rest;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import tp1.api.User;
 
 import util.Debug;
 
-public class UpdateUserClient {
+public class CreateUserClient {
 	static final String USER_URI = "http://%s:%s";
 	static final String PORT = "8080";
+
+	private static final Logger Log = Logger.getLogger(CreateUserClient.class.getName());
 
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
@@ -20,27 +23,25 @@ public class UpdateUserClient {
 	public static void main(String[] args) throws IOException {
 		Debug.setLogLevel(Level.FINE, Debug.SD2122);
 
-		if (args.length != 5) {
-			System.err.println("Use: java sd2122.aula2.clients.UpdateUserClient userId oldpwd fullName email password");
+		if (args.length != 4) {
+			System.err.println("Use: java sd2122.aula3.clients.CreateUserClient userId fullName email password");
 			return;
 		}
 
 		String userId = args[0];
-		String oldpwd = args[1];
-		String fullName = args[2];
-		String email = args[3];
-		String password = args[4];
+		String fullName = args[1];
+		String email = args[2];
+		String password = args[3];
 
 		String ip = InetAddress.getLocalHost().getHostAddress();
 		String userURI = String.format(USER_URI, ip, PORT);
 
 		User user = new User(userId, fullName, email, password);
 
-		System.out.println("Sending request to server.");
+		Log.info("Sending request to server.");
 
 		URI serverURI = DiscoveryHelper.findServiceURI();
-		var result = new RestUsersClient(serverURI).updateUser(userId, oldpwd, user);
+		var result = new RestUsersClient(serverURI).createUser(user);
 		System.out.println("Result: " + result);
 	}
 }
-

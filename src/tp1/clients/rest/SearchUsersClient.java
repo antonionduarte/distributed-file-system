@@ -1,13 +1,13 @@
-package tp1.clients;
-
-import util.Debug;
+package tp1.clients.rest;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
 
-public class DeleteUserClient {
+import util.Debug;
+
+public class SearchUsersClient {
 	static final String USER_URI = "http://%s:%s";
 	static final String PORT = "8080";
 
@@ -18,13 +18,12 @@ public class DeleteUserClient {
 	public static void main(String[] args) throws IOException {
 		Debug.setLogLevel(Level.FINE, Debug.SD2122);
 
-		if (args.length != 2) {
-			System.err.println("Use: java sd2122.aula2.clients.DeleteUserClient userId password");
+		if (args.length != 1) {
+			System.err.println("Use: java sd2122.aula3.clients.SearchUsersClient userId ");
 			return;
 		}
 
 		String userId = args[0];
-		String password = args[1];
 
 		String ip = InetAddress.getLocalHost().getHostAddress();
 		String userURI = String.format(USER_URI, ip, PORT);
@@ -32,8 +31,7 @@ public class DeleteUserClient {
 		System.out.println("Sending request to server.");
 
 		URI serverURI = DiscoveryHelper.findServiceURI();
-		var result = new RestUsersClient(serverURI).deleteUser(userId, password);
+		var result = new RestUsersClient(URI.create(serverURI.toString())).searchUsers(userId);
 		System.out.println("Result: " + result);
 	}
-
 }

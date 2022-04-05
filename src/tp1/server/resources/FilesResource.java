@@ -13,15 +13,16 @@ public class FilesResource implements RestFiles {
 
 	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
 
-	public FilesResource() {}
+	public FilesResource() {
+	}
 
 	@Override
 	public void writeFile(String fileId, byte[] data, String token) {
-		Log.info("writeFile : "+fileId);
+		Log.info("writeFile : " + fileId);
 
 		File file = new File(fileId);
 		try {
-			if(file.createNewFile())
+			if (file.createNewFile())
 				Log.info("File created.");
 			else
 				Log.info("Writing on existing .");
@@ -35,10 +36,10 @@ public class FilesResource implements RestFiles {
 
 	@Override
 	public void deleteFile(String fileId, String token) {
-		Log.info("deleteFile : "+fileId);
+		Log.info("deleteFile : " + fileId);
 
 		File file = new File(fileId);
-		if(file.delete()) {
+		if (file.delete()) {
 			Log.info("File deleted.");
 		} else
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -46,7 +47,7 @@ public class FilesResource implements RestFiles {
 
 	@Override
 	public byte[] getFile(String fileId, String token) {
-		Log.info("getFile : "+fileId);
+		Log.info("getFile : " + fileId);
 
 		File file = new File(fileId);
 		try {

@@ -2,16 +2,10 @@ package tp1.server.resources;
 
 import jakarta.inject.Singleton;
 import tp1.api.FileInfo;
-import tp1.api.User;
 import tp1.api.service.rest.RestDirectory;
-import tp1.api.service.rest.RestUsers;
-import tp1.clients.DiscoveryHelper;
-import tp1.clients.GetUserClient;
-import tp1.clients.RestUsersClient;
 import tp1.server.Discovery;
-import tp1.server.UsersServer;
+import tp1.server.rest.UsersServer;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
