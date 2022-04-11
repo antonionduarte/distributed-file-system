@@ -3,15 +3,15 @@ package tp1.api.service.soap;
 import jakarta.xml.ws.WebFault;
 
 @WebFault
-public class UsersException extends Exception {
+public class DirectoryException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 
-	public UsersException() {
+	public DirectoryException() {
 		super("");
 	}
 
-	public UsersException(String errorMessage) {
+	public DirectoryException(String errorMessage) {
 		super(errorMessage);
 	}
 }
