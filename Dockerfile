@@ -11,5 +11,5 @@ COPY target/*jar-with-dependencies.jar sd2122.jar
 COPY trab.props trab.props
 
 # run Discovery when starting the docker image
-CMD ["java", "-cp", "/home/sd/sd2122.jar", \
-"sd2122.trab.server.RESTUserServer"]
+#CMD ["java", "-cp", "/home/sd/sd2122.jar", \
+#"sd2122.trab.server.RESTUserServer"]
