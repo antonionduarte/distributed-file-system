@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import jakarta.xml.ws.Endpoint;
+import tp1.server.Discovery;
 
 public class SoapUsersServer {
 
@@ -13,7 +14,7 @@ public class SoapUsersServer {
 	public static final String SERVICE_NAME = "users";
 	public static String SERVER_BASE_URI = "http://%s:%s/soap";
 
-	private static Logger Log = Logger.getLogger(SoapUsersServer.class.getName());
+	private static final Logger Log = Logger.getLogger(SoapUsersServer.class.getName());
 
 	public static void main(String[] args) throws Exception {
 		
@@ -28,6 +29,9 @@ public class SoapUsersServer {
 		String serverURI = String.format(SERVER_BASE_URI, ip, PORT);
 
 		Endpoint.publish(serverURI.replace(ip, "0.0.0.0"), new SoapUsersWebService());
+
+		Discovery discovery = Discovery.getInstance();
+		discovery.start(SERVICE_NAME, serverURI);
 
 		Log.info(String.format("%s Soap Server ready @ %s\n", SERVICE_NAME, serverURI));
 	}
