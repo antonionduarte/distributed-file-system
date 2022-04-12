@@ -12,9 +12,11 @@ import java.util.List;
 
 @Singleton
 public class DirectoryResource implements RestDirectory {
+
+	private static final Discovery discovery = Discovery.getInstance();
+
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
-		Discovery discovery = Discovery.getInstance();
 		ArrayList<URI> userServerURI = discovery.knownUrisOf(UsersServer.SERVICE);
 
 		return null;
