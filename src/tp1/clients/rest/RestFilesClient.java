@@ -7,6 +7,7 @@ import jakarta.ws.rs.core.Response;
 import tp1.api.service.rest.RestUsers;
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
+import util.ConvertError;
 
 import java.net.URI;
 
@@ -21,22 +22,20 @@ public class RestFilesClient extends RestClient implements Files {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		super.reTry(() -> clt_writeFile(fileId, data, token));
-		return Result.ok();
+		return super.reTry(() -> clt_writeFile(fileId, data, token));
 	}
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		super.reTry(() -> clt_deleteFile(fileId, token));
-		return Result.ok();
+		return super.reTry(() -> clt_deleteFile(fileId, token));
 	}
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		return super.reTry(() -> Result.ok(clt_getFile(fileId, token)));
+		return super.reTry(() -> clt_getFile(fileId, token));
 	}
 
-	private boolean clt_writeFile(String fileId, byte[] data, String token) {
+	private Result<Void> clt_writeFile(String fileId, byte[] data, String token) {
 		Response response = target
 				.path(fileId)
 				.request()
@@ -44,29 +43,29 @@ public class RestFilesClient extends RestClient implements Files {
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
-			return true;
+			return Result.ok();
 		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
 
-		return false;
+		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 
 	}
 
-	private boolean clt_deleteFile(String fileId, String token) {
+	private Result<Void> clt_deleteFile(String fileId, String token) {
 		Response response = target
 				.path(fileId)
 				.request()
 				.delete();
 
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
-			return true;
+			return Result.ok();
 		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
 
-		return false;
+		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
 
-	private byte[] clt_getFile(String fileId, String token) {
+	private Result<byte[]> clt_getFile(String fileId, String token) {
 		Response response = target
 				.path(fileId)
 				.request()
@@ -74,8 +73,8 @@ public class RestFilesClient extends RestClient implements Files {
 				.get();
 
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
-			return response.readEntity(byte[].class);
-		else
-			return null;
+			return Result.ok(response.readEntity(byte[].class));
+
+		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
 }
