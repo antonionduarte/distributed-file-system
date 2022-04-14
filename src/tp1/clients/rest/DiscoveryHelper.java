@@ -3,8 +3,8 @@ package tp1.clients.rest;
 import java.net.URI;
 import java.util.ArrayList;
 
-import tp1.server.Discovery;
 import tp1.server.rest.UsersServer;
+import util.Discovery;
 
 public class DiscoveryHelper {
 

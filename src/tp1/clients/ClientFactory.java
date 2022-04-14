@@ -15,27 +15,29 @@ import java.net.MalformedURLException;
 
 public class ClientFactory {
 
-    private static final Discovery discovery = Discovery.getInstance();
+	private static final Discovery discovery = Discovery.getInstance();
 
-    public static Users getUsersClient() throws MalformedURLException {
-        var serverURI = discovery.knownUrisOf("users").get(0); // use discovery to find a uri of the Users service;
-        if( serverURI.toString().endsWith("rest"))
-            return new RestUsersClient( serverURI );
-        else
-            return new SoapUsersClient( serverURI );
-    }
-    public static Directory getDirectoryClient() throws MalformedURLException {
-        var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find a uri of the Users service;
-        if( serverURI.toString().endsWith("rest"))
-            return new RestDirectoryClient( serverURI );
-        else
-            return new SoapDirectoryClient( serverURI );
-    }
-    public static Files getFilesClient() throws MalformedURLException {
-        var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find a uri of the Users service;
-        if( serverURI.toString().endsWith("rest"))
-            return new RestFilesClient( serverURI );
-        else
-            return new SoapFilesClient( serverURI );
-    }
+	public static Users getUsersClient() throws MalformedURLException {
+		var serverURI = discovery.knownUrisOf("users").get(0); // use discovery to find a uri of the Users service;
+		if (serverURI.toString().endsWith("rest"))
+			return new RestUsersClient(serverURI);
+		else
+			return new SoapUsersClient(serverURI);
+	}
+
+	public static Directory getDirectoryClient() throws MalformedURLException {
+		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find a uri of the Users service;
+		if (serverURI.toString().endsWith("rest"))
+			return new RestDirectoryClient(serverURI);
+		else
+			return new SoapDirectoryClient(serverURI);
+	}
+
+	public static Files getFilesClient() throws MalformedURLException {
+		var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find a uri of the Users service;
+		if (serverURI.toString().endsWith("rest"))
+			return new RestFilesClient(serverURI);
+		else
+			return new SoapFilesClient(serverURI);
+	}
 }
