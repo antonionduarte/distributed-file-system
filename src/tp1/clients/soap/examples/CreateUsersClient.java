@@ -1,4 +1,4 @@
-package tp1.clients.soap;
+package tp1.clients.soap.examples;
 
 import java.io.IOException;
 import java.net.URI;

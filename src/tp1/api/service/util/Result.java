@@ -1,8 +1,7 @@
 package tp1.api.service.util;
 
 /**
- * Represents the result of an operation, either wrapping a result of the given type,
- * or an error.
+ * Represents the result of an operation, either wrapping a result of the given type, or an error.
  *
  * @param <T> type of the result value associated with success
  * @author smd
@@ -12,10 +11,8 @@ public interface Result<T> {
 	/**
 	 * @author smd
 	 * <p>
-	 * Service errors:
-	 * OK - no error, implies a non-null result of type T, except for for Void operations
-	 * CONFLICT - something is being created but already exists
-	 * NOT_FOUND - an access occurred to something that does not exist
+	 * Service errors: OK - no error, implies a non-null result of type T, except for for Void operations CONFLICT -
+	 * something is being created but already exists NOT_FOUND - an access occurred to something that does not exist
 	 * INTERNAL_ERROR - something unexpected happened
 	 */
 	enum ErrorCode {OK, CONFLICT, NOT_FOUND, BAD_REQUEST, FORBIDDEN, INTERNAL_ERROR, NOT_IMPLEMENTED}

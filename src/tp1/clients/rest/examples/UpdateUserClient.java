@@ -1,4 +1,4 @@
-package tp1.clients.rest;
+package tp1.clients.rest.examples;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -7,6 +7,8 @@ import java.util.logging.Level;
 
 import tp1.api.User;
 
+import tp1.clients.rest.DiscoveryHelper;
+import tp1.clients.rest.RestUsersClient;
 import util.Debug;
 
 public class UpdateUserClient {

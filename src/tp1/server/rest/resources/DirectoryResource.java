@@ -19,6 +19,8 @@ public class DirectoryResource implements RestDirectory {
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
 		ArrayList<URI> userServerURI = discovery.knownUrisOf(UsersServer.SERVICE);
 
+
+
 		return null;
 	}
 
