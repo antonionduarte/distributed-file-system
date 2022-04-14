@@ -9,7 +9,7 @@ import tp1.clients.rest.RestUsersClient;
 import tp1.clients.soap.SoapDirectoryClient;
 import tp1.clients.soap.SoapFilesClient;
 import tp1.clients.soap.SoapUsersClient;
-import tp1.server.Discovery;
+import util.Discovery;
 
 import java.net.MalformedURLException;
 

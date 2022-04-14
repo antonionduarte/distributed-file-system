@@ -9,6 +9,7 @@ import tp1.api.User;
 import tp1.api.service.rest.RestUsers;
 import tp1.api.service.util.Users;
 import tp1.server.JavaUsers;
+import util.ConvertError;
 
 @Singleton
 public class UsersResource implements RestUsers {

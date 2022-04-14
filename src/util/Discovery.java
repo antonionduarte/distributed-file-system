@@ -1,4 +1,4 @@
-package tp1.server;
+package util;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

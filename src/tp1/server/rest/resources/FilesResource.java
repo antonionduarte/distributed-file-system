@@ -5,6 +5,7 @@ import jakarta.ws.rs.WebApplicationException;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Files;
 import tp1.server.JavaFiles;
+import util.ConvertError;
 
 @Singleton
 public class FilesResource implements RestFiles {

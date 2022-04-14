@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import tp1.server.Discovery;
+import util.Discovery;
 import tp1.server.rest.resources.UsersResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;

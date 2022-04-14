@@ -3,7 +3,7 @@ package tp1.server.rest.resources;
 import jakarta.inject.Singleton;
 import tp1.api.FileInfo;
 import tp1.api.service.rest.RestDirectory;
-import tp1.server.Discovery;
+import util.Discovery;
 import tp1.server.rest.UsersServer;
 
 import java.net.URI;
