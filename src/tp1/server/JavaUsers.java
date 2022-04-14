@@ -7,6 +7,7 @@ import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.server.rest.resources.UsersResource;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,16 +77,84 @@ public class JavaUsers implements Users {
 
 	@Override
 	public Result<User> updateUser(String userId, String password, User user) {
-		return null;
+		Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; user = " + user);
+
+		if (userId == null) {
+			Log.info("UserId or password null.");
+			return Result.error(Result.ErrorCode.BAD_REQUEST);
+		}
+
+		User existingUser = users.get(userId);
+
+		if (existingUser == null) {
+			Log.info("User does not exist.");
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (!existingUser.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		user.setUserId(existingUser.getUserId());
+
+		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
+		if (user.getFullName() == null) user.setFullName(existingUser.getFullName());
+		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
+		if (user.getPassword() == null) user.setPassword(existingUser.getPassword());
+
+		users.put(userId, user);
+
+		return Result.ok(user);
 	}
 
 	@Override
 	public Result<User> deleteUser(String userId, String password) {
-		return null;
+		Log.info("deleteUser : user = " + userId + "; pwd = " + password);
+
+		if (userId == null) {
+			Log.info("UserId or password null.");
+			return Result.error(Result.ErrorCode.BAD_REQUEST);
+		}
+
+		User user = users.get(userId);
+
+		if (user == null) {
+			Log.info("User does not exist.");
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (!user.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		users.remove(userId);
+
+		return Result.ok(user);
 	}
 
 	@Override
 	public Result<List<User>> searchUsers(String pattern) {
-		return null;
+		Log.info("searchUsers : pattern = " + pattern);
+
+		List<User> users = new ArrayList<>();
+
+		if (pattern == null || pattern.length() == 0) {
+			users.addAll(this.users.values());
+			return Result.ok(users);
+		}
+
+		if (this.users.isEmpty()) Result.ok(users);
+
+		for (User nextUser : this.users.values()) {
+			if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {
+				User cleansedUser = new User(nextUser.getUserId(), nextUser.getFullName(),
+						nextUser.getEmail(), "");
+				users.add(cleansedUser);
+			}
+		}
+
+		return Result.ok(users);
 	}
 }
