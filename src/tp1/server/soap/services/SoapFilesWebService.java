@@ -1,4 +1,4 @@
-package tp1.server.soap;
+package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
 import tp1.api.service.soap.FilesException;

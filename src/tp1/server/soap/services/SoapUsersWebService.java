@@ -1,4 +1,4 @@
-package tp1.server.soap;
+package tp1.server.soap.services;
 
 
 import java.util.ArrayList;
