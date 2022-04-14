@@ -4,12 +4,13 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import tp1.api.service.rest.RestFiles;
 import tp1.api.service.rest.RestUsers;
+import tp1.api.service.util.Files;
+import tp1.api.service.util.Result;
 
 import java.net.URI;
 
-public class RestFilesClient extends RestClient implements RestFiles {
+public class RestFilesClient extends RestClient implements Files {
 
 	final WebTarget target;
 
@@ -19,18 +20,20 @@ public class RestFilesClient extends RestClient implements RestFiles {
 	}
 
 	@Override
-	public void writeFile(String fileId, byte[] data, String token) {
+	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		super.reTry(() -> clt_writeFile(fileId, data, token));
+		return Result.ok();
 	}
 
 	@Override
-	public void deleteFile(String fileId, String token) {
+	public Result<Void> deleteFile(String fileId, String token) {
 		super.reTry(() -> clt_deleteFile(fileId, token));
+		return Result.ok();
 	}
 
 	@Override
-	public byte[] getFile(String fileId, String token) {
-		return super.reTry(() -> clt_getFile(fileId, token));
+	public Result<byte[]> getFile(String fileId, String token) {
+		return super.reTry(() -> Result.ok(clt_getFile(fileId, token)));
 	}
 
 	private boolean clt_writeFile(String fileId, byte[] data, String token) {

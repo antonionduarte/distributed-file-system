@@ -11,9 +11,12 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import tp1.api.User;
 import tp1.api.service.rest.RestUsers;
-import tp1.server.rest.resources.UsersResource;
+import tp1.api.service.util.Result;
+import tp1.api.service.util.Users;
 
-public class RestUsersClient extends RestClient implements RestUsers {
+import static tp1.api.service.rest.RestUsers.QUERY;
+
+public class RestUsersClient extends RestClient implements Users {
 
 	final WebTarget target;
 
@@ -23,28 +26,28 @@ public class RestUsersClient extends RestClient implements RestUsers {
 	}
 
 	@Override
-	public String createUser(User user) {
-		return super.reTry(() -> clt_createUser(user));
+	public Result<String> createUser(User user) {
+		return super.reTry(() -> Result.ok(clt_createUser(user)));
 	}
 
 	@Override
-	public User getUser(String userId, String password) {
-		return super.reTry(() -> clt_getUser(userId, password));
+	public Result<User> getUser(String userId, String password) {
+		return super.reTry(() -> Result.ok(clt_getUser(userId, password)));
 	}
 
 	@Override
-	public User updateUser(String userId, String password, User user) {
-		return super.reTry(() -> clt_updateUser(userId, password, user));
+	public Result<User> updateUser(String userId, String password, User user) {
+		return super.reTry(() -> Result.ok(clt_updateUser(userId, password, user)));
 	}
 
 	@Override
-	public User deleteUser(String userId, String password) {
-		return super.reTry(() -> clt_deleteUser(userId, password));
+	public Result<User> deleteUser(String userId, String password) {
+		return super.reTry(() -> Result.ok(clt_deleteUser(userId, password)));
 	}
 
 	@Override
-	public List<User> searchUsers(String pattern) {
-		return super.reTry(() -> clt_searchUsers(pattern));
+	public Result<List<User>> searchUsers(String pattern) {
+		return super.reTry(() -> Result.ok(clt_searchUsers(pattern)));
 	}
 
 	private User clt_getUser(String userId, String password) {
@@ -114,7 +117,7 @@ public class RestUsersClient extends RestClient implements RestUsers {
 				.get();
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
-			return response.readEntity(new GenericType<List<User>>() {
+			return response.readEntity(new GenericType<>() {
 			});
 		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
