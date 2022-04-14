@@ -19,7 +19,7 @@ public class FilesResource implements RestFiles {
 		var result = impl.writeFile(fileId, data, token);
 
 		if (!result.isOK()) {
-			var errorCode = ConvertError.convertError(result);
+			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
 	}
@@ -29,7 +29,7 @@ public class FilesResource implements RestFiles {
 		var result = impl.deleteFile(fileId, token);
 
 		if (!result.isOK()) {
-			var errorCode = ConvertError.convertError(result);
+			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
 	}
@@ -42,7 +42,7 @@ public class FilesResource implements RestFiles {
 			return result.value();
 		}
 		else {
-			var errorCode = ConvertError.convertError(result);
+			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
 	}
