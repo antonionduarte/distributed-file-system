@@ -28,7 +28,7 @@ public class UsersResource implements RestUsers {
 			return result.value();
 		} else {
 			var errorCode = ConvertError.convertError(result);
-			throw new WebApplicationException();
+			throw new WebApplicationException(errorCode);
 		}
 	}
 
@@ -41,7 +41,7 @@ public class UsersResource implements RestUsers {
 			return result.value();
 		} else {
 			var errorCode = ConvertError.convertError(result);
-			throw new WebApplicationException();
+			throw new WebApplicationException(errorCode);
 		}
 	}
 
@@ -53,7 +53,7 @@ public class UsersResource implements RestUsers {
 			return result.value();
 		} else {
 			var errorCode = ConvertError.convertError(result);
-			throw new WebApplicationException();
+			throw new WebApplicationException(errorCode);
 		}
 	}
 
@@ -66,7 +66,7 @@ public class UsersResource implements RestUsers {
 			return result.value();
 		} else {
 			var errorCode = ConvertError.convertError(result);
-			throw new WebApplicationException();
+			throw new WebApplicationException(errorCode);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class UsersResource implements RestUsers {
 			return result.value();
 		} else {
 			var errorCode = ConvertError.convertError(result);
-			throw new WebApplicationException();
+			throw new WebApplicationException(errorCode);
 		}
 	}
 
