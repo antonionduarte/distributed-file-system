@@ -10,7 +10,7 @@ public interface Directory {
 	 * Write a new version of a file. If the file exists, its contents are overwritten. Only the owner (userId) can
 	 * write the file.
 	 * <p>
-	 * A file resource will has the full path "userId/filename".
+	 * A file resource will have the full path "userId/filename".
 	 *
 	 * @param filename - name of the file.
 	 * @param data     - contents of the file.
