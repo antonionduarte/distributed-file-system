@@ -1,15 +1,10 @@
 package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
-import jakarta.ws.rs.WebApplicationException;
 import tp1.api.service.soap.FilesException;
 import tp1.api.service.soap.SoapFiles;
 import tp1.api.service.util.Files;
-import tp1.api.service.util.Result;
 import tp1.server.JavaFiles;
-
-import java.io.*;
-import java.util.logging.Logger;
 
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {
