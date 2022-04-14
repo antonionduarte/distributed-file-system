@@ -1,9 +1,12 @@
 package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
+import jakarta.ws.rs.WebApplicationException;
 import tp1.api.service.soap.FilesException;
 import tp1.api.service.soap.SoapFiles;
+import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
+import tp1.server.JavaFiles;
 
 import java.io.*;
 import java.util.logging.Logger;
@@ -11,52 +14,33 @@ import java.util.logging.Logger;
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {
 
-    private static final Logger Log = Logger.getLogger(SoapFilesWebService.class.getName());
+    final Files impl = new JavaFiles();
 
-    public SoapFilesWebService() {}
-
-    @Override
-    public byte[] getFile(String fileId, String token) throws FilesException {
-        Log.info("SOAP getFile : " + fileId);
-
-        File file = new File(fileId);
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            return fis.readAllBytes();
-        } catch (FileNotFoundException e) {
-            throw new FilesException(Result.ErrorCode.NOT_FOUND.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new FilesException(Result.ErrorCode.BAD_REQUEST.toString());
-        }
-    }
-
-    @Override
-    public void deleteFile(String fileId, String token) throws FilesException {
-        Log.info("SOAP deleteFile : " + fileId);
-
-        File file = new File(fileId);
-        if (file.delete()) {
-            Log.info("File deleted.");
-        } else
-            throw new FilesException(Result.ErrorCode.NOT_FOUND.toString());
+    public SoapFilesWebService() {
     }
 
     @Override
     public void writeFile(String fileId, byte[] data, String token) throws FilesException {
-        Log.info("writeFile : " + fileId);
+        var result = impl.writeFile(fileId, data, token);
+        if(!result.isOK())
+            throw new FilesException(result.error().toString());
+    }
 
-        File file = new File(fileId);
-        try {
-            if (file.createNewFile())
-                Log.info("File created.");
-            else
-                Log.info("Writing on existing .");
-            FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new FilesException(Result.ErrorCode.BAD_REQUEST.toString());
-        }
+    @Override
+    public void deleteFile(String fileId, String token) throws FilesException {
+        var result = impl.deleteFile(fileId, token);
+        if(!result.isOK())
+            throw new FilesException(result.error().toString());
+    }
+
+
+    @Override
+    public byte[] getFile(String fileId, String token) throws FilesException {
+        var result = impl.getFile(fileId, token);
+        if (result.isOK())
+            return result.value();
+        else
+            throw new FilesException(result.error().toString());
     }
 }
+
