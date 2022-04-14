@@ -1,5 +1,6 @@
 package tp1.api.service.util;
 
+import java.net.MalformedURLException;
 import java.util.*;
 
 import tp1.api.FileInfo;
@@ -19,7 +20,7 @@ public interface Directory {
 	 * @return OK if success + FileInfo representing the file. NOT_FOUND if the userId does not exist. FORBIDDEN if the
 	 * password is incorrect. BAD_REQUEST otherwise.
 	 */
-	Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password);
+	Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException;
 
 	/**
 	 * Delete an existing file ("userId/filename"). Only the owner (userId) can delete the file.
@@ -30,7 +31,7 @@ public interface Directory {
 	 * @return OK if success; NOT_FOUND if the userId or filename does not exist. FORBIDDEN if the password is
 	 * incorrect. BAD_REQUEST otherwise.
 	 */
-	Result<Void> deleteFile(String filename, String userId, String password);
+	Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException;
 
 	/**
 	 * Share the file "userId/filename" with another user. Only the owner (userId) can share the file.
@@ -45,7 +46,7 @@ public interface Directory {
 	 * @return OK if success; .        NOT_FOUND if the userId or userIdShare or filename does not exist. FORBIDDEN if
 	 * the password is incorrect. BAD_REQUEST otherwise.
 	 */
-	Result<Void> shareFile(String filename, String userId, String userIdShare, String password);
+	Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException;
 
 	/**
 	 * Unshare the file "userId/filename" with another user. Only the owner (userId) can unshare the file.
@@ -60,7 +61,7 @@ public interface Directory {
 	 * @return OK if success; NOT_FOUND if the userId or userIdShare or filename does not exist. FORBIDDEN if the
 	 * password is incorrect. BAD_REQUEST otherwise.
 	 */
-	Result<Void> unshareFile(String filename, String userId, String userIdShare, String password);
+	Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException;
 
 	/**
 	 * Get the contents of the file "userId/filename". Who can read a file: the owner and the users with whom the file
@@ -76,7 +77,7 @@ public interface Directory {
 	 * filename or accUserId does not exist. FORBIDDEN if the password is incorrect or the user cannot access the file.
 	 * BAD_REQUEST otherwise.
 	 */
-	Result<byte[]> getFile(String filename, String userId, String accUserId, String password);
+	Result<byte[]> getFile(String filename, String userId, String accUserId, String password) throws MalformedURLException;
 
 	/**
 	 * List the files a given user ("userId") has access to - this includes both its own files and the files shared with
