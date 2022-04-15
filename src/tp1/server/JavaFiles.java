@@ -2,15 +2,13 @@ package tp1.server;
 
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
-import tp1.server.rest.resources.UsersResource;
 
 import java.io.*;
 import java.util.logging.Logger;
 
 public class JavaFiles implements Files {
 
-    private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
-
+    private static final Logger Log = Logger.getLogger(JavaFiles.class.getName());
 
     @Override
     public Result<Void> writeFile(String fileId, byte[] data, String token) {
@@ -24,6 +22,7 @@ public class JavaFiles implements Files {
                 Log.info("Writing on existing .");
             FileOutputStream outputStream = new FileOutputStream(file);
             outputStream.write(data);
+            outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
             return Result.error(Result.ErrorCode.BAD_REQUEST);
@@ -50,7 +49,9 @@ public class JavaFiles implements Files {
         File file = new File(fileId);
         try {
             FileInputStream fis = new FileInputStream(file);
-            return Result.ok(fis.readAllBytes());
+            byte[] data = fis.readAllBytes();
+            fis.close();
+            return Result.ok(data);
         } catch (FileNotFoundException e) {
             return Result.error(Result.ErrorCode.NOT_FOUND);
         } catch (IOException e) {
