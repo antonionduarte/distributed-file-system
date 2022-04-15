@@ -2,6 +2,7 @@ package tp1.clients.rest;
 
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import tp1.api.FileInfo;
@@ -84,7 +85,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
     private Result<Void> clt_shareFile(String filename, String userId, String userIdShare, String password) {
         Response response = target.path(userId).path(filename).path(userIdShare)
                 .queryParam(RestUsers.PASSWORD, password).request()
-                .post(Entity.entity(null, MediaType.WILDCARD)); //TODO ???
+                .post(null); //probably something else?
 
         if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
             return Result.ok();
@@ -97,7 +98,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
     private Result<Void> clt_unshareFile(String filename, String userId, String userIdShare, String password) {
         Response response = target.path(userId).path(filename).path(userIdShare)
                 .queryParam(RestUsers.PASSWORD, password).request()
-                .post(Entity.entity(null, MediaType.WILDCARD)); //TODO ???
+                .delete();
 
         if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
             return Result.ok();
@@ -125,7 +126,19 @@ public class RestDirectoryClient extends RestClient implements Directory {
     }
 
     private Result<List<FileInfo>> clt_lsFile(String userId, String password) {
-        return null; //TODO
+        Response response = target
+                .path(userId)
+                .queryParam(RestUsers.PASSWORD, password)
+                .request()
+                .accept(MediaType.APPLICATION_JSON)
+                .get();
+
+        if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
+            return Result.ok(response.readEntity(new GenericType<>() {}));
+        else
+            System.out.println("Error, HTTP error status: " + response.getStatus());
+
+        return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
     }
 
 }
