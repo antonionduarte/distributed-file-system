@@ -74,6 +74,8 @@ public class RestFilesClient extends RestClient implements Files {
 
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(byte[].class));
+		else
+			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
