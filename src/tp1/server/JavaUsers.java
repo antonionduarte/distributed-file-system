@@ -17,7 +17,7 @@ public class JavaUsers implements Users {
 
 	private final Map<String, User> users;
 
-	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
+	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
 	public JavaUsers() {
 		this.users = new HashMap<>();
