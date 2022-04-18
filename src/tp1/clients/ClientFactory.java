@@ -10,6 +10,7 @@ import tp1.clients.soap.SoapDirectoryClient;
 import tp1.clients.soap.SoapFilesClient;
 import tp1.clients.soap.SoapUsersClient;
 import util.Discovery;
+import util.Pair;
 
 import java.net.MalformedURLException;
 
@@ -17,27 +18,27 @@ public class ClientFactory {
 
 	private static final Discovery discovery = Discovery.getInstance();
 
-	public static Users getUsersClient() throws MalformedURLException {
+	public static Pair<String, Users> getUsersClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("users").get(0); // use discovery to find a uri of the Users service;
 		if (serverURI.toString().endsWith("rest"))
-			return new RestUsersClient(serverURI);
+			return new Pair<>(serverURI.toString(), new RestUsersClient(serverURI));
 		else
-			return new SoapUsersClient(serverURI);
+			return new Pair<>(serverURI.toString(), new SoapUsersClient(serverURI));
 	}
 
-	public static Directory getDirectoryClient() throws MalformedURLException {
+	public static Pair<String, Directory>  getDirectoryClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find a uri of the Users service;
 		if (serverURI.toString().endsWith("rest"))
-			return new RestDirectoryClient(serverURI);
+			return new Pair<>(serverURI.toString(), new RestDirectoryClient(serverURI));
 		else
-			return new SoapDirectoryClient(serverURI);
+			return new Pair<>(serverURI.toString(), new SoapDirectoryClient(serverURI));
 	}
 
-	public static Files getFilesClient() throws MalformedURLException {
+	public static Pair<String, Files>  getFilesClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find a uri of the Users service;
 		if (serverURI.toString().endsWith("rest"))
-			return new RestFilesClient(serverURI);
+			return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
 		else
-			return new SoapFilesClient(serverURI);
+			return new Pair<>(serverURI.toString(), new SoapFilesClient(serverURI));
 	}
 }
