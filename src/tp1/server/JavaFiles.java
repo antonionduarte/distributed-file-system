@@ -16,17 +16,13 @@ public class JavaFiles implements Files {
 
         File file = new File(fileId);
         try {
-            if (file.createNewFile())
-                Log.info("File created.");
-            else
-                Log.info("Writing on existing .");
             FileOutputStream outputStream = new FileOutputStream(file);
             outputStream.write(data);
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
             return Result.error(Result.ErrorCode.BAD_REQUEST);
-         }
+        }
         return Result.ok();
     }
 
