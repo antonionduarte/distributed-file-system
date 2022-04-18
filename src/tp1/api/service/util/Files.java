@@ -28,7 +28,7 @@ public interface Files {
 	 * @param fileId - unique id of the file.
 	 * @param token  - token for accessing the file server (in the first project this will not be used).
 	 * @return OK if success + contents (through redirect to the File server); NOT_FOUND if the uniqueId does not exist.
-	 * FORBIDDEN if the password is incorrect. BAD_REQUEST otherwise.
+	 * FORBIDDEN if the token is incorrect. BAD_REQUEST otherwise.
 	 */
 	Result<byte[]> getFile(String fileId, String token);
 }
