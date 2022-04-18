@@ -47,7 +47,7 @@ public class ConvertError {
 			case NOT_FOUND -> {
 				return Result.error(Result.ErrorCode.NOT_FOUND);
 			}
-			case OK -> {
+			case OK, NO_CONTENT -> {
 				return Result.error(Result.ErrorCode.OK);
 			}
 			case INTERNAL_SERVER_ERROR -> {
