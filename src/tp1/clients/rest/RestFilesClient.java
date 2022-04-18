@@ -39,10 +39,9 @@ public class RestFilesClient extends RestClient implements Files {
 		Response response = target
 				.path(fileId)
 				.request()
-				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Response.Status.NO_CONTENT.getStatusCode() && response.hasEntity())
 			return Result.ok();
 		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());

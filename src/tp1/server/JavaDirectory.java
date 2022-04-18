@@ -16,9 +16,13 @@ public class JavaDirectory implements Directory {
 	//String: filename
 	private Map<String, FileInfo> files;
 
+	//String: userId
+	private Map<String, List<FileInfo>> filesPerUser;
+
 
 	public JavaDirectory() {
 		files = new HashMap<>();
+		filesPerUser = new HashMap<>();
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class JavaDirectory implements Directory {
 		var filesResult = filesClient.writeFile(filename, data, "");
 
 		if (!filesResult.isOK()) {
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
+			return Result.error(filesResult.error());
 		}
 
 		if (file == null) {
@@ -72,7 +76,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient();
+		Users usersClient = ClientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		// authenticate the user
@@ -95,7 +99,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient();
+		Users usersClient = ClientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		// authenticate the user
@@ -120,7 +124,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient();
+		Users usersClient = ClientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		// authenticate the user
@@ -145,7 +149,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient();
+		Users usersClient = ClientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		// authenticate the user

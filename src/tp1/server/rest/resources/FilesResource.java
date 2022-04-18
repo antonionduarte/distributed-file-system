@@ -2,6 +2,7 @@ package tp1.server.rest.resources;
 
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Files;
 import tp1.server.JavaFiles;
@@ -22,7 +23,8 @@ public class FilesResource implements RestFiles {
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
-		}
+		} else
+			throw new WebApplicationException(Response.Status.NO_CONTENT);
 	}
 
 	@Override
