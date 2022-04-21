@@ -20,13 +20,15 @@ public class JavaDirectory implements Directory {
 	private final Map<String, FileInfo> files;
 
 	// String: userId
-	private final Map<String, Set<FileInfo>> filesPerUser;
+	private final Map<String, Set<FileInfo>> accessibleFilesPerUser;
+	private final Map<String, Set<FileInfo>> createdFilesPerUser;
 
 	private final ClientFactory clientFactory;
 
 	public JavaDirectory() {
 		this.files = new HashMap<>();
-		this.filesPerUser = new HashMap<>();
+		this.accessibleFilesPerUser = new HashMap<>();
+		this.createdFilesPerUser = new HashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
 	}
 
@@ -75,7 +77,10 @@ public class JavaDirectory implements Directory {
 
 		files.put(fileId, file);
 
-		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
+		listFiles.add(file);
+
+		listFiles = createdFilesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
 		listFiles.add(file);
 
 		return Result.ok(file);
@@ -111,10 +116,13 @@ public class JavaDirectory implements Directory {
 		}
 
 		files.remove(fileId);
-		filesPerUser.get(userId).remove(file);
+
+		accessibleFilesPerUser.get(userId).remove(file);
 		for (String user: file.getSharedWith()) {
-			filesPerUser.get(user).remove(file);
+			accessibleFilesPerUser.get(user).remove(file);
 		}
+
+		createdFilesPerUser.get(userId).remove(file);
 		
 		return Result.ok();
 	}
@@ -147,7 +155,8 @@ public class JavaDirectory implements Directory {
 		}
 
 		file.getSharedWith().remove(userIdShare);
-		filesPerUser.get(userIdShare).remove(file);
+		if(!userId.equals(userIdShare))
+			accessibleFilesPerUser.get(userIdShare).remove(file);
 
 		return Result.ok();
 	}
@@ -181,7 +190,7 @@ public class JavaDirectory implements Directory {
 
 		file.getSharedWith().add(userIdShare);
 
-		var listFiles = filesPerUser.computeIfAbsent(userIdShare, k -> new HashSet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userIdShare, k -> new HashSet<>());
 		listFiles.add(file);
 
 		return Result.ok();
@@ -244,6 +253,20 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		return Result.ok(new LinkedList<>(filesPerUser.get(userId)));
+		return Result.ok(new LinkedList<>(accessibleFilesPerUser.get(userId)));
+	}
+
+	@Override
+	public Result<Void> removeUser(String userId) {
+		//TODO delete files from this user from files server
+		//TODO delete user from sharedwith of all files in which it is in
+		//TODO other things maybe...?
+		accessibleFilesPerUser.remove(userId);
+		for (FileInfo file : createdFilesPerUser.get(userId)) {
+			//TODO possible problem: different files have different clients although same user
+		}
+		createdFilesPerUser.remove(userId);
+
+		return Result.ok();
 	}
 }

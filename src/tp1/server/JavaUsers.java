@@ -3,8 +3,10 @@ package tp1.server;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import tp1.api.User;
+import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
+import tp1.clients.ClientFactory;
 import tp1.server.rest.resources.UsersResource;
 
 import java.util.ArrayList;
@@ -17,10 +19,13 @@ public class JavaUsers implements Users {
 
 	private final Map<String, User> users;
 
+	private final ClientFactory clientFactory;
+
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
 	public JavaUsers() {
 		this.users = new HashMap<>();
+		this.clientFactory = ClientFactory.getInstance();
 	}
 
 	@Override
@@ -138,6 +143,9 @@ public class JavaUsers implements Users {
 		}
 
 		users.remove(userId);
+
+		Directory directoryClient = clientFactory.getDirectoryClient().second();
+		directoryClient.removeUser(userId);
 
 		return Result.ok(user);
 	}

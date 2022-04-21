@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
+import tp1.api.service.util.Result;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public interface SoapDirectory {
@@ -32,5 +33,9 @@ public interface SoapDirectory {
 	byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException;
 
 	@WebMethod
-	List<FileInfo> lsFile(String userId, String password) throws DirectoryException, ExecutionException;
+	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
+
+	@WebMethod
+	void removeUser(String userId) throws DirectoryException;
+
 }

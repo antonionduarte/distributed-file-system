@@ -11,7 +11,6 @@ import tp1.server.JavaDirectory;
 import util.ConvertError;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.List;
 
 @Singleton
@@ -105,6 +104,16 @@ public class DirectoryResource implements RestDirectory {
 		if (result.isOK()) {
 			return result.value();
 		} else {
+			var errorCode = ConvertError.resultErrorToWebAppError(result);
+			throw new WebApplicationException(errorCode);
+		}
+	}
+
+	@Override
+	public void removeUser(String userId) {
+		Result<Void> result = impl.removeUser(userId);
+
+		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}

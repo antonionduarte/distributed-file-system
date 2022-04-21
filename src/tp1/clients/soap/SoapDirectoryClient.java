@@ -75,7 +75,17 @@ public class SoapDirectoryClient implements Directory {
 	public Result<List<FileInfo>> lsFile(String userId, String password) {
 		try {
 			return Result.ok(directory.lsFile(userId, password));
-		} catch (DirectoryException | ExecutionException e) {
+		} catch (DirectoryException e) {
+			return Result.error(Result.ErrorCode.valueOf(e.getMessage()));
+		}
+	}
+
+	@Override
+	public Result<Void> removeUser(String userId) {
+		try {
+			directory.removeUser(userId);
+			return Result.ok();
+		} catch (DirectoryException e) {
 			return Result.error(Result.ErrorCode.valueOf(e.getMessage()));
 		}
 	}

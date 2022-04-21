@@ -90,4 +90,12 @@ public interface Directory {
 	 * incorrect. BAD_REQUEST otherwise.
 	 */
 	Result<List<FileInfo>> lsFile(String userId, String password);
+
+	/**
+	 * Remove all information and files from the provided user.
+	 *
+	 * @param userId - id of the user.
+	 * @return always OK, even if nothing about it exists
+	 */
+	Result<Void> removeUser(String userId);
 }

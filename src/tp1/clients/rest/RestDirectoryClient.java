@@ -54,6 +54,11 @@ public class RestDirectoryClient extends RestClient implements Directory {
 
 	}
 
+	@Override
+	public Result<Void> removeUser(String userId) {
+		return super.reTry(() -> clt_removeUser(userId));
+	}
+
 	private Result<FileInfo> clt_writeFile(String filename, byte[] data, String userId, String password) {
 		Response response = target.path(userId).path(filename)
 				.queryParam(RestUsers.PASSWORD, password).request()
@@ -134,6 +139,19 @@ public class RestDirectoryClient extends RestClient implements Directory {
 		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
+	}
+
+	private Result<Void> clt_removeUser(String userId) {
+		Response response = target
+				.path(userId)
+				.request()
+				.delete();
+
+		// In theory, should always return OK
+		if(response.getStatus() != Response.Status.OK.getStatusCode())
+			throw new RuntimeException("Error from Directory removeUser");
+
+		return Result.ok();
 	}
 
 }
