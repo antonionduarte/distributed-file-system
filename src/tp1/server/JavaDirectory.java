@@ -32,7 +32,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s",userId,filename);
+		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
@@ -63,7 +63,7 @@ public class JavaDirectory implements Directory {
 
 		if (file == null) {
 
-			String fileURL = String.format("%s%s/%s", serverURI, RestFiles.PATH,fileId);
+			String fileURL = String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId);
 			file = new FileInfo(userId, filename, fileURL, new HashSet<>());
 		}
 
@@ -76,7 +76,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s",userId,filename);
+		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
@@ -101,7 +101,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s",userId,filename);
+		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
@@ -128,7 +128,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s",userId,filename);
+		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
@@ -155,7 +155,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s",userId,filename);
+		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
@@ -167,7 +167,7 @@ public class JavaDirectory implements Directory {
 		var userResult = usersClient.getUser(userId, "");
 
 		// check if userid exists
-		if(userResult.error() == Result.ErrorCode.NOT_FOUND) {
+		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
@@ -178,11 +178,11 @@ public class JavaDirectory implements Directory {
 			return Result.error(accUserResult.error());
 		}
 		//file not shared with user
-		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId))  {
+		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 		//wrong path
-		if(!file.getOwner().equals(userId)) {
+		if (!file.getOwner().equals(userId)) {
 			return Result.error(Result.ErrorCode.BAD_REQUEST);
 		}
 

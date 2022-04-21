@@ -9,33 +9,33 @@ import tp1.server.JavaFiles;
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {
 
-    final Files impl = new JavaFiles();
+	final Files impl = new JavaFiles();
 
-    public SoapFilesWebService() {
-    }
+	public SoapFilesWebService() {
+	}
 
-    @Override
-    public void writeFile(String fileId, byte[] data, String token) throws FilesException {
-        var result = impl.writeFile(fileId, data, token);
-        if(!result.isOK())
-            throw new FilesException(result.error().toString());
-    }
+	@Override
+	public void writeFile(String fileId, byte[] data, String token) throws FilesException {
+		var result = impl.writeFile(fileId, data, token);
+		if (!result.isOK())
+			throw new FilesException(result.error().toString());
+	}
 
-    @Override
-    public void deleteFile(String fileId, String token) throws FilesException {
-        var result = impl.deleteFile(fileId, token);
-        if(!result.isOK())
-            throw new FilesException(result.error().toString());
-    }
+	@Override
+	public void deleteFile(String fileId, String token) throws FilesException {
+		var result = impl.deleteFile(fileId, token);
+		if (!result.isOK())
+			throw new FilesException(result.error().toString());
+	}
 
 
-    @Override
-    public byte[] getFile(String fileId, String token) throws FilesException {
-        var result = impl.getFile(fileId, token);
-        if (result.isOK())
-            return result.value();
-        else
-            throw new FilesException(result.error().toString());
-    }
+	@Override
+	public byte[] getFile(String fileId, String token) throws FilesException {
+		var result = impl.getFile(fileId, token);
+		if (result.isOK())
+			return result.value();
+		else
+			throw new FilesException(result.error().toString());
+	}
 }
 

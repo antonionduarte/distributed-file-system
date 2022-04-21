@@ -35,6 +35,7 @@ public interface Result<T> {
 
 	/**
 	 * obtains the provided URI for redirection
+	 *
 	 * @return URI for redirection
 	 */
 	URI redirectURI();

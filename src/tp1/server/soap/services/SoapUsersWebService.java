@@ -122,7 +122,8 @@ public class SoapUsersWebService implements SoapUsers {
 
 		users.remove(userId);
 
-		return user;	}
+		return user;
+	}
 
 	@Override
 	public List<User> searchUsers(String pattern) {

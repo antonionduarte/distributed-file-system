@@ -115,7 +115,8 @@ public class RestUsersClient extends RestClient implements Users {
 				.get();
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
-			return Result.ok(response.readEntity(new GenericType<>() {}));
+			return Result.ok(response.readEntity(new GenericType<>() {
+			}));
 		else
 			System.out.println("Error, HTTP error status: " + response.getStatus());
 

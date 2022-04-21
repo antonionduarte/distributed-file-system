@@ -23,15 +23,14 @@ public class DirectoryResource implements RestDirectory {
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
 		Result<FileInfo> result;
 		try {
-			result = impl.writeFile(filename,data,userId,password);
+			result = impl.writeFile(filename, data, userId, password);
 		} catch (MalformedURLException e) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
 		}
 
 		if (result.isOK()) {
 			return result.value();
-		}
-		else {
+		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
@@ -41,7 +40,7 @@ public class DirectoryResource implements RestDirectory {
 	public void deleteFile(String filename, String userId, String password) {
 		Result<Void> result;
 		try {
-			result = impl.deleteFile(filename,userId,password);
+			result = impl.deleteFile(filename, userId, password);
 		} catch (MalformedURLException e) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
 		}
@@ -56,7 +55,7 @@ public class DirectoryResource implements RestDirectory {
 	public void shareFile(String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
-			result = impl.shareFile(filename,userId,userIdShare,password);
+			result = impl.shareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
 		}
@@ -71,7 +70,7 @@ public class DirectoryResource implements RestDirectory {
 	public void unshareFile(String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
-			result = impl.unshareFile(filename,userId,userIdShare,password);
+			result = impl.unshareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
 		}
@@ -86,15 +85,14 @@ public class DirectoryResource implements RestDirectory {
 	public byte[] getFile(String filename, String userId, String accUserId, String password) {
 		Result<byte[]> result;
 		try {
-			result = impl.getFile(filename,userId,accUserId,password);
+			result = impl.getFile(filename, userId, accUserId, password);
 		} catch (MalformedURLException e) {
 			throw new WebApplicationException(Response.Status.BAD_REQUEST);
 		}
 
 		if (result.isOK()) {
 			throw new WebApplicationException(Response.temporaryRedirect(result.redirectURI()).build());
-		}
-		else {
+		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
@@ -102,12 +100,11 @@ public class DirectoryResource implements RestDirectory {
 
 	@Override
 	public List<FileInfo> lsFile(String userId, String password) {
-		Result<List<FileInfo>> result  = impl.lsFile(userId,password);
+		Result<List<FileInfo>> result = impl.lsFile(userId, password);
 
 		if (result.isOK()) {
 			return result.value();
-		}
-		else {
+		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}

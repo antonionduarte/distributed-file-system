@@ -43,8 +43,7 @@ public class FilesResource implements RestFiles {
 
 		if (result.isOK()) {
 			return result.value();
-		}
-		else {
+		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}

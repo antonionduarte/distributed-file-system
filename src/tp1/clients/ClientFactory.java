@@ -27,7 +27,7 @@ public class ClientFactory {
 			return new Pair<>(serverURI.toString(), new SoapUsersClient(serverURI));
 	}
 
-	public static Pair<String, Directory>  getDirectoryClient() throws MalformedURLException {
+	public static Pair<String, Directory> getDirectoryClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find a uri of the Users service;
 		if (serverURI.toString().endsWith("rest"))
 			return new Pair<>(serverURI.toString(), new RestDirectoryClient(serverURI));
@@ -35,7 +35,7 @@ public class ClientFactory {
 			return new Pair<>(serverURI.toString(), new SoapDirectoryClient(serverURI));
 	}
 
-	public static Pair<String, Files>  getFilesClient() throws MalformedURLException {
+	public static Pair<String, Files> getFilesClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find a uri of the Users service;
 		if (serverURI.toString().endsWith("rest"))
 			return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
