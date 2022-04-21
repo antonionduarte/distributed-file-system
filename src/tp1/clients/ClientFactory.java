@@ -45,39 +45,51 @@ public class ClientFactory {
 		this.directoryCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 	}
 
-	public Pair<String, Users> getUsersClient() throws MalformedURLException, ExecutionException {
+	public Pair<String, Users> getUsersClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("users").get(0);
 
-		return this.usersCache.get(serverURI.toString(), () -> {
-			if (serverURI.toString().endsWith("rest")) {
-				return new Pair<>(serverURI.toString(), new RestUsersClient(serverURI));
-			} else {
-				return new Pair<>(serverURI.toString(), new SoapUsersClient(serverURI));
-			}
-		});
+		try {
+			return this.usersCache.get(serverURI.toString(), () -> {
+				if (serverURI.toString().endsWith("rest")) {
+					return new Pair<>(serverURI.toString(), new RestUsersClient(serverURI));
+				} else {
+					return new Pair<>(serverURI.toString(), new SoapUsersClient(serverURI));
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public Pair<String, Directory> getDirectoryClient() throws MalformedURLException, ExecutionException {
+	public Pair<String, Directory> getDirectoryClient() {
 		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find an uri of the Users service;
 
-		return this.directoryCache.get(serverURI.toString(), () -> {
-			if (serverURI.toString().endsWith("rest")) {
-				return new Pair<>(serverURI.toString(), new RestDirectoryClient(serverURI));
-			} else {
-				return new Pair<>(serverURI.toString(), new SoapDirectoryClient(serverURI));
-			}
-		});
+		try {
+			return this.directoryCache.get(serverURI.toString(), () -> {
+				if (serverURI.toString().endsWith("rest")) {
+					return new Pair<>(serverURI.toString(), new RestDirectoryClient(serverURI));
+				} else {
+					return new Pair<>(serverURI.toString(), new SoapDirectoryClient(serverURI));
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	public Pair<String, Files> getFilesClient() throws MalformedURLException, ExecutionException {
+	public Pair<String, Files> getFilesClient() throws MalformedURLException {
 		var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find an uri of the Users service;
 
-		return this.filesCache.get(serverURI.toString(), () -> {
-			if (serverURI.toString().endsWith("rest")) {
-				return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
-			} else {
-				return new Pair<>(serverURI.toString(), new SoapFilesClient(serverURI));
-			}
-		});
+		try {
+			return this.filesCache.get(serverURI.toString(), () -> {
+				if (serverURI.toString().endsWith("rest")) {
+					return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
+				} else {
+					return new Pair<>(serverURI.toString(), new SoapFilesClient(serverURI));
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
