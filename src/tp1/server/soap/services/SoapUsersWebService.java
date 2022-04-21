@@ -45,7 +45,7 @@ public class SoapUsersWebService implements SoapUsers {
 
 		// Check if user is valid
 		if (userId == null) {
-			Log.info("UserId or passwrod null.");
+			Log.info("UserId or password null.");
 			throw new UsersException(Result.ErrorCode.BAD_REQUEST.toString());
 		}
 

@@ -60,10 +60,8 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(FileInfo.class));
-		} else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 
@@ -74,10 +72,8 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.queryParam(RestUsers.PASSWORD, password).request()
 				.delete();
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok();
-		} else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -87,10 +83,8 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.queryParam(RestUsers.PASSWORD, password).request()
 				.post(null); //probably something else?
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok();
-		} else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -100,10 +94,8 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.queryParam(RestUsers.PASSWORD, password).request()
 				.delete();
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok();
-		} else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -119,8 +111,6 @@ public class RestDirectoryClient extends RestClient implements Directory {
 
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(byte[].class));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -136,8 +126,6 @@ public class RestDirectoryClient extends RestClient implements Directory {
 		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(new GenericType<>() {
 			}));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}

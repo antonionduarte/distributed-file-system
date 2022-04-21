@@ -25,7 +25,7 @@ public class DirectoryResource implements RestDirectory {
 		try {
 			result = impl.writeFile(filename, data, userId, password);
 		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		if (result.isOK()) {
@@ -42,7 +42,7 @@ public class DirectoryResource implements RestDirectory {
 		try {
 			result = impl.deleteFile(filename, userId, password);
 		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		if (!result.isOK()) {
@@ -57,7 +57,7 @@ public class DirectoryResource implements RestDirectory {
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		if (!result.isOK()) {
@@ -72,7 +72,7 @@ public class DirectoryResource implements RestDirectory {
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		if (!result.isOK()) {
@@ -87,7 +87,7 @@ public class DirectoryResource implements RestDirectory {
 		try {
 			result = impl.getFile(filename, userId, accUserId, password);
 		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.BAD_REQUEST);
+			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 		}
 
 		if (result.isOK()) {
