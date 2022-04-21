@@ -96,14 +96,17 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		files.remove(fileId);
-		filesPerUser.get(userId).remove(file);
-
 		Files filesClient = clientFactory.getFilesClient().second();
 		var filesResult = filesClient.deleteFile(fileId, "");
 
 		if (!filesResult.isOK()) {
 			return Result.error(filesResult.error());
+		}
+
+		files.remove(fileId);
+		filesPerUser.get(userId).remove(file);
+		for (String user: file.getSharedWith()) {
+			filesPerUser.get(user).remove(file);
 		}
 		
 		return Result.ok();
