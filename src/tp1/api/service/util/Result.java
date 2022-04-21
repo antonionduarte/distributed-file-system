@@ -1,5 +1,7 @@
 package tp1.api.service.util;
 
+import java.net.URI;
+
 /**
  * Represents the result of an operation, either wrapping a result of the given type, or an error.
  *
@@ -32,6 +34,12 @@ public interface Result<T> {
 	T value();
 
 	/**
+	 * obtains the provided URI for redirection
+	 * @return URI for redirection
+	 */
+	URI redirectURI();
+
+	/**
 	 * obtains the error code of this result
 	 *
 	 * @return the error code
@@ -57,6 +65,11 @@ public interface Result<T> {
 		return new OkResult<>(null);
 	}
 
+	static <T> OkResult<T> ok(URI uriRedirect) {
+		return new OkResult<>(uriRedirect);
+	}
+
+
 	/**
 	 * Convenience method used to return an error
 	 *
@@ -72,11 +85,18 @@ public interface Result<T> {
  */
 class OkResult<T> implements tp1.api.service.util.Result<T> {
 
-	final T result;
+	T result;
+
+	URI redirectURI;
 
 	OkResult(T result) {
 		this.result = result;
 	}
+
+	OkResult(URI redirectURI) {
+		this.redirectURI = redirectURI;
+	}
+
 
 	@Override
 	public boolean isOK() {
@@ -87,6 +107,12 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 	public T value() {
 		return result;
 	}
+
+	@Override
+	public URI redirectURI() {
+		return redirectURI;
+	}
+
 
 	@Override
 	public ErrorCode error() {
@@ -114,6 +140,11 @@ class ErrorResult<T> implements tp1.api.service.util.Result<T> {
 	@Override
 	public T value() {
 		throw new RuntimeException("Attempting to extract the value of an Error: " + error());
+	}
+
+	@Override
+	public URI redirectURI() {
+		throw new RuntimeException("Attempting to extract the redirect URI of an Error: " + error());
 	}
 
 	@Override
