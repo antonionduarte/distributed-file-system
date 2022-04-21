@@ -21,7 +21,7 @@ public class JavaFiles implements Files {
 			outputStream.close();
 		} catch (IOException e) {
 			e.printStackTrace();
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
 		return Result.ok();
 	}
@@ -52,7 +52,7 @@ public class JavaFiles implements Files {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
 	}
 }

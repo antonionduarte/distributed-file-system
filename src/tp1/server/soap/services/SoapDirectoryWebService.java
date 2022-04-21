@@ -24,7 +24,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		try {
 			result = impl.writeFile(filename, data, userId, password);
 		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
+			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 
 		if (result.isOK())
@@ -39,7 +39,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		try {
 			result = impl.deleteFile(filename, userId, password);
 		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
+			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
 			throw new DirectoryException(result.error().toString());
@@ -51,7 +51,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
+			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
 			throw new DirectoryException(result.error().toString());
@@ -63,7 +63,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
 		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
+			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
 			throw new DirectoryException(result.error().toString());
@@ -87,7 +87,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		} else
 			throw new DirectoryException(resultDir.error().toString());
 		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
+			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 	}
 

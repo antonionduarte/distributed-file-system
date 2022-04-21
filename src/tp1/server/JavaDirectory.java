@@ -1,7 +1,5 @@
 package tp1.server;
 
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.Response;
 import tp1.api.FileInfo;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Directory;
@@ -11,7 +9,6 @@ import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
 import util.Pair;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -20,10 +17,10 @@ import java.util.*;
 public class JavaDirectory implements Directory {
 
 	// String: filename
-	private Map<String, FileInfo> files;
+	private final Map<String, FileInfo> files;
 
 	// String: userId
-	private Map<String, List<FileInfo>> filesPerUser;
+	private final Map<String, List<FileInfo>> filesPerUser;
 
 
 	public JavaDirectory() {
@@ -68,6 +65,7 @@ public class JavaDirectory implements Directory {
 		}
 
 		files.put(fileId, file);
+
 		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new LinkedList<>());
 		listFiles.add(file);
 
@@ -96,6 +94,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
+		files.remove(fileId);
 		filesPerUser.get(userId).remove(file);
 
 		return Result.ok();
@@ -129,6 +128,7 @@ public class JavaDirectory implements Directory {
 		}
 
 		file.getSharedWith().remove(userIdShare);
+		filesPerUser.get(userIdShare).remove(file);
 
 		return Result.ok();
 	}
@@ -161,6 +161,9 @@ public class JavaDirectory implements Directory {
 		}
 
 		file.getSharedWith().add(userIdShare);
+
+		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new LinkedList<>());
+		listFiles.add(file);
 
 		return Result.ok();
 	}
@@ -200,15 +203,28 @@ public class JavaDirectory implements Directory {
 
 		try {
 			URI resourceURI = new URI(file.getFileURL());
-			System.out.println("ok to resource");
 			return Result.ok(resourceURI);
 		} catch (URISyntaxException e) {
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
 	}
 
 	@Override
 	public Result<List<FileInfo>> lsFile(String userId, String password) {
-		return null;
+		Users usersClient;
+		try {
+			usersClient = ClientFactory.getUsersClient().second();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
+		var userResult = usersClient.getUser(userId, "");
+
+		// check if userid exists
+		if (!userResult.isOK()) {
+			return Result.error(userResult.error());
+		}
+
+		return Result.ok(filesPerUser.get(userId));
 	}
 }
