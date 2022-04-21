@@ -98,10 +98,18 @@ public class JavaUsers implements Users {
 
 		user.setUserId(existingUser.getUserId());
 
-		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
-		if (user.getFullName() == null) user.setFullName(existingUser.getFullName());
-		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
-		if (user.getPassword() == null) user.setPassword(existingUser.getPassword());
+		if (user.getEmail() == null) {
+			user.setEmail(existingUser.getEmail());
+		}
+		if (user.getFullName() == null) {
+			user.setFullName(existingUser.getFullName());
+		}
+		if (user.getEmail() == null) {
+			user.setEmail(existingUser.getEmail());
+		}
+		if (user.getPassword() == null) {
+			user.setPassword(existingUser.getPassword());
+		}
 
 		users.put(userId, user);
 
@@ -145,7 +153,9 @@ public class JavaUsers implements Users {
 			return Result.ok(users);
 		}
 
-		if (this.users.isEmpty()) Result.ok(users);
+		if (this.users.isEmpty()) {
+			Result.ok(users);
+		}
 
 		for (User nextUser : this.users.values()) {
 			if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {

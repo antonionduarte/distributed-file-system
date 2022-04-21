@@ -50,10 +50,11 @@ public class RestFilesClient extends RestClient implements Files {
 				.request()
 				.delete();
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok();
-		else
+		} else {
 			System.out.println("Error, HTTP error status: " + response.getStatus());
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -65,10 +66,11 @@ public class RestFilesClient extends RestClient implements Files {
 				.accept(MediaType.APPLICATION_OCTET_STREAM)
 				.get();
 
-		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(byte[].class));
-		else
+		} else {
 			System.out.println("Error, HTTP error status: " + response.getStatus());
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}

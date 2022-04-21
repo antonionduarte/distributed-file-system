@@ -27,14 +27,16 @@ public class SoapUsersWebService implements SoapUsers {
 	public String createUser(User user) throws UsersException {
 		Log.info(String.format("SOAP createUser: user = %s\n", user));
 
-		if (badUserData(user))
+		if (badUserData(user)) {
 			throw new UsersException(Result.ErrorCode.BAD_REQUEST.toString());
+		}
 
 		var userId = user.getUserId();
 		var res = users.putIfAbsent(userId, user);
 
-		if (res != null)
+		if (res != null) {
 			throw new UsersException(Result.ErrorCode.CONFLICT.toString());
+		}
 
 		return userId;
 	}
@@ -89,10 +91,18 @@ public class SoapUsersWebService implements SoapUsers {
 
 		user.setUserId(existingUser.getUserId());
 
-		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
-		if (user.getFullName() == null) user.setFullName(existingUser.getFullName());
-		if (user.getEmail() == null) user.setEmail(existingUser.getEmail());
-		if (user.getPassword() == null) user.setPassword(existingUser.getPassword());
+		if (user.getEmail() == null) {
+			user.setEmail(existingUser.getEmail());
+		}
+		if (user.getFullName() == null) {
+			user.setFullName(existingUser.getFullName());
+		}
+		if (user.getEmail() == null) {
+			user.setEmail(existingUser.getEmail());
+		}
+		if (user.getPassword() == null) {
+			user.setPassword(existingUser.getPassword());
+		}
 
 		users.put(userId, user);
 
@@ -136,7 +146,9 @@ public class SoapUsersWebService implements SoapUsers {
 			return users;
 		}
 
-		if (this.users.isEmpty()) return users;
+		if (this.users.isEmpty()) {
+			return users;
+		}
 
 		for (User nextUser : this.users.values()) {
 			if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {

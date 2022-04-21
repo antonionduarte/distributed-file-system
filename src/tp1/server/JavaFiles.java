@@ -33,8 +33,9 @@ public class JavaFiles implements Files {
 		File file = new File(fileId);
 		if (file.delete()) {
 			Log.info("File deleted.");
-		} else
+		} else {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
 		return Result.ok();
 	}
 
