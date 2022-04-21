@@ -20,7 +20,7 @@ public class JavaDirectory implements Directory {
 	private final Map<String, FileInfo> files;
 
 	// String: userId
-	private final Map<String, List<FileInfo>> filesPerUser;
+	private final Map<String, Set<FileInfo>> filesPerUser;
 
 	private final ClientFactory clientFactory;
 
@@ -68,7 +68,7 @@ public class JavaDirectory implements Directory {
 
 		files.put(fileId, file);
 
-		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new LinkedList<>());
+		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
 		listFiles.add(file);
 
 		return Result.ok(file);
@@ -164,7 +164,7 @@ public class JavaDirectory implements Directory {
 
 		file.getSharedWith().add(userIdShare);
 
-		var listFiles = filesPerUser.computeIfAbsent(userId, k -> new LinkedList<>());
+		var listFiles = filesPerUser.computeIfAbsent(userIdShare, k -> new HashSet<>());
 		listFiles.add(file);
 
 		return Result.ok();
@@ -227,6 +227,6 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		return Result.ok(filesPerUser.get(userId));
+		return Result.ok(new LinkedList<>(filesPerUser.get(userId)));
 	}
 }
