@@ -3,7 +3,7 @@ Distributed Systems project repository.
 
 # TODO:
 
-- [ ] just an example 
+- [ ] Cache 
 - [ ] another example 
 
 # maven + docker notes
