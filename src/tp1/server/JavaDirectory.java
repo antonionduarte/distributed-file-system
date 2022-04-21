@@ -51,7 +51,14 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		Pair<String, Files> filesUriAndClient = clientFactory.getFilesClient();
+		Pair<String, Files> filesUriAndClient;
+
+		if (file == null) {
+			filesUriAndClient = clientFactory.getFilesClient();
+		} else {
+			filesUriAndClient = clientFactory.getFilesClient(file.getFileURL());
+		}
+
 		String serverURI = filesUriAndClient.first();
 		Files filesClient = filesUriAndClient.second();
 
@@ -96,7 +103,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		Files filesClient = clientFactory.getFilesClient().second();
+		Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
 		var filesResult = filesClient.deleteFile(fileId, "");
 
 		if (!filesResult.isOK()) {

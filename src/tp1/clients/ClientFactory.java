@@ -17,6 +17,7 @@ import util.Discovery;
 import util.Pair;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,8 @@ public class ClientFactory {
 	Cache<String, Pair<String, Files>> filesCache;
 	Cache<String, Pair<String, Directory>> directoryCache;
 
+	int currentFileServer;
+
 	public static ClientFactory getInstance() {
 		if (instance == null) {
 			instance = new ClientFactory();
@@ -40,6 +43,8 @@ public class ClientFactory {
 	private static ClientFactory instance;
 
 	public ClientFactory() {
+		this.currentFileServer = 0;
+
 		this.usersCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 		this.filesCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 		this.directoryCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
@@ -78,7 +83,15 @@ public class ClientFactory {
 	}
 
 	public Pair<String, Files> getFilesClient() throws MalformedURLException {
-		var serverURI = discovery.knownUrisOf("files").get(0); // use discovery to find an uri of the Users service;
+		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service;
+
+		this.currentFileServer++;
+
+		if (this.currentFileServer > serverURIs.size()) {
+			this.currentFileServer = 0;
+		}
+
+		var serverURI = serverURIs.get(currentFileServer);
 
 		try {
 			return this.filesCache.get(serverURI.toString(), () -> {
@@ -86,6 +99,20 @@ public class ClientFactory {
 					return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
 				} else {
 					return new Pair<>(serverURI.toString(), new SoapFilesClient(serverURI));
+				}
+			});
+		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public Pair<String, Files> getFilesClient(String serverURI) {
+		try {
+			return this.filesCache.get(serverURI, () -> {
+				if (serverURI.endsWith("rest")) {
+					return new Pair<>(serverURI, new RestFilesClient(new URI(serverURI)));
+				} else {
+					return new Pair<>(serverURI, new SoapFilesClient(new URI(serverURI)));
 				}
 			});
 		} catch (ExecutionException e) {
