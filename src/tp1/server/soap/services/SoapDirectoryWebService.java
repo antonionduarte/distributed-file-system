@@ -5,7 +5,9 @@ import tp1.api.FileInfo;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.api.service.util.Directory;
+import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
+import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
 
 import java.net.MalformedURLException;
@@ -69,21 +71,24 @@ public class SoapDirectoryWebService implements SoapDirectory {
 
 	@Override
 	public byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException {
-		Result<byte[]> result;
+		Result<byte[]> resultDir;
 		try {
-			result = impl.getFile(filename, userId, accUserId, password);
+			resultDir = impl.getFile(filename, userId, accUserId, password);
+
+		if (resultDir.isOK()) {
+			Files filesClient = ClientFactory.getFilesClient().second();
+
+			Result<byte[]> resultFiles = filesClient.getFile(userId+"_"+filename,"");
+
+			if(resultFiles.isOK())
+				return resultFiles.value();
+			else
+				throw new DirectoryException(resultFiles.error().toString());
+		} else
+			throw new DirectoryException(resultDir.error().toString());
 		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
 		}
-
-		if (result.isOK()) {
-			//TODO ignorar o result, (tem a uri para o caso de ser REST),
-			// buscar cliente de ficheiros, pedir o ficheiro e devolver o resultado desse pedido
-			// throw a DirectoryException se o resultado for erro, okay se for os bytes
-
-			return null;
-		} else
-			throw new DirectoryException(result.error().toString());
 	}
 
 	@Override
