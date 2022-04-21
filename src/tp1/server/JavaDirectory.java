@@ -99,6 +99,13 @@ public class JavaDirectory implements Directory {
 		files.remove(fileId);
 		filesPerUser.get(userId).remove(file);
 
+		Files filesClient = clientFactory.getFilesClient().second();
+		var filesResult = filesClient.deleteFile(fileId, "");
+
+		if (!filesResult.isOK()) {
+			return Result.error(filesResult.error());
+		}
+		
 		return Result.ok();
 	}
 
