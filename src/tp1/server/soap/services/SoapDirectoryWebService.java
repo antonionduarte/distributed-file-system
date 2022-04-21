@@ -76,8 +76,13 @@ public class SoapDirectoryWebService implements SoapDirectory {
             throw new DirectoryException(Result.ErrorCode.BAD_REQUEST.toString());
         }
 
-        if (result.isOK())
-            return result.value();
+        if (result.isOK()) {
+            //TODO ignorar o result, (tem a uri para o caso de ser REST),
+            // buscar cliente de ficheiros, pedir o ficheiro e devolver o resultado desse pedido
+            // throw a DirectoryException se o resultado for erro, okay se for os bytes
+
+            return null;
+        }
         else
             throw new DirectoryException(result.error().toString());
     }
