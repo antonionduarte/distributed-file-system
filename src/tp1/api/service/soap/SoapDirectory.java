@@ -17,7 +17,7 @@ public interface SoapDirectory {
 
 
 	@WebMethod
-	FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException, MalformedURLException;
+	FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException;
 
 	@WebMethod
 	void deleteFile(String filename, String userId, String password) throws DirectoryException;

@@ -20,7 +20,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException, MalformedURLException {
+	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
 		Result<FileInfo> result;
 		try {
 			result = impl.writeFile(filename, data, userId, password);
