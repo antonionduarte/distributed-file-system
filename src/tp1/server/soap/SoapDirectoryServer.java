@@ -18,7 +18,6 @@ public class SoapDirectoryServer {
 	private static final Logger Log = Logger.getLogger(SoapDirectoryServer.class.getName());
 
 	public static void main(String[] args) throws Exception {
-
 		System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
 		System.setProperty("com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump", "true");
 		System.setProperty("com.sun.xml.ws.transport.http.HttpAdapter.dump", "true");

@@ -21,8 +21,9 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
 
 		if (ex instanceof WebApplicationException wex) {
 			Response r = wex.getResponse();
-			if (r.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode())
+			if (r.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
 				ex.printStackTrace();
+			}
 			return r;
 		}
 
