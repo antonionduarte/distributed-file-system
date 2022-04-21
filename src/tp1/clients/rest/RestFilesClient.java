@@ -24,7 +24,7 @@ public class RestFilesClient extends RestClient implements Files {
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		return super.reTry(() -> clt_writeFile(fileId, data, token));
 	}
-z
+
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
 		return super.reTry(() -> clt_deleteFile(fileId, token));
