@@ -96,6 +96,8 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
+		filesPerUser.get(userId).remove(file);
+
 		return Result.ok();
 	}
 
