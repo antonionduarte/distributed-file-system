@@ -11,6 +11,7 @@ import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class SoapDirectoryClient implements Directory {
     private final SoapDirectory directory;
@@ -74,7 +75,7 @@ public class SoapDirectoryClient implements Directory {
     public Result<List<FileInfo>> lsFile(String userId, String password) {
         try {
             return Result.ok(directory.lsFile(userId,password));
-        } catch (DirectoryException e) {
+        } catch (DirectoryException | ExecutionException e) {
             return Result.error(Result.ErrorCode.valueOf(e.getMessage()));
         }
     }
