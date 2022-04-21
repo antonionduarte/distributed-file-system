@@ -13,6 +13,7 @@ import util.Discovery;
 import util.Pair;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 
 public class ClientFactory {
 
