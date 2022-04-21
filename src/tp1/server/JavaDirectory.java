@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class JavaDirectory implements Directory {
 
@@ -22,14 +23,16 @@ public class JavaDirectory implements Directory {
 	// String: userId
 	private final Map<String, List<FileInfo>> filesPerUser;
 
+	private final ClientFactory clientFactory;
 
 	public JavaDirectory() {
-		files = new HashMap<>();
-		filesPerUser = new HashMap<>();
+		this.files = new HashMap<>();
+		this.filesPerUser = new HashMap<>();
+		this.clientFactory = ClientFactory.getInstance();
 	}
 
 	@Override
-	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException {
+	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException, ExecutionException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -40,7 +43,7 @@ public class JavaDirectory implements Directory {
 			}
 		}
 
-		Pair<String, Users> usersUriAndClient = ClientFactory.getUsersClient();
+		Pair<String, Users> usersUriAndClient = clientFactory.getUsersClient();
 		Users usersClient = usersUriAndClient.second();
 		var userResult = usersClient.getUser(userId, password);
 
@@ -49,7 +52,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(userResult.error());
 		}
 
-		Pair<String, Files> filesUriAndClient = ClientFactory.getFilesClient();
+		Pair<String, Files> filesUriAndClient = clientFactory.getFilesClient();
 		String serverURI = filesUriAndClient.first();
 		Files filesClient = filesUriAndClient.second();
 
@@ -73,7 +76,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException {
+	public Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException, ExecutionException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -86,7 +89,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient().second();
+		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		// authenticate the user
@@ -101,7 +104,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException, ExecutionException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -110,7 +113,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient().second();
+		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
 
@@ -134,7 +137,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException, ExecutionException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -143,7 +146,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient().second();
+		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
 
@@ -169,7 +172,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) throws MalformedURLException {
+	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) throws MalformedURLException, ExecutionException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -178,7 +181,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		Users usersClient = ClientFactory.getUsersClient().second();
+		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, "");
 
 		// check if userid exists
@@ -210,10 +213,10 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(String userId, String password) {
+	public Result<List<FileInfo>> lsFile(String userId, String password) throws ExecutionException {
 		Users usersClient;
 		try {
-			usersClient = ClientFactory.getUsersClient().second();
+			usersClient = clientFactory.getUsersClient().second();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);

@@ -1,6 +1,7 @@
 package tp1.api.service.soap;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
@@ -30,5 +31,5 @@ public interface SoapDirectory {
 	byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException;
 
 	@WebMethod
-	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
+	List<FileInfo> lsFile(String userId, String password) throws DirectoryException, ExecutionException;
 }

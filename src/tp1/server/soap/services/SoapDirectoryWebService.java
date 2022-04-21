@@ -1,6 +1,7 @@
 package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
+import jakarta.ws.rs.client.Client;
 import tp1.api.FileInfo;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
@@ -12,18 +13,20 @@ import tp1.server.JavaDirectory;
 
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService implements SoapDirectory {
 
 	final Directory impl = new JavaDirectory();
+	final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
 		Result<FileInfo> result;
 		try {
 			result = impl.writeFile(filename, data, userId, password);
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | ExecutionException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 
@@ -38,7 +41,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.deleteFile(filename, userId, password);
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | ExecutionException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
@@ -50,7 +53,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | ExecutionException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
@@ -62,7 +65,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | ExecutionException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 		if (!result.isOK())
@@ -76,7 +79,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			resultDir = impl.getFile(filename, userId, accUserId, password);
 
 		if (resultDir.isOK()) {
-			Files filesClient = ClientFactory.getFilesClient().second();
+			Files filesClient = clientFactory.getFilesClient().second();
 
 			Result<byte[]> resultFiles = filesClient.getFile(userId+"_"+filename,"");
 
@@ -86,13 +89,13 @@ public class SoapDirectoryWebService implements SoapDirectory {
 				throw new DirectoryException(resultFiles.error().toString());
 		} else
 			throw new DirectoryException(resultDir.error().toString());
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | ExecutionException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 	}
 
 	@Override
-	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException {
+	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException, ExecutionException {
 		Result<List<FileInfo>> result = impl.lsFile(userId, password);
 
 		if (result.isOK())
