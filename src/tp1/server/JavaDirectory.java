@@ -11,6 +11,7 @@ import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
 import util.Pair;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,10 +19,10 @@ import java.util.*;
 
 public class JavaDirectory implements Directory {
 
-	//String: filename
+	// String: filename
 	private Map<String, FileInfo> files;
 
-	//String: userId
+	// String: userId
 	private Map<String, List<FileInfo>> filesPerUser;
 
 
@@ -62,7 +63,6 @@ public class JavaDirectory implements Directory {
 		}
 
 		if (file == null) {
-
 			String fileURL = String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId);
 			file = new FileInfo(userId, filename, fileURL, new HashSet<>());
 		}
@@ -100,55 +100,65 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
-		String fileId = String.format("%s_%s", userId, filename);
-
-		FileInfo file = files.get(fileId);
-
-		if (file != null) {
-			if (!file.getOwner().equals(userId)) {
-				return Result.error(Result.ErrorCode.FORBIDDEN);
-			}
-		} else {
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		Users usersClient = ClientFactory.getUsersClient().second();
-		var userResult = usersClient.getUser(userId, password);
-
-		// authenticate the user
-		if (!userResult.isOK()) {
-			return Result.error(userResult.error());
-		}
-
-		// TODO: Issues I described on Discord
-
-		return Result.ok();
-	}
-
-	@Override
 	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
 
-		if (file != null) {
-			if (!file.getOwner().equals(userId)) {
-				return Result.error(Result.ErrorCode.FORBIDDEN);
-			}
-		} else {
+		if (file == null) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
 		Users usersClient = ClientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
+		var userShareResult = usersClient.getUser(userIdShare, "");
 
-		// authenticate the user
-		if (!userResult.isOK()) {
-			return Result.error(userResult.error());
+		// check if userid exists
+		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
-		// TODO: Issues I described on Discord
+		if (userShareResult.error() == Result.ErrorCode.NOT_FOUND) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (userResult.error() == Result.ErrorCode.FORBIDDEN) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		file.getSharedWith().remove(userIdShare);
+
+		return Result.ok();
+	}
+
+	@Override
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
+		String fileId = String.format("%s_%s", userId, filename);
+
+		FileInfo file = files.get(fileId);
+
+		if (file == null) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		Users usersClient = ClientFactory.getUsersClient().second();
+		var userResult = usersClient.getUser(userId, password);
+		var userShareResult = usersClient.getUser(userIdShare, "");
+
+		// check if userid exists
+		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (userShareResult.error() == Result.ErrorCode.NOT_FOUND) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (userResult.error() == Result.ErrorCode.FORBIDDEN) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		file.getSharedWith().add(userIdShare);
 
 		return Result.ok();
 	}
@@ -177,11 +187,11 @@ public class JavaDirectory implements Directory {
 		if (!accUserResult.isOK()) {
 			return Result.error(accUserResult.error());
 		}
-		//file not shared with user
+		// file not shared with user
 		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
-		//wrong path
+		// wrong path
 		if (!file.getOwner().equals(userId)) {
 			return Result.error(Result.ErrorCode.BAD_REQUEST);
 		}
