@@ -1,5 +1,6 @@
 package tp1.api.service.soap;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -16,7 +17,7 @@ public interface SoapDirectory {
 
 
 	@WebMethod
-	FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException;
+	FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException, MalformedURLException;
 
 	@WebMethod
 	void deleteFile(String filename, String userId, String password) throws DirectoryException;

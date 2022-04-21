@@ -1,7 +1,6 @@
 package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
-import jakarta.ws.rs.client.Client;
 import tp1.api.FileInfo;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
@@ -13,7 +12,6 @@ import tp1.server.JavaDirectory;
 
 import java.net.MalformedURLException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService implements SoapDirectory {
@@ -22,18 +20,19 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
+	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException, MalformedURLException {
 		Result<FileInfo> result;
 		try {
 			result = impl.writeFile(filename, data, userId, password);
-		} catch (MalformedURLException | ExecutionException e) {
+		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 
-		if (result.isOK())
+		if (result.isOK()) {
 			return result.value();
-		else
+		} else {
 			throw new DirectoryException(result.error().toString());
+		}
 	}
 
 	@Override
@@ -41,11 +40,12 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.deleteFile(filename, userId, password);
-		} catch (MalformedURLException | ExecutionException e) {
+		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
-		if (!result.isOK())
+		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
+		}
 	}
 
 	@Override
@@ -53,11 +53,12 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException | ExecutionException e) {
+		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
-		if (!result.isOK())
+		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
+		}
 	}
 
 	@Override
@@ -65,11 +66,12 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		Result<Void> result;
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException | ExecutionException e) {
+		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
-		if (!result.isOK())
+		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
+		}
 	}
 
 	@Override
@@ -78,29 +80,32 @@ public class SoapDirectoryWebService implements SoapDirectory {
 		try {
 			resultDir = impl.getFile(filename, userId, accUserId, password);
 
-		if (resultDir.isOK()) {
-			Files filesClient = clientFactory.getFilesClient().second();
+			if (resultDir.isOK()) {
+				Files filesClient = clientFactory.getFilesClient().second();
 
-			Result<byte[]> resultFiles = filesClient.getFile(userId+"_"+filename,"");
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, "");
 
-			if(resultFiles.isOK())
-				return resultFiles.value();
-			else
-				throw new DirectoryException(resultFiles.error().toString());
-		} else
-			throw new DirectoryException(resultDir.error().toString());
-		} catch (MalformedURLException | ExecutionException e) {
+				if (resultFiles.isOK()) {
+					return resultFiles.value();
+				} else {
+					throw new DirectoryException(resultFiles.error().toString());
+				}
+			} else {
+				throw new DirectoryException(resultDir.error().toString());
+			}
+		} catch (MalformedURLException e) {
 			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 		}
 	}
 
 	@Override
-	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException, ExecutionException {
+	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException {
 		Result<List<FileInfo>> result = impl.lsFile(userId, password);
 
-		if (result.isOK())
+		if (result.isOK()) {
 			return result.value();
-		else
+		} else {
 			throw new DirectoryException(result.error().toString());
+		}
 	}
 }
