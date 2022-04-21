@@ -218,7 +218,7 @@ public class JavaDirectory implements Directory {
 			e.printStackTrace();
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
-		var userResult = usersClient.getUser(userId, "");
+		var userResult = usersClient.getUser(userId, password);
 
 		// check if userid exists
 		if (!userResult.isOK()) {
