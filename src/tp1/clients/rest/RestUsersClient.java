@@ -59,8 +59,7 @@ public class RestUsersClient extends RestClient implements Users {
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(User.class));
-		} else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -74,8 +73,6 @@ public class RestUsersClient extends RestClient implements Users {
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(User.class));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -88,8 +85,6 @@ public class RestUsersClient extends RestClient implements Users {
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(User.class));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -101,8 +96,6 @@ public class RestUsersClient extends RestClient implements Users {
 
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(String.class));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -117,8 +110,6 @@ public class RestUsersClient extends RestClient implements Users {
 		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
 			return Result.ok(response.readEntity(new GenericType<>() {
 			}));
-		else
-			System.out.println("Error, HTTP error status: " + response.getStatus());
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
