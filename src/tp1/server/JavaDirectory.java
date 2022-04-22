@@ -257,11 +257,16 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> removeUser(String userId) {
 
-		for (FileInfo file : accessibleFilesPerUser.get(userId)) {
+		var listFiles = accessibleFilesPerUser.remove(userId);
+		if(listFiles == null)
+			return Result.ok();
+
+		for (FileInfo file : listFiles) {
 			if(file.getOwner().equals(userId)) {
 				//delete user's files from others accessible files
 				for (String user : file.getSharedWith()) {
-					accessibleFilesPerUser.get(user).remove(file);
+					if(!user.equals(userId))
+						accessibleFilesPerUser.get(user).remove(file);
 				}
 
 				//delete user's files from files server
@@ -272,7 +277,6 @@ public class JavaDirectory implements Directory {
 			//delete user from shareWith of others files
 			file.getSharedWith().remove(userId);
 		}
-		accessibleFilesPerUser.remove(userId);
 
 		return Result.ok();
 	}
