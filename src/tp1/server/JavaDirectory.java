@@ -21,14 +21,12 @@ public class JavaDirectory implements Directory {
 
 	// String: userId
 	private final Map<String, Set<FileInfo>> accessibleFilesPerUser;
-	private final Map<String, Set<FileInfo>> createdFilesPerUser;
 
 	private final ClientFactory clientFactory;
 
 	public JavaDirectory() {
 		this.files = new HashMap<>();
 		this.accessibleFilesPerUser = new HashMap<>();
-		this.createdFilesPerUser = new HashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
 	}
 
@@ -80,9 +78,6 @@ public class JavaDirectory implements Directory {
 		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
 		listFiles.add(file);
 
-		listFiles = createdFilesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
-		listFiles.add(file);
-
 		return Result.ok(file);
 	}
 
@@ -122,8 +117,6 @@ public class JavaDirectory implements Directory {
 			accessibleFilesPerUser.get(user).remove(file);
 		}
 
-		createdFilesPerUser.get(userId).remove(file);
-		
 		return Result.ok();
 	}
 
@@ -259,21 +252,19 @@ public class JavaDirectory implements Directory {
 	@Override
 	public Result<Void> removeUser(String userId) {
 
-		for (FileInfo file : createdFilesPerUser.get(userId)) {
-			//delete user's files from others accessible files
-			for (String user : file.getSharedWith()) {
-				accessibleFilesPerUser.get(user).remove(file);
-			}
-
-			//delete user's files from files server
-			//different files have different clients although same user
-			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-			filesClient.deleteFile(file.getOwner()+"_"+file.getFilename(), "");
-		}
-		createdFilesPerUser.remove(userId);
-
-		//delete user from shareWith of others files
 		for (FileInfo file : accessibleFilesPerUser.get(userId)) {
+			if(file.getOwner().equals(userId)) {
+				//delete user's files from others accessible files
+				for (String user : file.getSharedWith()) {
+					accessibleFilesPerUser.get(user).remove(file);
+				}
+
+				//delete user's files from files server
+				//different files have different clients although same user
+				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
+				filesClient.deleteFile(file.getOwner()+"_"+file.getFilename(), "");
+			}
+			//delete user from shareWith of others files
 			file.getSharedWith().remove(userId);
 		}
 		accessibleFilesPerUser.remove(userId);
