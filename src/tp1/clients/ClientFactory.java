@@ -16,6 +16,9 @@ import util.Pair;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -25,11 +28,11 @@ public class ClientFactory {
 
 	private static final int CACHE_DURATION = 10; // 10 seconds for now
 
-	Cache<String, Pair<String, Users>> usersCache;
-	Cache<String, Pair<String, Files>> filesCache;
-	Cache<String, Pair<String, Directory>> directoryCache;
+	private final Cache<String, Pair<String, Users>> usersCache;
+	private final Cache<String, Pair<String, Files>> filesCache;
+	private final Cache<String, Pair<String, Directory>> directoryCache;
 
-	int currentFileServer;
+	private final Map<URI, Integer> distribution;
 
 	public static ClientFactory getInstance() {
 		if (instance == null) {
@@ -41,7 +44,7 @@ public class ClientFactory {
 	private static ClientFactory instance;
 
 	public ClientFactory() {
-		this.currentFileServer = 0;
+		this.distribution = new HashMap<>();
 
 		this.usersCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 		this.filesCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
@@ -83,13 +86,14 @@ public class ClientFactory {
 	public Pair<String, Files> getFilesClient() throws MalformedURLException {
 		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service;
 
-		this.currentFileServer++;
-
-		if (this.currentFileServer >= serverURIs.size()) {
-			this.currentFileServer = 0;
+		for (URI serverURI : serverURIs) {
+			if(!distribution.containsKey(serverURI))
+				distribution.put(serverURI,0);
 		}
 
-		var serverURI = serverURIs.get(currentFileServer);
+		var serverURI = minFiles();
+
+		distribution.put(serverURI, distribution.get(serverURI)+1);
 
 		try {
 			return this.filesCache.get(serverURI.toString(), () -> {
@@ -104,6 +108,18 @@ public class ClientFactory {
 		}
 	}
 
+	private URI minFiles() {
+		Map.Entry<URI, Integer> min = null;
+		for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
+			if (min == null || min.getValue() > entry.getValue()) {
+				min = entry;
+			}
+		}
+
+		assert min != null;
+		return min.getKey();
+	}
+
 	public Pair<String, Files> getFilesClient(String resourceURI) {
 		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
 		try {
@@ -115,6 +131,16 @@ public class ClientFactory {
 				}
 			});
 		} catch (ExecutionException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void deletedFileFromServer(String resourceURI) {
+		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
+		try {
+			URI uri = new URI(serverURI);
+			distribution.put(uri, distribution.get(uri)-1);
+		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
