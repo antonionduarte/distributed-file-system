@@ -1,5 +1,6 @@
 package tp1.clients.soap;
 
+import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Service;
 import tp1.api.service.soap.FilesException;
 import tp1.api.service.soap.SoapFiles;
@@ -17,7 +18,7 @@ public class SoapFilesClient implements Files {
 		QName qname = new QName(SoapFiles.NAMESPACE, SoapFiles.NAME);
 		Service service = Service.create(URI.create(serverURI + "?wsdl").toURL(), qname);
 		files = service.getPort(tp1.api.service.soap.SoapFiles.class);
-		//TODO set timeouts for service
+		SoapUtils.setTimeouts((BindingProvider) files);
 	}
 
 	@Override
