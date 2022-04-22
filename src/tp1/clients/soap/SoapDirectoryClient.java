@@ -1,5 +1,6 @@
 package tp1.clients.soap;
 
+import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Service;
 import tp1.api.FileInfo;
 import tp1.api.service.soap.DirectoryException;
@@ -20,7 +21,7 @@ public class SoapDirectoryClient implements Directory {
 		QName qname = new QName(SoapDirectory.NAMESPACE, SoapDirectory.NAME);
 		Service service = Service.create(URI.create(serverURI + "?wsdl").toURL(), qname);
 		directory = service.getPort(tp1.api.service.soap.SoapDirectory.class);
-		//TODO set timeouts for service
+		SoapUtils.setTimeouts((BindingProvider) directory);
 	}
 
 	@Override

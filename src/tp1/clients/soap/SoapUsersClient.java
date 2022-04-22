@@ -1,5 +1,6 @@
 package tp1.clients.soap;
 
+import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.Service;
 import tp1.api.User;
 import tp1.api.service.soap.SoapUsers;
@@ -19,7 +20,7 @@ public class SoapUsersClient implements Users {
 		QName qname = new QName(SoapUsers.NAMESPACE, SoapUsers.NAME);
 		Service service = Service.create(URI.create(serverURI + "?wsdl").toURL(), qname);
 		users = service.getPort(tp1.api.service.soap.SoapUsers.class);
-		//TODO set timeouts for service
+		SoapUtils.setTimeouts((BindingProvider) users);
 	}
 
 	@Override
