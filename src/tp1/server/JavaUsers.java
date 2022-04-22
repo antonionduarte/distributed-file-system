@@ -162,7 +162,7 @@ public class JavaUsers implements Users {
 		}
 
 		if (this.users.isEmpty()) {
-			Result.ok(users);
+			return Result.ok(users);
 		}
 
 		for (User nextUser : this.users.values()) {
