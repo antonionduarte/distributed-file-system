@@ -258,14 +258,25 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUser(String userId) {
-		//TODO delete files from this user from files server
-		//TODO delete user from sharedwith of all files in which it is in
-		//TODO other things maybe...?
-		accessibleFilesPerUser.remove(userId);
+
 		for (FileInfo file : createdFilesPerUser.get(userId)) {
-			//TODO possible problem: different files have different clients although same user
+			//delete user's files from others accessible files
+			for (String user : file.getSharedWith()) {
+				accessibleFilesPerUser.get(user).remove(file);
+			}
+
+			//delete user's files from files server
+			//different files have different clients although same user
+			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
+			filesClient.deleteFile(file.getOwner()+"_"+file.getFilename(), "");
 		}
 		createdFilesPerUser.remove(userId);
+
+		//delete user from shareWith of others files
+		for (FileInfo file : accessibleFilesPerUser.get(userId)) {
+			file.getSharedWith().remove(userId);
+		}
+		accessibleFilesPerUser.remove(userId);
 
 		return Result.ok();
 	}

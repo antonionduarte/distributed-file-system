@@ -87,7 +87,7 @@ public class ClientFactory {
 
 		this.currentFileServer++;
 
-		if (this.currentFileServer > serverURIs.size()) {
+		if (this.currentFileServer >= serverURIs.size()) {
 			this.currentFileServer = 0;
 		}
 

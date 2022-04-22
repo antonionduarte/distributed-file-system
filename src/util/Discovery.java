@@ -10,6 +10,7 @@ import java.net.SocketException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -43,7 +44,7 @@ public class Discovery {
 	// Used separate the two fields that make up a service announcement.
 	private static final String DELIMITER = "\t";
 
-	private final Map<String, ArrayList<URI>> services;
+	private final Map<String, List<URI>> services;
 
 	private static Discovery instance;
 
@@ -112,7 +113,7 @@ public class Discovery {
 
 						// service found, add the URI to the list of URIs of the service
 						if (tokens.length == 2) {
-							ArrayList<URI> service = services.get(tokens[0]);
+							List<URI> service = services.get(tokens[0]);
 							if (service != null) {
 								service.add(URI.create(tokens[1]));
 							} else {
@@ -146,10 +147,10 @@ public class Discovery {
 	 * @param serviceName the name of the service being discovered
 	 * @return an array of URI with the service instances discovered.
 	 */
-	public ArrayList<URI> knownUrisOf(String serviceName) {
+	public List<URI> knownUrisOf(String serviceName) {
 		long startTime = System.currentTimeMillis();
 		do {
-			ArrayList<URI> service = services.get(serviceName);
+			List<URI> service = services.get(serviceName);
 			if (service != null) return service;
 		} while (System.currentTimeMillis() - startTime <= DISCOVERY_TIMEOUT);
 		return null;
