@@ -2,8 +2,6 @@ package tp1.clients;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import jakarta.ws.rs.client.Client;
-import tp1.api.User;
 import tp1.api.service.util.Directory;
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Users;
@@ -106,7 +104,8 @@ public class ClientFactory {
 		}
 	}
 
-	public Pair<String, Files> getFilesClient(String serverURI) {
+	public Pair<String, Files> getFilesClient(String resourceURI) {
+		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
 		try {
 			return this.filesCache.get(serverURI, () -> {
 				if (serverURI.endsWith("rest")) {
