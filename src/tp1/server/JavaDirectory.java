@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class JavaDirectory implements Directory {
 
@@ -25,8 +26,8 @@ public class JavaDirectory implements Directory {
 	private final ClientFactory clientFactory;
 
 	public JavaDirectory() {
-		this.files = new HashMap<>();
-		this.accessibleFilesPerUser = new HashMap<>();
+		this.files = new ConcurrentHashMap<>();
+		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
 	}
 

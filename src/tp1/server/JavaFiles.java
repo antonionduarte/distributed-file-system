@@ -16,9 +16,11 @@ public class JavaFiles implements Files {
 
 		File file = new File(fileId);
 		try {
-			FileOutputStream outputStream = new FileOutputStream(file);
-			outputStream.write(data);
-			outputStream.close();
+			synchronized (this) {
+				FileOutputStream outputStream = new FileOutputStream(file);
+				outputStream.write(data);
+				outputStream.close();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
@@ -45,9 +47,12 @@ public class JavaFiles implements Files {
 
 		File file = new File(fileId);
 		try {
-			FileInputStream fis = new FileInputStream(file);
-			byte[] data = fis.readAllBytes();
-			fis.close();
+			byte[] data;
+			synchronized (this) {
+				FileInputStream fis = new FileInputStream(file);
+				data = fis.readAllBytes();
+				fis.close();
+			}
 			return Result.ok(data);
 		} catch (FileNotFoundException e) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
