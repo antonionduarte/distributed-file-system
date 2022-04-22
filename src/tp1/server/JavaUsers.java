@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class JavaUsers implements Users {
@@ -24,7 +25,7 @@ public class JavaUsers implements Users {
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
 
 	public JavaUsers() {
-		this.users = new HashMap<>();
+		this.users = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
 	}
 
