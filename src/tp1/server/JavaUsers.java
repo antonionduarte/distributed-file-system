@@ -40,15 +40,17 @@ public class JavaUsers implements Users {
 			return Result.error(Result.ErrorCode.BAD_REQUEST);
 		}
 
-		// Check if userId already exists
-		if (users.containsKey(user.getUserId())) {
-			Log.info("User already exists.");
+		synchronized (this) {
+			// Check if userId already exists
+			if (users.containsKey(user.getUserId())) {
+				Log.info("User already exists.");
 
-			return Result.error(Result.ErrorCode.CONFLICT);
+				return Result.error(Result.ErrorCode.CONFLICT);
+			}
+
+			// Add the user to the map of users
+			users.put(user.getUserId(), user);
 		}
-
-		// Add the user to the map of users
-		users.put(user.getUserId(), user);
 
 		return Result.ok(user.getUserId());
 	}
@@ -98,11 +100,14 @@ public class JavaUsers implements Users {
 	public Result<User> deleteUser(String userId, String password) {
 		Log.info("deleteUser : user = " + userId + "; pwd = " + password);
 
-		Result<User> valid = validateUser(userId, password);
-		if(!valid.isOK())
-			return valid;
+		Result<User> valid;
+		synchronized (this) {
+			valid = validateUser(userId, password);
+			if (!valid.isOK())
+				return valid;
 
-		users.remove(userId);
+			users.remove(userId);
+		}
 
 		Directory directoryClient = clientFactory.getDirectoryClient().second();
 		directoryClient.removeUser(userId);
