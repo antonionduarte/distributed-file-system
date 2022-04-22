@@ -29,7 +29,7 @@ public class SoapUsersWebService implements SoapUsers {
 
 	@Override
 	public User getUser(String userId, String password) throws UsersException {
-		var result = impl.getUser(userId,password);
+		var result = impl.getUser(userId, password);
 		if (result.isOK()) {
 			return result.value();
 		} else {
@@ -39,7 +39,7 @@ public class SoapUsersWebService implements SoapUsers {
 
 	@Override
 	public User updateUser(String userId, String password, User user) throws UsersException {
-		var result = impl.updateUser(userId,password,user);
+		var result = impl.updateUser(userId, password, user);
 		if (result.isOK()) {
 			return result.value();
 		} else {
@@ -49,7 +49,7 @@ public class SoapUsersWebService implements SoapUsers {
 
 	@Override
 	public User deleteUser(String userId, String password) throws UsersException {
-		var result = impl.deleteUser(userId,password);
+		var result = impl.deleteUser(userId, password);
 		if (result.isOK()) {
 			return result.value();
 		} else {

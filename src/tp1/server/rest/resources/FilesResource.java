@@ -23,8 +23,9 @@ public class FilesResource implements RestFiles {
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
-		} else
+		} else {
 			throw new WebApplicationException(Response.Status.NO_CONTENT);
+		}
 	}
 
 	@Override

@@ -149,9 +149,10 @@ public class RestDirectoryClient extends RestClient implements Directory {
 				.delete();
 
 		// In theory, should always return OK
-		if(response.getStatus() != Response.Status.OK.getStatusCode() &&
-				response.getStatus() != Response.Status.NO_CONTENT.getStatusCode())
-			throw new RuntimeException("Error from Directory removeUser: "+response.getStatus());
+		if (response.getStatus() != Response.Status.OK.getStatusCode() &&
+				response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
+			throw new RuntimeException("Error from Directory removeUser: " + response.getStatus());
+		}
 
 		return Result.ok();
 	}

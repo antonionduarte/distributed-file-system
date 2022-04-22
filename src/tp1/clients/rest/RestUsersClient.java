@@ -71,8 +71,9 @@ public class RestUsersClient extends RestClient implements Users {
 				.accept(MediaType.APPLICATION_JSON)
 				.put(Entity.entity(user, MediaType.APPLICATION_JSON));
 
-		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(User.class));
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -83,8 +84,9 @@ public class RestUsersClient extends RestClient implements Users {
 				.accept(MediaType.APPLICATION_JSON)
 				.delete();
 
-		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(User.class));
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -94,8 +96,9 @@ public class RestUsersClient extends RestClient implements Users {
 				.accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(user, MediaType.APPLICATION_JSON));
 
-		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(String.class));
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
@@ -107,9 +110,10 @@ public class RestUsersClient extends RestClient implements Users {
 				.accept(MediaType.APPLICATION_JSON)
 				.get();
 
-		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity())
+		if (response.getStatus() == Status.OK.getStatusCode() && response.hasEntity()) {
 			return Result.ok(response.readEntity(new GenericType<>() {
 			}));
+		}
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}

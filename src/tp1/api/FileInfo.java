@@ -70,12 +70,15 @@ public class FileInfo {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		FileInfo other = (FileInfo) obj;
 		return Objects.equals(fileURL, other.fileURL) && Objects.equals(filename, other.filename);
 	}

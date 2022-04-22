@@ -33,31 +33,42 @@ public class User {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		User other = (User) obj;
 		if (email == null) {
-			if (other.email != null)
+			if (other.email != null) {
 				return false;
-		} else if (!email.equals(other.email))
+			}
+		} else if (!email.equals(other.email)) {
 			return false;
+		}
 		if (fullName == null) {
-			if (other.fullName != null)
+			if (other.fullName != null) {
 				return false;
-		} else if (!fullName.equals(other.fullName))
+			}
+		} else if (!fullName.equals(other.fullName)) {
 			return false;
+		}
 		if (password == null) {
-			if (other.password != null)
+			if (other.password != null) {
 				return false;
-		} else if (!password.equals(other.password))
+			}
+		} else if (!password.equals(other.password)) {
 			return false;
+		}
 		if (userId == null) {
 			return other.userId == null;
-		} else return userId.equals(other.userId);
+		} else {
+			return userId.equals(other.userId);
+		}
 	}
 
 	public String getEmail() {

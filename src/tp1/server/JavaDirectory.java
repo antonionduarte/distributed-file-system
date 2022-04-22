@@ -156,8 +156,9 @@ public class JavaDirectory implements Directory {
 		}
 
 		file.getSharedWith().remove(userIdShare);
-		if(!userId.equals(userIdShare))
+		if (!userId.equals(userIdShare)) {
 			accessibleFilesPerUser.get(userIdShare).remove(file);
+		}
 
 		return Result.ok();
 	}
@@ -255,10 +256,11 @@ public class JavaDirectory implements Directory {
 		}
 
 		var list = accessibleFilesPerUser.get(userId);
-		if(list == null)
+		if (list == null) {
 			return Result.ok(new LinkedList<>());
-		else
+		} else {
 			return Result.ok(new LinkedList<>(list));
+		}
 
 	}
 
@@ -266,21 +268,23 @@ public class JavaDirectory implements Directory {
 	public Result<Void> removeUser(String userId) {
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
-		if(listFiles == null)
+		if (listFiles == null) {
 			return Result.ok();
+		}
 
 		for (FileInfo file : listFiles) {
-			if(file.getOwner().equals(userId)) {
+			if (file.getOwner().equals(userId)) {
 				//delete user's files from others accessible files
 				for (String user : file.getSharedWith()) {
-					if(!user.equals(userId))
+					if (!user.equals(userId)) {
 						accessibleFilesPerUser.get(user).remove(file);
+					}
 				}
 
 				//delete user's files from files server
 				//different files have different clients although same user
 				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-				filesClient.deleteFile(file.getOwner()+"_"+file.getFilename(), "");
+				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), "");
 			}
 			//delete user from shareWith of others files
 			file.getSharedWith().remove(userId);

@@ -151,7 +151,9 @@ public class Discovery {
 		long startTime = System.currentTimeMillis();
 		do {
 			List<URI> service = services.get(serviceName);
-			if (service != null) return service;
+			if (service != null) {
+				return service;
+			}
 		} while (System.currentTimeMillis() - startTime <= DISCOVERY_TIMEOUT);
 		return null;
 	}

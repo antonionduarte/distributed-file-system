@@ -57,8 +57,9 @@ public class JavaUsers implements Users {
 		Log.info("getUser : user = " + userId + "; pwd = " + password);
 
 		Result<User> valid = validateUser(userId, password);
-		if(!valid.isOK())
+		if (!valid.isOK()) {
 			return valid;
+		}
 
 		return Result.ok(valid.value());
 	}
@@ -68,8 +69,9 @@ public class JavaUsers implements Users {
 		Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; user = " + user);
 
 		Result<User> valid = validateUser(userId, password);
-		if(!valid.isOK())
+		if (!valid.isOK()) {
 			return valid;
+		}
 
 		User existingUser = valid.value();
 
@@ -100,8 +102,9 @@ public class JavaUsers implements Users {
 		Result<User> valid;
 		synchronized (this) {
 			valid = validateUser(userId, password);
-			if (!valid.isOK())
+			if (!valid.isOK()) {
 				return valid;
+			}
 
 			users.remove(userId);
 		}
