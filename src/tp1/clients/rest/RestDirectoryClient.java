@@ -6,6 +6,7 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import tp1.api.FileInfo;
+import tp1.api.service.rest.RestDirectory;
 import tp1.api.service.rest.RestUsers;
 import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
@@ -20,7 +21,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 
 	public RestDirectoryClient(URI serverURI) {
 		super(serverURI);
-		target = client.target(serverURI).path(RestUsers.PATH);
+		target = client.target(serverURI).path(RestDirectory.PATH);
 	}
 
 	@Override
@@ -149,7 +150,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 
 		// In theory, should always return OK
 		if(response.getStatus() != Response.Status.OK.getStatusCode())
-			throw new RuntimeException("Error from Directory removeUser");
+			throw new RuntimeException("Error from Directory removeUser: "+response.getStatus());
 
 		return Result.ok();
 	}
