@@ -241,12 +241,17 @@ public class JavaDirectory implements Directory {
 		}
 		var userResult = usersClient.getUser(userId, password);
 
-		// check if userid exists
+		// authenticate userId
 		if (!userResult.isOK()) {
 			return Result.error(userResult.error());
 		}
 
-		return Result.ok(new LinkedList<>(accessibleFilesPerUser.get(userId)));
+		var list = accessibleFilesPerUser.get(userId);
+		if(list == null)
+			return Result.ok(new LinkedList<>());
+		else
+			return Result.ok(new LinkedList<>(list));
+
 	}
 
 	@Override
