@@ -57,49 +57,22 @@ public class JavaUsers implements Users {
 	public Result<User> getUser(String userId, String password) {
 		Log.info("getUser : user = " + userId + "; pwd = " + password);
 
-		// Check if user is valid
-		if (userId == null) {
-			Log.info("UserId or passwrod null.");
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
-		}
+		Result<User> valid = validateUser(userId, password);
+		if(!valid.isOK())
+			return valid;
 
-		User user = users.get(userId);
-
-		// Check if user exists
-		if (user == null) {
-			Log.info("User does not exist.");
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		// Check if the password is correct
-		if (!user.getPassword().equals(password)) {
-			Log.info("Password is incorrect.");
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		return Result.ok(user);
+		return Result.ok(valid.value());
 	}
 
 	@Override
 	public Result<User> updateUser(String userId, String password, User user) {
 		Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; user = " + user);
 
-		if (userId == null) {
-			Log.info("UserId or password null.");
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
-		}
+		Result<User> valid = validateUser(userId, password);
+		if(!valid.isOK())
+			return valid;
 
-		User existingUser = users.get(userId);
-
-		if (existingUser == null) {
-			Log.info("User does not exist.");
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		if (!existingUser.getPassword().equals(password)) {
-			Log.info("Password is incorrect.");
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
+		User existingUser = valid.value();
 
 		user.setUserId(existingUser.getUserId());
 
@@ -125,29 +98,16 @@ public class JavaUsers implements Users {
 	public Result<User> deleteUser(String userId, String password) {
 		Log.info("deleteUser : user = " + userId + "; pwd = " + password);
 
-		if (userId == null) {
-			Log.info("UserId or password null.");
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
-		}
-
-		User user = users.get(userId);
-
-		if (user == null) {
-			Log.info("User does not exist.");
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		if (!user.getPassword().equals(password)) {
-			Log.info("Password is incorrect.");
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
+		Result<User> valid = validateUser(userId, password);
+		if(!valid.isOK())
+			return valid;
 
 		users.remove(userId);
 
 		Directory directoryClient = clientFactory.getDirectoryClient().second();
 		directoryClient.removeUser(userId);
 
-		return Result.ok(user);
+		return Result.ok(valid.value());
 	}
 
 	@Override
@@ -174,5 +134,26 @@ public class JavaUsers implements Users {
 		}
 
 		return Result.ok(users);
+	}
+
+	private Result<User> validateUser(String userId, String password) {
+		if (userId == null) {
+			Log.info("UserId or password null.");
+			return Result.error(Result.ErrorCode.BAD_REQUEST);
+		}
+
+		User user = users.get(userId);
+
+		if (user == null) {
+			Log.info("User does not exist.");
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		if (!user.getPassword().equals(password)) {
+			Log.info("Password is incorrect.");
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		return Result.ok(user);
 	}
 }
