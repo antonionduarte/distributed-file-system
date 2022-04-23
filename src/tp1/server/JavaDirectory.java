@@ -51,6 +51,9 @@ public class JavaDirectory implements Directory {
 			Users usersClient = usersUriAndClient.second();
 			var userResult = usersClient.getUser(userId, password);
 
+			if(userResult == null)
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+
 			// authenticate the user
 			if (!userResult.isOK()) {
 				return Result.error(userResult.error());
@@ -112,6 +115,9 @@ public class JavaDirectory implements Directory {
 			Users usersClient = clientFactory.getUsersClient().second();;
 			var userResult = usersClient.getUser(userId, password);
 
+			if(userResult == null)
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+
 			// authenticate the user
 			if (!userResult.isOK()) {
 				return Result.error(userResult.error());
@@ -119,6 +125,9 @@ public class JavaDirectory implements Directory {
 
 			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
 			var filesResult = filesClient.deleteFile(fileId, "");
+
+			if(filesResult == null)
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 
 			if (!filesResult.isOK()) {
 				return Result.error(filesResult.error());
@@ -149,6 +158,9 @@ public class JavaDirectory implements Directory {
 		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
+
+		if(userResult == null || userShareResult == null)
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
@@ -185,6 +197,9 @@ public class JavaDirectory implements Directory {
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
 
+		if(userResult == null || userShareResult == null)
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
@@ -219,12 +234,18 @@ public class JavaDirectory implements Directory {
 		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, "");
 
+		if(userResult == null)
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
 
 		var accUserResult = usersClient.getUser(accUserId, password);
+
+		if(accUserResult == null)
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 
 		// authenticate the user
 		if (!accUserResult.isOK()) {
@@ -257,6 +278,9 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
 		var userResult = usersClient.getUser(userId, password);
+
+		if(userResult == null)
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 
 		// authenticate userId
 		if (!userResult.isOK()) {
