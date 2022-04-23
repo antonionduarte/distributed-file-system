@@ -1,5 +1,5 @@
 # base image
-FROM nunopreguica/sd2122tpbase
+FROM nunopreguica/sd2122tpbase2
 
 # working directory inside docker image
 WORKDIR /home/sd
