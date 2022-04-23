@@ -44,7 +44,7 @@ public class Discovery {
 	// Used separate the two fields that make up a service announcement.
 	private static final String DELIMITER = "\t";
 
-	private final Map<String, List<URI>> services;
+	private Map<String, List<URI>> services;
 
 	private static Discovery instance;
 
@@ -176,5 +176,19 @@ public class Discovery {
 	public void start(String serviceName, String serviceURI) {
 		announce(serviceName, serviceURI);
 		listener();
+		resetPeriodically();
+	}
+
+	private void resetPeriodically() {
+		new Thread(() -> {
+			for (; ; ) {
+				try {
+					Thread.sleep(DISCOVERY_TIMEOUT);
+				} catch (InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+				this.services = new ConcurrentHashMap<>();
+			}
+		});
 	}
 }

@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -91,7 +92,7 @@ public class ClientFactory {
 				distribution.put(serverURI,0);
 		}
 
-		var serverURI = minFiles();
+		var serverURI = minFiles(serverURIs);
 
 		distribution.put(serverURI, distribution.get(serverURI)+1);
 
@@ -108,10 +109,11 @@ public class ClientFactory {
 		}
 	}
 
-	private URI minFiles() {
+	private URI minFiles(List<URI> serverURIs) {
 		Map.Entry<URI, Integer> min = null;
 		for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
-			if (min == null || min.getValue() > entry.getValue()) {
+
+			if (serverURIs.contains(entry.getKey()) && (min == null || min.getValue() > entry.getValue())) {
 				min = entry;
 			}
 		}
