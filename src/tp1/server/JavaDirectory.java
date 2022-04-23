@@ -56,16 +56,21 @@ public class JavaDirectory implements Directory {
 
 			Pair<String, Files> filesUriAndClient;
 
-			if (file == null) {
-				filesUriAndClient = clientFactory.getFilesClient();
-			} else {
-				filesUriAndClient = clientFactory.getFilesClient(file.getFileURL());
-			}
+			Result<Void> filesResult;
+			String serverURI;
+			do {
+				if (file == null) {
+					filesUriAndClient = clientFactory.getFilesClient();
+				} else {
+					filesUriAndClient = clientFactory.getFilesClient(file.getFileURL());
+				}
 
-			String serverURI = filesUriAndClient.first();
-			Files filesClient = filesUriAndClient.second();
+				serverURI = filesUriAndClient.first();
+				Files filesClient = filesUriAndClient.second();
 
-			var filesResult = filesClient.writeFile(fileId, data, "");
+				filesResult = filesClient.writeFile(fileId, data, "");
+			} while (filesResult == null);
+
 
 			if (!filesResult.isOK()) {
 				return Result.error(filesResult.error());
