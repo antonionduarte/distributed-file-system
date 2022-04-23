@@ -255,10 +255,6 @@ public class JavaDirectory implements Directory {
 		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
-		// wrong path
-		if (!file.getOwner().equals(userId)) {
-			return Result.error(Result.ErrorCode.BAD_REQUEST);
-		}
 
 		try {
 			URI resourceURI = new URI(file.getFileURL());
