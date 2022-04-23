@@ -21,7 +21,7 @@ public class SoapDirectoryClient extends SoapClient implements Directory {
 		QName qname = new QName(SoapDirectory.NAMESPACE, SoapDirectory.NAME);
 		Service service = Service.create(URI.create(serverURI + "?wsdl").toURL(), qname);
 		directory = service.getPort(tp1.api.service.soap.SoapDirectory.class);
-		SoapUtils.setTimeouts((BindingProvider) directory);
+		SoapClient.setTimeouts((BindingProvider) directory);
 	}
 
 

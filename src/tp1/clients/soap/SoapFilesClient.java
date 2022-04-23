@@ -19,7 +19,7 @@ public class SoapFilesClient extends SoapClient implements Files {
 		QName qname = new QName(SoapFiles.NAMESPACE, SoapFiles.NAME);
 		Service service = Service.create(URI.create(serverURI + "?wsdl").toURL(), qname);
 		files = service.getPort(tp1.api.service.soap.SoapFiles.class);
-		SoapUtils.setTimeouts((BindingProvider) files);
+		SoapClient.setTimeouts((BindingProvider) files);
 	}
 
 	@Override
