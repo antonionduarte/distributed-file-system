@@ -17,9 +17,9 @@ import util.Pair;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +45,7 @@ public class ClientFactory {
 	private static ClientFactory instance;
 
 	public ClientFactory() {
-		this.distribution = new HashMap<>();
+		this.distribution = new ConcurrentHashMap<>();
 
 		this.usersCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 		this.filesCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();

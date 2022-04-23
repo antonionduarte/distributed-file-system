@@ -6,10 +6,10 @@ import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public class JavaUsers implements Users {
@@ -119,7 +119,7 @@ public class JavaUsers implements Users {
 	public Result<List<User>> searchUsers(String pattern) {
 		Log.info("searchUsers : pattern = " + pattern);
 
-		List<User> users = new ArrayList<>();
+		List<User> users = new CopyOnWriteArrayList<>();
 
 		if (pattern == null || pattern.length() == 0) {
 			users.addAll(this.users.values());

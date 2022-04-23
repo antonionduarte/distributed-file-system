@@ -14,6 +14,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 public class JavaDirectory implements Directory {
 
@@ -78,14 +80,14 @@ public class JavaDirectory implements Directory {
 
 			if (file == null) {
 				String fileURL = String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId);
-				file = new FileInfo(userId, filename, fileURL, new HashSet<>());
+				file = new FileInfo(userId, filename, fileURL, new CopyOnWriteArraySet<>());
 			}
 
 			files.put(fileId, file);
 		}
 
 
-		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> new HashSet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> new CopyOnWriteArraySet<>());
 		listFiles.add(file);
 
 		return Result.ok(file);
@@ -198,7 +200,7 @@ public class JavaDirectory implements Directory {
 
 		file.getSharedWith().add(userIdShare);
 
-		var listFiles = accessibleFilesPerUser.computeIfAbsent(userIdShare, k -> new HashSet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userIdShare, k -> new CopyOnWriteArraySet<>());
 		listFiles.add(file);
 
 		return Result.ok();
@@ -246,7 +248,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(String userId, String password) {
+	public synchronized Result<List<FileInfo>> lsFile(String userId, String password) {
 		Users usersClient;
 		try {
 			usersClient = clientFactory.getUsersClient().second();
@@ -263,9 +265,9 @@ public class JavaDirectory implements Directory {
 
 		var list = accessibleFilesPerUser.get(userId);
 		if (list == null) {
-			return Result.ok(new LinkedList<>());
+			return Result.ok(new CopyOnWriteArrayList<>());
 		} else {
-			return Result.ok(new LinkedList<>(list));
+			return Result.ok(new CopyOnWriteArrayList<>(list));
 		}
 
 	}

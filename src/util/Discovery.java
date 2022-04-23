@@ -8,11 +8,11 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 /**
@@ -117,7 +117,7 @@ public class Discovery {
 							if (service != null) {
 								service.add(URI.create(tokens[1]));
 							} else {
-								service = new ArrayList<>();
+								service = new CopyOnWriteArrayList<>();
 								service.add(URI.create(tokens[1]));
 								services.put(tokens[0], service);
 							}
