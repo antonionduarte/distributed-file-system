@@ -88,13 +88,14 @@ public class ClientFactory {
 		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service;
 
 		for (URI serverURI : serverURIs) {
-			if(!distribution.containsKey(serverURI))
-				distribution.put(serverURI,0);
+			if (!distribution.containsKey(serverURI)) {
+				distribution.put(serverURI, 0);
+			}
 		}
 
 		var serverURI = minFiles(serverURIs);
 
-		distribution.put(serverURI, distribution.get(serverURI)+1);
+		distribution.put(serverURI, distribution.get(serverURI) + 1);
 
 		try {
 			return this.filesCache.get(serverURI.toString(), () -> {
@@ -141,7 +142,7 @@ public class ClientFactory {
 		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
 		try {
 			URI uri = new URI(serverURI);
-			distribution.put(uri, distribution.get(uri)-1);
+			distribution.put(uri, distribution.get(uri) - 1);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
