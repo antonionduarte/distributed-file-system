@@ -6,7 +6,9 @@ import jakarta.ws.rs.core.Response;
 import tp1.api.FileInfo;
 import tp1.api.service.rest.RestDirectory;
 import tp1.api.service.util.Directory;
+import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
+import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
 import util.ConvertError;
 
@@ -16,7 +18,9 @@ import java.util.List;
 @Singleton
 public class DirectoryResource implements RestDirectory {
 
-	final Directory impl = new JavaDirectory();
+	private final Directory impl = new JavaDirectory();
+
+	private final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
@@ -90,7 +94,25 @@ public class DirectoryResource implements RestDirectory {
 		}
 
 		if (result.isOK()) {
-			throw new WebApplicationException(Response.temporaryRedirect(result.redirectURI()).build());
+			if(result.redirectURI().toString().contains("/soap/")) {
+				Files filesClient;
+				try {
+					filesClient = clientFactory.getFilesClient().second();
+				} catch (MalformedURLException e) {
+					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+				}
+
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, "");
+				if(resultFiles == null)
+					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+
+				if (resultFiles.isOK()) {
+					return resultFiles.value();
+				} else {
+					throw new WebApplicationException(ConvertError.resultErrorToWebAppError(resultFiles));
+				}
+			} else
+				throw new WebApplicationException(Response.temporaryRedirect(result.redirectURI()).build());
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);

@@ -86,6 +86,8 @@ public class SoapDirectoryWebService implements SoapDirectory {
 				Files filesClient = clientFactory.getFilesClient().second();
 
 				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, "");
+				if(resultFiles == null)
+					throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 
 				if (resultFiles.isOK()) {
 					return resultFiles.value();
