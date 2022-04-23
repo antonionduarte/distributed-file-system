@@ -112,7 +112,7 @@ public class JavaDirectory implements Directory {
 				return Result.error(Result.ErrorCode.NOT_FOUND);
 			}
 
-			Users usersClient = clientFactory.getUsersClient().second();;
+			Users usersClient = clientFactory.getUsersClient().second();
 			var userResult = usersClient.getUser(userId, password);
 
 			if(userResult == null)
