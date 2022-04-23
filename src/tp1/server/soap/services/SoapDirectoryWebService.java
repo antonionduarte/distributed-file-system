@@ -1,7 +1,6 @@
 package tp1.server.soap.services;
 
 import jakarta.jws.WebService;
-import jakarta.ws.rs.WebApplicationException;
 import tp1.api.FileInfo;
 import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
@@ -10,7 +9,6 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
-import util.ConvertError;
 
 import java.net.MalformedURLException;
 import java.util.List;

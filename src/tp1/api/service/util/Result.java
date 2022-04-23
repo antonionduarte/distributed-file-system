@@ -11,15 +11,36 @@ import java.net.URI;
 public interface Result<T> {
 
 	/**
-	 * @author smd
-	 * <p>
-	 * Service errors: OK - no error, implies a non-null result of type T, except for Void operations CONFLICT -
-	 * something is being created but already exists NOT_FOUND - access occurred to something that does not exist
-	 * INTERNAL_ERROR - something unexpected happened
+	 * Convenience method for returning non error results of the given type
+	 *
+	 * @param result value of the result
+	 * @return the value of the result
 	 */
-	enum ErrorCode {OK, CONFLICT, NOT_FOUND, BAD_REQUEST, FORBIDDEN, INTERNAL_ERROR, NOT_IMPLEMENTED}
+	static <T> Result<T> ok(T result) {
+		return new OkResult<>(result);
+	}
 
-	;
+	/**
+	 * Convenience method for returning non error results without a value
+	 *
+	 * @return non-error result
+	 */
+	static <T> OkResult<T> ok() {
+		return new OkResult<>(null);
+	}
+
+	static <T> OkResult<T> ok(URI uriRedirect) {
+		return new OkResult<>(uriRedirect);
+	}
+
+	/**
+	 * Convenience method used to return an error
+	 *
+	 * @return
+	 */
+	static <T> ErrorResult<T> error(ErrorCode error) {
+		return new ErrorResult<>(error);
+	}
 
 	/**
 	 * Tests if the result is an error.
@@ -47,38 +68,15 @@ public interface Result<T> {
 	 */
 	ErrorCode error();
 
-	/**
-	 * Convenience method for returning non error results of the given type
-	 *
-	 * @param result value of the result
-	 * @return the value of the result
-	 */
-	static <T> Result<T> ok(T result) {
-		return new OkResult<>(result);
-	}
 
 	/**
-	 * Convenience method for returning non error results without a value
-	 *
-	 * @return non-error result
+	 * @author smd
+	 * <p>
+	 * Service errors: OK - no error, implies a non-null result of type T, except for Void operations CONFLICT -
+	 * something is being created but already exists NOT_FOUND - access occurred to something that does not exist
+	 * INTERNAL_ERROR - something unexpected happened
 	 */
-	static <T> OkResult<T> ok() {
-		return new OkResult<>(null);
-	}
-
-	static <T> OkResult<T> ok(URI uriRedirect) {
-		return new OkResult<>(uriRedirect);
-	}
-
-
-	/**
-	 * Convenience method used to return an error
-	 *
-	 * @return
-	 */
-	static <T> ErrorResult<T> error(ErrorCode error) {
-		return new ErrorResult<>(error);
-	}
+	enum ErrorCode {OK, CONFLICT, NOT_FOUND, BAD_REQUEST, FORBIDDEN, INTERNAL_ERROR, NOT_IMPLEMENTED}
 }
 
 /*

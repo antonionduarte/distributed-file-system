@@ -12,7 +12,9 @@ import util.Pair;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -51,8 +53,9 @@ public class JavaDirectory implements Directory {
 			Users usersClient = usersUriAndClient.second();
 			var userResult = usersClient.getUser(userId, password);
 
-			if(userResult == null)
+			if (userResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
 
 			// authenticate the user
 			if (!userResult.isOK()) {
@@ -115,8 +118,9 @@ public class JavaDirectory implements Directory {
 			Users usersClient = clientFactory.getUsersClient().second();
 			var userResult = usersClient.getUser(userId, password);
 
-			if(userResult == null)
+			if (userResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
 
 			// authenticate the user
 			if (!userResult.isOK()) {
@@ -126,8 +130,9 @@ public class JavaDirectory implements Directory {
 			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
 			var filesResult = filesClient.deleteFile(fileId, "");
 
-			if(filesResult == null)
+			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
 
 			if (!filesResult.isOK()) {
 				return Result.error(filesResult.error());
@@ -159,8 +164,9 @@ public class JavaDirectory implements Directory {
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
 
-		if(userResult == null || userShareResult == null)
+		if (userResult == null || userShareResult == null) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
 
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
@@ -197,8 +203,9 @@ public class JavaDirectory implements Directory {
 		var userResult = usersClient.getUser(userId, password);
 		var userShareResult = usersClient.getUser(userIdShare, "");
 
-		if(userResult == null || userShareResult == null)
+		if (userResult == null || userShareResult == null) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
 
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
@@ -234,8 +241,9 @@ public class JavaDirectory implements Directory {
 		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, "");
 
-		if(userResult == null)
+		if (userResult == null) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
 
 		// check if userid exists
 		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
@@ -244,8 +252,9 @@ public class JavaDirectory implements Directory {
 
 		var accUserResult = usersClient.getUser(accUserId, password);
 
-		if(accUserResult == null)
+		if (accUserResult == null) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
 
 		// authenticate the user
 		if (!accUserResult.isOK()) {
@@ -267,16 +276,12 @@ public class JavaDirectory implements Directory {
 	@Override
 	public synchronized Result<List<FileInfo>> lsFile(String userId, String password) {
 		Users usersClient;
-		try {
-			usersClient = clientFactory.getUsersClient().second();
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
+		usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
-		if(userResult == null)
+		if (userResult == null) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
 
 		// authenticate userId
 		if (!userResult.isOK()) {

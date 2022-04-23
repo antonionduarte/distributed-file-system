@@ -1,8 +1,5 @@
 package tp1.server.rest.resources;
 
-import java.util.*;
-import java.util.logging.Logger;
-
 import jakarta.inject.Singleton;
 import jakarta.ws.rs.WebApplicationException;
 import tp1.api.User;
@@ -11,12 +8,14 @@ import tp1.api.service.util.Users;
 import tp1.server.JavaUsers;
 import util.ConvertError;
 
+import java.util.List;
+import java.util.logging.Logger;
+
 @Singleton
 public class UsersResource implements RestUsers {
 
-	final Users impl = new JavaUsers();
-
 	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
+	final Users impl = new JavaUsers();
 
 	public UsersResource() {
 	}

@@ -11,6 +11,7 @@ import util.ConvertError;
 
 import java.net.URI;
 
+@SuppressWarnings("unchecked")
 public class RestFilesClient extends RestClient implements Files {
 
 	final WebTarget target;

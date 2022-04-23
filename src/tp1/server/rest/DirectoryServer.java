@@ -2,11 +2,11 @@ package tp1.server.rest;
 
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import util.Discovery;
 import tp1.server.rest.resources.DirectoryResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
+import util.Discovery;
 
 import java.net.InetAddress;
 import java.net.URI;
@@ -15,15 +15,14 @@ import java.util.logging.Logger;
 
 public class DirectoryServer {
 
+	public static final int PORT = 8080;
+	public static final String SERVICE = "directory";
 	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
+	private static final String SERVER_URI_FMT = "http://%s:%s/rest";
 
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 	}
-
-	public static final int PORT = 8080;
-	public static final String SERVICE = "directory";
-	private static final String SERVER_URI_FMT = "http://%s:%s/rest";
 
 	public static void main(String[] args) {
 		try {

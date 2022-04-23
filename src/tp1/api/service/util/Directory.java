@@ -1,10 +1,9 @@
 package tp1.api.service.util;
 
-import java.net.MalformedURLException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-
 import tp1.api.FileInfo;
+
+import java.net.MalformedURLException;
+import java.util.List;
 
 public interface Directory {
 

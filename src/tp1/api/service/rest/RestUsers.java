@@ -1,19 +1,10 @@
 package tp1.api.service.rest;
 
-import java.util.*;
-
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
 import tp1.api.User;
+
+import java.util.List;
 
 @Path(RestUsers.PATH)
 public interface RestUsers {
@@ -49,7 +40,7 @@ public interface RestUsers {
 	User getUser(@PathParam("userId") String userId, @QueryParam("password") String password);
 
 	/**
-	 * Modifies the information of a user. Values of null in any field of the user will be considered as if the the
+	 * Modifies the information of a user. Values of null in any field of the user will be considered as if the
 	 * fields is not to be modified (the id cannot be modified).
 	 *
 	 * @param userId   the userId of the user

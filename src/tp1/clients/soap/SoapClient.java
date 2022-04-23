@@ -12,7 +12,7 @@ public class SoapClient {
 	private static final Logger Log = Logger.getLogger(SoapClient.class.getName());
 
 	private static final int CONNECT_TIMEOUT = 10000, READ_TIMEOUT = 10000;
-	
+
 	private static final int MAX_RETRIES = 3;
 	private static final int RETRY_SLEEP = 1000;
 
@@ -20,6 +20,11 @@ public class SoapClient {
 
 	public SoapClient(URI serverURI) {
 		this.serverURI = serverURI;
+	}
+
+	public static void setTimeouts(BindingProvider port) {
+		port.getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
+		port.getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT, READ_TIMEOUT);
 	}
 
 	protected <T> T reTry(Supplier<T> func) {
@@ -42,10 +47,5 @@ public class SoapClient {
 			Thread.sleep(ms);
 		} catch (InterruptedException x) { // nothing to do...
 		}
-	}
-
-	public static void setTimeouts(BindingProvider port) {
-		port.getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
-		port.getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT, READ_TIMEOUT);
 	}
 }

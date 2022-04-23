@@ -14,11 +14,9 @@ import java.util.logging.Logger;
 
 public class JavaUsers implements Users {
 
-	private final Map<String, User> users;
-
-	private final ClientFactory clientFactory;
-
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
+	private final Map<String, User> users;
+	private final ClientFactory clientFactory;
 
 	public JavaUsers() {
 		this.users = new ConcurrentHashMap<>();

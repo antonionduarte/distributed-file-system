@@ -1,8 +1,5 @@
 package tp1.clients.rest;
 
-import java.net.URI;
-import java.util.List;
-
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
@@ -15,8 +12,12 @@ import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import util.ConvertError;
 
+import java.net.URI;
+import java.util.List;
+
 import static tp1.api.service.rest.RestUsers.QUERY;
 
+@SuppressWarnings("unchecked")
 public class RestUsersClient extends RestClient implements Users {
 
 	final WebTarget target;

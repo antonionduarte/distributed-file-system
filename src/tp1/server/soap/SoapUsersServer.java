@@ -1,21 +1,20 @@
 package tp1.server.soap;
 
 
+import jakarta.xml.ws.Endpoint;
+import tp1.server.soap.services.SoapUsersWebService;
+import util.Discovery;
+
 import java.net.InetAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jakarta.xml.ws.Endpoint;
-import util.Discovery;
-import tp1.server.soap.services.SoapUsersWebService;
 
 public class SoapUsersServer {
 
 	public static final int PORT = 8080;
 	public static final String SERVICE_NAME = "users";
-	public static String SERVER_BASE_URI = "http://%s:%s/soap";
-
 	private static final Logger Log = Logger.getLogger(SoapUsersServer.class.getName());
+	public static final String SERVER_BASE_URI = "http://%s:%s/soap";
 
 	public static void main(String[] args) throws Exception {
 		System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");

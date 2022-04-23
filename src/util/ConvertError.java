@@ -3,6 +3,7 @@ package util;
 import jakarta.ws.rs.core.Response;
 import tp1.api.service.util.Result;
 
+@SuppressWarnings("rawtypes")
 public class ConvertError {
 
 	public static Response.Status resultErrorToWebAppError(Result result) {

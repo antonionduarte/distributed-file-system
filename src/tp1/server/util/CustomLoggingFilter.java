@@ -1,26 +1,24 @@
 package tp1.server.util;
 
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ContainerResponseFilter;
+import jakarta.ws.rs.core.MediaType;
+import org.glassfish.jersey.message.internal.ReaderWriter;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import org.glassfish.jersey.message.internal.ReaderWriter;
-
-import jakarta.ws.rs.client.Entity;
-
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.container.ContainerResponseContext;
-import jakarta.ws.rs.container.ContainerResponseFilter;
-import jakarta.ws.rs.core.MediaType;
-
 public class CustomLoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 	private static final Logger Log = Logger.getLogger(CustomLoggingFilter.class.getName());
 
 	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
+	public void filter(ContainerRequestContext requestContext) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(" - Path: ").append(requestContext.getUriInfo().getPath());
 		sb.append(" - Header: ").append(requestContext.getHeaders());
@@ -51,7 +49,7 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
 	}
 
 	@Override
-	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("Header: ").append(responseContext.getHeaders());

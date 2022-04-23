@@ -1,20 +1,17 @@
 package tp1.api.service.soap;
 
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.FileInfo;
-import tp1.api.service.util.Result;
+
+import java.util.List;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public interface SoapDirectory {
 
-	static final String NAME = "dir";
-	static final String NAMESPACE = "http://sd2122";
-	static final String INTERFACE = "tp1.api.service.soap.SoapDirectory";
+	String NAME = "dir";
+	String NAMESPACE = "http://sd2122";
+	String INTERFACE = "tp1.api.service.soap.SoapDirectory";
 
 
 	@WebMethod

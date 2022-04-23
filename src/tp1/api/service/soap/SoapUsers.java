@@ -1,17 +1,17 @@
 package tp1.api.service.soap;
 
-import java.util.List;
-
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 import tp1.api.User;
 
+import java.util.List;
+
 @WebService(serviceName = SoapUsers.NAME, targetNamespace = SoapUsers.NAMESPACE, endpointInterface = SoapUsers.INTERFACE)
 public interface SoapUsers {
 
-	static final String NAME = "users";
-	static final String NAMESPACE = "http://sd2122";
-	static final String INTERFACE = "tp1.api.service.soap.SoapUsers";
+	String NAME = "users";
+	String NAMESPACE = "http://sd2122";
+	String INTERFACE = "tp1.api.service.soap.SoapUsers";
 
 	@WebMethod
 	String createUser(User user) throws UsersException;

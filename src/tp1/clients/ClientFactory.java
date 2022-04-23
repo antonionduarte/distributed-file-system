@@ -28,21 +28,11 @@ public class ClientFactory {
 	private static final Discovery discovery = Discovery.getInstance();
 
 	private static final int CACHE_DURATION = 10; // 10 seconds for now
-
+	private static ClientFactory instance;
 	private final Cache<String, Pair<String, Users>> usersCache;
 	private final Cache<String, Pair<String, Files>> filesCache;
 	private final Cache<String, Pair<String, Directory>> directoryCache;
-
 	private final Map<URI, Integer> distribution;
-
-	public static ClientFactory getInstance() {
-		if (instance == null) {
-			instance = new ClientFactory();
-		}
-		return instance;
-	}
-
-	private static ClientFactory instance;
 
 	public ClientFactory() {
 		this.distribution = new ConcurrentHashMap<>();
@@ -52,7 +42,14 @@ public class ClientFactory {
 		this.directoryCache = CacheBuilder.newBuilder().expireAfterAccess(CACHE_DURATION, TimeUnit.SECONDS).build();
 	}
 
-	public Pair<String, Users> getUsersClient() throws MalformedURLException {
+	public static ClientFactory getInstance() {
+		if (instance == null) {
+			instance = new ClientFactory();
+		}
+		return instance;
+	}
+
+	public Pair<String, Users> getUsersClient() {
 		var serverURI = discovery.knownUrisOf("users").get(0);
 
 		try {
@@ -84,7 +81,7 @@ public class ClientFactory {
 		}
 	}
 
-	public Pair<String, Files> getFilesClient() throws MalformedURLException {
+	public Pair<String, Files> getFilesClient() {
 		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service;
 
 		for (URI serverURI : serverURIs) {

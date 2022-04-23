@@ -25,7 +25,6 @@ public class SoapDirectoryClient extends SoapClient implements Directory {
 	}
 
 
-
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
 		return super.reTry(() -> {

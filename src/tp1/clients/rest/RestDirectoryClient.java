@@ -15,6 +15,7 @@ import util.ConvertError;
 import java.net.URI;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 public class RestDirectoryClient extends RestClient implements Directory {
 
 	final WebTarget target;

@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 public class Debug {
 
-	public static String SD2122 = "sd2122";
+	public static final String SD2122 = "sd2122";
 
 	static {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s\n");
