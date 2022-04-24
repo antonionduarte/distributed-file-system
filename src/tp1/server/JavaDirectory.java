@@ -299,7 +299,6 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUser(String userId) {
-
 		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
 			return Result.ok();

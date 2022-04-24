@@ -54,43 +54,46 @@ public class JavaUsers implements Users {
 	public Result<User> getUser(String userId, String password) {
 		Log.info("getUser : user = " + userId + "; pwd = " + password);
 
-		Result<User> valid = validateUser(userId, password);
-		if (!valid.isOK()) {
-			return valid;
+		synchronized (this) {
+			Result<User> valid = validateUser(userId, password);
+			if (!valid.isOK()) {
+				return valid;
+			}
+			return Result.ok(valid.value());
 		}
-
-		return Result.ok(valid.value());
 	}
 
 	@Override
 	public Result<User> updateUser(String userId, String password, User user) {
 		Log.info("updateUser : user = " + userId + "; pwd = " + password + " ; user = " + user);
 
-		Result<User> valid = validateUser(userId, password);
-		if (!valid.isOK()) {
-			return valid;
-		}
+		synchronized (this) {
+			Result<User> valid = validateUser(userId, password);
+			if (!valid.isOK()) {
+				return valid;
+			}
 
-		User existingUser = valid.value();
+			User existingUser = valid.value();
 
-		user.setUserId(existingUser.getUserId());
+			user.setUserId(existingUser.getUserId());
 
-		if (user.getEmail() == null) {
-			user.setEmail(existingUser.getEmail());
-		}
-		if (user.getFullName() == null) {
-			user.setFullName(existingUser.getFullName());
-		}
-		if (user.getEmail() == null) {
-			user.setEmail(existingUser.getEmail());
-		}
-		if (user.getPassword() == null) {
-			user.setPassword(existingUser.getPassword());
-		}
+			if (user.getEmail() == null) {
+				user.setEmail(existingUser.getEmail());
+			}
+			if (user.getFullName() == null) {
+				user.setFullName(existingUser.getFullName());
+			}
+			if (user.getEmail() == null) {
+				user.setEmail(existingUser.getEmail());
+			}
+			if (user.getPassword() == null) {
+				user.setPassword(existingUser.getPassword());
+			}
 
-		users.put(userId, user);
+			users.put(userId, user);
 
-		return Result.ok(user);
+			return Result.ok(user);
+		}
 	}
 
 	@Override
@@ -119,23 +122,24 @@ public class JavaUsers implements Users {
 
 		List<User> users = new CopyOnWriteArrayList<>();
 
-		if (pattern == null || pattern.length() == 0) {
-			users.addAll(this.users.values());
-			return Result.ok(users);
-		}
+		synchronized (this) {
+			if (pattern == null || pattern.length() == 0) {
+				users.addAll(this.users.values());
+				return Result.ok(users);
+			}
 
-		if (this.users.isEmpty()) {
-			return Result.ok(users);
-		}
+			if (this.users.isEmpty()) {
+				return Result.ok(users);
+			}
 
-		for (User nextUser : this.users.values()) {
-			if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {
-				User cleansedUser = new User(nextUser.getUserId(), nextUser.getFullName(),
-						nextUser.getEmail(), "");
-				users.add(cleansedUser);
+			for (User nextUser : this.users.values()) {
+				if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {
+					User cleansedUser = new User(nextUser.getUserId(), nextUser.getFullName(),
+							nextUser.getEmail(), "");
+					users.add(cleansedUser);
+				}
 			}
 		}
-
 		return Result.ok(users);
 	}
 
@@ -156,7 +160,6 @@ public class JavaUsers implements Users {
 			Log.info("Password is incorrect.");
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
-
 		return Result.ok(user);
 	}
 }
