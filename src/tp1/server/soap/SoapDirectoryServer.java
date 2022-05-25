@@ -1,11 +1,17 @@
 package tp1.server.soap;
 
 
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 import jakarta.xml.ws.Endpoint;
 import tp1.server.soap.services.SoapDirectoryWebService;
+import tp1.server.soap.services.SoapUsersWebService;
 import util.Discovery;
 
+import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,7 +20,7 @@ public class SoapDirectoryServer {
 	public static final int PORT = 8080;
 	public static final String SERVICE_NAME = "directory";
 	private static final Logger Log = Logger.getLogger(SoapDirectoryServer.class.getName());
-	public static final String SERVER_BASE_URI = "http://%s:%s/soap";
+	public static final String SERVER_BASE_URI = "https://%s:%s/soap";
 
 	public static void main(String[] args) throws Exception {
 		System.setProperty("com.sun.xml.ws.transport.http.client.HttpTransportPipe.dump", "true");
@@ -27,7 +33,16 @@ public class SoapDirectoryServer {
 		String ip = InetAddress.getLocalHost().getHostAddress();
 		String serverURI = String.format(SERVER_BASE_URI, ip, PORT);
 
-		Endpoint.publish(serverURI.replace(ip, "0.0.0.0"), new SoapDirectoryWebService());
+		var server = HttpsServer.create(new InetSocketAddress(ip, PORT), 0);
+
+		server.setExecutor(Executors.newCachedThreadPool());
+		server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
+
+		//Endpoint.publish(serverURI.replace(ip, "0.0.0.0"), new SoapUsersWebService());
+		var endpoint = Endpoint.create(new SoapDirectoryWebService());
+		endpoint.publish(server.createContext("/soap"));
+
+		server.start();
 
 		Discovery discovery = Discovery.getInstance();
 		discovery.start(SERVICE_NAME, serverURI);

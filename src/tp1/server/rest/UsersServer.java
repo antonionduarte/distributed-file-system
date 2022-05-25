@@ -8,6 +8,7 @@ import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
 
+import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.URI;
 import java.util.logging.Level;
@@ -18,7 +19,7 @@ public class UsersServer {
 	public static final int PORT = 8080;
 	public static final String SERVICE = "users";
 	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
-	private static final String SERVER_URI_FMT = "http://%s:%s/rest";
+	private static final String SERVER_URI_FMT = "https://%s:%s/rest";
 
 	static {
 		System.setProperty("java.net.preferIPv4Stack", "true");
@@ -35,7 +36,7 @@ public class UsersServer {
 
 			String ip = InetAddress.getLocalHost().getHostAddress();
 			String serverURI = String.format(SERVER_URI_FMT, ip, PORT);
-			JdkHttpServerFactory.createHttpServer(URI.create(serverURI), config);
+			JdkHttpServerFactory.createHttpServer(URI.create(serverURI), config, SSLContext.getDefault());
 
 			Log.info(String.format("%s Server ready @ %s\n", SERVICE, serverURI));
 
