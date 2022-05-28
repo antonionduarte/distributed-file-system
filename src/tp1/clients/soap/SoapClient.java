@@ -3,7 +3,9 @@ package tp1.clients.soap;
 import com.sun.xml.ws.client.BindingProviderProperties;
 import jakarta.xml.ws.BindingProvider;
 import jakarta.xml.ws.WebServiceException;
+import tp1.clients.InsecureHostnameVerifier;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.net.URI;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -20,6 +22,8 @@ public class SoapClient {
 
 	public SoapClient(URI serverURI) {
 		this.serverURI = serverURI;
+
+		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 	}
 
 	public static void setTimeouts(BindingProvider port) {
