@@ -5,7 +5,9 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
+import tp1.clients.InsecureHostnameVerifier;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.net.URI;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -28,6 +30,8 @@ public class RestClient {
 		config.property(ClientProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
 
 		this.client = ClientBuilder.newClient(config);
+
+		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 	}
 
 	protected <T> T reTry(Supplier<T> func) {

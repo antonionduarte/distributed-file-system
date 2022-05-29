@@ -15,9 +15,10 @@ import java.util.logging.Logger;
 public class UsersResource implements RestUsers {
 
 	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
-	final Users impl = new JavaUsers();
+	private final Users impl;
 
-	public UsersResource() {
+	public UsersResource(String token) {
+		impl = new JavaUsers(token);
 	}
 
 	@Override

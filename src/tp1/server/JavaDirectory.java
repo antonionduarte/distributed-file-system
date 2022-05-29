@@ -29,10 +29,13 @@ public class JavaDirectory implements Directory {
 
 	private final ClientFactory clientFactory;
 
-	public JavaDirectory() {
+	private final String savedToken;
+
+	public JavaDirectory(String savedToken) {
 		this.files = new ConcurrentHashMap<>();
 		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
+		this.savedToken = savedToken;
 	}
 
 	@Override
@@ -43,10 +46,8 @@ public class JavaDirectory implements Directory {
 		synchronized (this) {
 			file = files.get(fileId);
 
-			if (file != null) {
-				if (!file.getOwner().equals(userId)) {
-					return Result.error(Result.ErrorCode.FORBIDDEN);
-				}
+			if (file != null && !file.getOwner().equals(userId)) {
+				return Result.error(Result.ErrorCode.FORBIDDEN);
 			}
 
 			Pair<String, Users> usersUriAndClient = clientFactory.getUsersClient();
@@ -151,7 +152,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
+	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -190,7 +191,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) throws MalformedURLException {
+	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -298,7 +299,10 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> removeUser(String userId) {
+	public Result<Void> removeUserFiles(String userId, String token) {
+		if (!token.equals(savedToken))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+
 		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
 			return Result.ok();
@@ -316,7 +320,7 @@ public class JavaDirectory implements Directory {
 				// delete user's files from files server
 				// different files have different clients although same user
 				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), "");
+				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), savedToken);
 			}
 			// delete user from shareWith of others files
 			file.getSharedWith().remove(userId);

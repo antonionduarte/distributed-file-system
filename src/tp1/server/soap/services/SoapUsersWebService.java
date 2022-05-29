@@ -12,9 +12,10 @@ import java.util.List;
 @WebService(serviceName = SoapUsers.NAME, targetNamespace = SoapUsers.NAMESPACE, endpointInterface = SoapUsers.INTERFACE)
 public class SoapUsersWebService implements SoapUsers {
 
-	final Users impl = new JavaUsers();
+	private final Users impl;
 
-	public SoapUsersWebService() {
+	public SoapUsersWebService(String token) {
+		this.impl = new JavaUsers(token);
 	}
 
 	@Override

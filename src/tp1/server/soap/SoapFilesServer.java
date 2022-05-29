@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsServer;
 import jakarta.xml.ws.Endpoint;
 import tp1.server.soap.services.SoapFilesWebService;
-import tp1.server.soap.services.SoapUsersWebService;
 import util.Discovery;
 
 import javax.net.ssl.SSLContext;
@@ -38,8 +37,8 @@ public class SoapFilesServer {
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 
-		//Endpoint.publish(serverURI.replace(ip, "0.0.0.0"), new SoapUsersWebService());
-		var endpoint = Endpoint.create(new SoapFilesWebService());
+		String token = args[0];
+		var endpoint = Endpoint.create(new SoapFilesWebService(token));
 		endpoint.publish(server.createContext("/soap"));
 
 		server.start();

@@ -9,9 +9,10 @@ import tp1.server.JavaFiles;
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {
 
-	final Files impl = new JavaFiles();
+	private final Files impl;
 
-	public SoapFilesWebService() {
+	public SoapFilesWebService(String token) {
+		this.impl = new JavaFiles(token);
 	}
 
 	@Override

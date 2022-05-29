@@ -11,6 +11,7 @@ import java.util.List;
 public interface RestDirectory {
 
 	String PATH = "/dir";
+	String TOKEN = "token";
 
 	/**
 	 * Write a new version of a file. If the file exists, its contents are overwritten. Only the owner (userId) can
@@ -118,6 +119,6 @@ public interface RestDirectory {
 
 	@DELETE
 	@Path("/{userId}")
-	void removeUser(@PathParam("userId") String userId);
+	void removeUser(@PathParam("userId") String userId,  @QueryParam("token") @DefaultValue("") String token);
 
 }

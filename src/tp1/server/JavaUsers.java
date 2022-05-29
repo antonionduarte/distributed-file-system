@@ -17,10 +17,12 @@ public class JavaUsers implements Users {
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
 	private final Map<String, User> users;
 	private final ClientFactory clientFactory;
+	private final String savedToken;
 
-	public JavaUsers() {
+	public JavaUsers(String savedToken) {
 		this.users = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
+		this.savedToken = savedToken;
 	}
 
 	@Override
@@ -111,7 +113,7 @@ public class JavaUsers implements Users {
 		}
 
 		Directory directoryClient = clientFactory.getDirectoryClient().second();
-		directoryClient.removeUser(userId);
+		directoryClient.removeUserFiles(userId, savedToken);
 
 		return Result.ok(valid.value());
 	}

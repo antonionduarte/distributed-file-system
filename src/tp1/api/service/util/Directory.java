@@ -94,7 +94,8 @@ public interface Directory {
 	 * Remove all information and files from the provided user.
 	 *
 	 * @param userId - id of the user.
-	 * @return always OK, even if nothing about it exists
+	 * @param token - secret token
+	 * @return OK if token is correct, FORBIDDEN otherwise
 	 */
-	Result<Void> removeUser(String userId);
+	Result<Void> removeUserFiles(String userId, String token);
 }

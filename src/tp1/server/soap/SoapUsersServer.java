@@ -37,8 +37,8 @@ public class SoapUsersServer {
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 
-		//Endpoint.publish(serverURI.replace(ip, "0.0.0.0"), new SoapUsersWebService());
-		var endpoint = Endpoint.create(new SoapUsersWebService());
+		String token = args[0];
+		var endpoint = Endpoint.create(new SoapUsersWebService(token));
 		endpoint.publish(server.createContext("/soap"));
 
 		server.start();

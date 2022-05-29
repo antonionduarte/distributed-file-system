@@ -16,8 +16,13 @@ import java.util.List;
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService implements SoapDirectory {
 
-	final Directory impl = new JavaDirectory();
-	final ClientFactory clientFactory = ClientFactory.getInstance();
+	private final Directory impl;
+	private final ClientFactory clientFactory;
+
+	public SoapDirectoryWebService(String token) {
+		impl = new JavaDirectory(token);
+		clientFactory = ClientFactory.getInstance();;
+	}
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
@@ -113,8 +118,8 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	}
 
 	@Override
-	public void removeUser(String userId) throws DirectoryException {
-		Result<Void> result = impl.removeUser(userId);
+	public void removeUser(String userId, String token) throws DirectoryException {
+		Result<Void> result = impl.removeUserFiles(userId, token);
 
 		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
