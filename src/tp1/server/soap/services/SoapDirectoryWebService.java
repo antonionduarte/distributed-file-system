@@ -18,10 +18,12 @@ public class SoapDirectoryWebService implements SoapDirectory {
 
 	private final Directory impl;
 	private final ClientFactory clientFactory;
+	private String token;
 
 	public SoapDirectoryWebService(String token) {
 		impl = new JavaDirectory(token);
-		clientFactory = ClientFactory.getInstance();;
+		clientFactory = ClientFactory.getInstance();
+		this.token = token;
 	}
 
 	@Override
@@ -88,7 +90,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			if (resultDir.isOK()) {
 				Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI().toString()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, "");
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, token);
 				if (resultFiles == null) {
 					throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 				}

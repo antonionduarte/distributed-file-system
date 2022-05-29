@@ -112,6 +112,7 @@ public class DirectoryResource implements RestDirectory {
 					throw new WebApplicationException(ConvertError.resultErrorToWebAppError(resultFiles));
 				}
 			} else {
+				//TODO add token query to redirect somehow
 				throw new WebApplicationException(Response.temporaryRedirect(result.redirectURI()).build());
 			}
 		} else {
