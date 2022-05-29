@@ -77,7 +77,7 @@ public class JavaDirectory implements Directory {
 				serverURI = filesUriAndClient.first();
 				Files filesClient = filesUriAndClient.second();
 
-				filesResult = filesClient.writeFile(fileId, data, "");
+				filesResult = filesClient.writeFile(fileId, data, savedToken);
 			} while (filesResult == null);
 
 
@@ -129,7 +129,7 @@ public class JavaDirectory implements Directory {
 			}
 
 			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-			var filesResult = filesClient.deleteFile(fileId, "");
+			var filesResult = filesClient.deleteFile(fileId, savedToken);
 
 			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
