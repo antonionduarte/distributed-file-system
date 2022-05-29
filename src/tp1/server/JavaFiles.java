@@ -21,9 +21,9 @@ public class JavaFiles implements Files {
 		File file = new File(fileId);
 		try {
 			synchronized (this) {
-				FileOutputStream outputStream = new FileOutputStream(file);
-				outputStream.write(data);
-				outputStream.close();
+				try (FileOutputStream outputStream = new FileOutputStream(file)) {
+					outputStream.write(data);
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -36,15 +36,17 @@ public class JavaFiles implements Files {
 	public Result<Void> deleteFile(String fileId, String token) {
 		Log.info("deleteFile : " + fileId);
 
-		if(!Token.matches(token))
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-
 		File file = new File(fileId);
-		if (file.delete()) {
+		if (file.exists()) {
+			if(!Token.matches(token))
+				return Result.error(Result.ErrorCode.FORBIDDEN);
+
+			file.delete();
 			Log.info("File deleted.");
 		} else {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
 		}
+
 		return Result.ok();
 	}
 
@@ -52,17 +54,17 @@ public class JavaFiles implements Files {
 	public Result<byte[]> getFile(String fileId, String token) {
 		Log.info("getFile : " + fileId);
 
-		if(!Token.matches(token))
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-
 		File file = new File(fileId);
 		try {
 			byte[] data;
 			synchronized (this) {
-				FileInputStream fis = new FileInputStream(file);
-				data = fis.readAllBytes();
-				fis.close();
+				try (FileInputStream fis = new FileInputStream(file)) {
+					data = fis.readAllBytes();
+				}
 			}
+			if(!Token.matches(token))
+				return Result.error(Result.ErrorCode.FORBIDDEN);
+
 			return Result.ok(data);
 		} catch (FileNotFoundException e) {
 			return Result.error(Result.ErrorCode.NOT_FOUND);
