@@ -11,8 +11,10 @@ import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
 import util.ConvertError;
+import util.Token;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.util.List;
 
 @Singleton
@@ -97,7 +99,7 @@ public class DirectoryResource implements RestDirectory {
 			if (result.redirectURI().toString().contains("/soap/")) {
 				Files filesClient = clientFactory.getFilesClient(result.redirectURI().toString()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, "");
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, Token.get());
 				if (resultFiles == null) {
 					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 				}
@@ -108,8 +110,8 @@ public class DirectoryResource implements RestDirectory {
 					throw new WebApplicationException(ConvertError.resultErrorToWebAppError(resultFiles));
 				}
 			} else {
-				//TODO add token query to redirect somehow
-				throw new WebApplicationException(Response.temporaryRedirect(result.redirectURI()).build());
+				URI uriWithToken = URI.create(result.redirectURI().toString()+"?token="+Token.get());
+				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).build());
 			}
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
