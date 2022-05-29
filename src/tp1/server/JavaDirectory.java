@@ -310,19 +310,19 @@ public class JavaDirectory implements Directory {
 
 		for (FileInfo file : listFiles) {
 			if (file.getOwner().equals(userId)) {
-				//delete user's files from others accessible files
+				// delete user's files from others accessible files
 				for (String user : file.getSharedWith()) {
 					if (!user.equals(userId)) {
 						accessibleFilesPerUser.get(user).remove(file);
 					}
 				}
 
-				//delete user's files from files server
-				//different files have different clients although same user
+				// delete user's files from files server
+				// different files have different clients although same user
 				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
 				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), savedToken);
 			}
-			//delete user from shareWith of others files
+			// delete user from shareWith of others files
 			file.getSharedWith().remove(userId);
 		}
 
