@@ -39,6 +39,7 @@ public class RestFilesClient extends RestClient implements Files {
 	private Result<Void> clt_writeFile(String fileId, byte[] data, String token) {
 		Response response = target
 				.path(fileId)
+				.queryParam(RestFiles.TOKEN, token)
 				.request()
 				.post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
@@ -48,6 +49,7 @@ public class RestFilesClient extends RestClient implements Files {
 	private Result<Void> clt_deleteFile(String fileId, String token) {
 		Response response = target
 				.path(fileId)
+				.queryParam(RestFiles.TOKEN, token)
 				.request()
 				.delete();
 
@@ -61,6 +63,7 @@ public class RestFilesClient extends RestClient implements Files {
 	private Result<byte[]> clt_getFile(String fileId, String token) {
 		Response response = target
 				.path(fileId)
+				.queryParam(RestFiles.TOKEN, token)
 				.request()
 				.accept(MediaType.APPLICATION_OCTET_STREAM)
 				.get();

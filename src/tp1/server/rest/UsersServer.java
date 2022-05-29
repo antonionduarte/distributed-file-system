@@ -2,6 +2,7 @@ package tp1.server.rest;
 
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import tp1.server.rest.resources.FilesResource;
 import tp1.server.rest.resources.UsersResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
@@ -30,7 +31,8 @@ public class UsersServer {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(UsersResource.class);
+			String token = args[0];
+			config.register(new UsersResource(token));
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 

@@ -11,6 +11,8 @@ import util.Discovery;
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,7 +32,8 @@ public class DirectoryServer {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(DirectoryResource.class);
+			String token = args[0];
+			config.register(new DirectoryResource(token));
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 
@@ -43,7 +46,6 @@ public class DirectoryServer {
 			Discovery discovery = Discovery.getInstance();
 			discovery.start(SERVICE, serverURI);
 
-			// More code can be executed here...
 		} catch (Exception e) {
 			Log.severe(e.getMessage());
 		}

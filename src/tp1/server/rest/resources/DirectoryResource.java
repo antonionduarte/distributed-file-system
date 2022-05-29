@@ -18,9 +18,13 @@ import java.util.List;
 @Singleton
 public class DirectoryResource implements RestDirectory {
 
-	private final Directory impl = new JavaDirectory();
+	private final Directory impl;
 
 	private final ClientFactory clientFactory = ClientFactory.getInstance();
+
+	public DirectoryResource(String token) {
+		this.impl = new JavaDirectory(token);
+	}
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
@@ -129,8 +133,8 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void removeUser(String userId) {
-		Result<Void> result = impl.removeUser(userId);
+	public void removeUser(String userId, String token) {
+		Result<Void> result = impl.removeUserFiles(userId, token);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);

@@ -30,7 +30,8 @@ public class FilesServer {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(FilesResource.class);
+			String token = args[0];
+			config.register(new FilesResource(token));
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 

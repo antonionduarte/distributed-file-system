@@ -33,6 +33,6 @@ public interface SoapDirectory {
 	List<FileInfo> lsFile(String userId, String password) throws DirectoryException;
 
 	@WebMethod
-	void removeUser(String userId) throws DirectoryException;
+	void removeUser(String userId, String token) throws DirectoryException;
 
 }

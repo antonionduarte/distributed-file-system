@@ -11,9 +11,10 @@ import util.ConvertError;
 @Singleton
 public class FilesResource implements RestFiles {
 
-	final Files impl = new JavaFiles();
+	private final Files impl;
 
-	public FilesResource() {
+	public FilesResource(String token) {
+		this.impl = new JavaFiles(token);
 	}
 
 	@Override

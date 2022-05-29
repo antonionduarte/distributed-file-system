@@ -14,7 +14,6 @@ public interface RestUsers {
 	String USER_ID = "userId";
 	String PASSWORD = "password";
 
-
 	/**
 	 * Creates a new user.
 	 *

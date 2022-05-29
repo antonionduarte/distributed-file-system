@@ -9,10 +9,18 @@ import java.util.logging.Logger;
 public class JavaFiles implements Files {
 
 	private static final Logger Log = Logger.getLogger(JavaFiles.class.getName());
+	private final String savedToken;
+
+	public JavaFiles(String savedToken) {
+		this.savedToken = savedToken;
+	}
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		Log.info("writeFile : " + fileId);
+
+		if(!token.equals(savedToken))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		File file = new File(fileId);
 		try {
@@ -32,6 +40,9 @@ public class JavaFiles implements Files {
 	public Result<Void> deleteFile(String fileId, String token) {
 		Log.info("deleteFile : " + fileId);
 
+		if(!token.equals(savedToken))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+
 		File file = new File(fileId);
 		if (file.delete()) {
 			Log.info("File deleted.");
@@ -44,6 +55,9 @@ public class JavaFiles implements Files {
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
 		Log.info("getFile : " + fileId);
+
+		if(!token.equals(savedToken))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		File file = new File(fileId);
 		try {
