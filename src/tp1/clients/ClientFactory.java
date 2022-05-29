@@ -14,7 +14,6 @@ import tp1.clients.soap.SoapUsersClient;
 import util.Discovery;
 import util.Pair;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -66,7 +65,7 @@ public class ClientFactory {
 	}
 
 	public Pair<String, Directory> getDirectoryClient() {
-		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find an uri of the Users service;
+		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find an uri of the Users service
 
 		try {
 			return this.directoryCache.get(serverURI.toString(), () -> {
@@ -82,12 +81,10 @@ public class ClientFactory {
 	}
 
 	public Pair<String, Files> getFilesClient() {
-		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service;
+		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service
 
 		for (URI serverURI : serverURIs) {
-			if (!distribution.containsKey(serverURI)) {
-				distribution.put(serverURI, 0);
-			}
+			distribution.putIfAbsent(serverURI, 0);
 		}
 
 		var serverURI = minFiles(serverURIs);

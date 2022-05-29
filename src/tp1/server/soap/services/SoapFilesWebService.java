@@ -9,11 +9,7 @@ import tp1.server.JavaFiles;
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {
 
-	private final Files impl;
-
-	public SoapFilesWebService(String token) {
-		this.impl = new JavaFiles(token);
-	}
+	private final Files impl = new JavaFiles();
 
 	@Override
 	public void writeFile(String fileId, byte[] data, String token) throws FilesException {

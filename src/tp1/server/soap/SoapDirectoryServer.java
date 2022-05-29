@@ -7,6 +7,7 @@ import jakarta.xml.ws.Endpoint;
 import tp1.server.soap.services.SoapDirectoryWebService;
 import tp1.server.soap.services.SoapUsersWebService;
 import util.Discovery;
+import util.Token;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -38,8 +39,9 @@ public class SoapDirectoryServer {
 		server.setExecutor(Executors.newCachedThreadPool());
 		server.setHttpsConfigurator(new HttpsConfigurator(SSLContext.getDefault()));
 
-		String token = args[0];
-		var endpoint = Endpoint.create(new SoapDirectoryWebService(token));
+		Token.set(args[0]);
+
+		var endpoint = Endpoint.create(SoapDirectoryWebService.class);
 		endpoint.publish(server.createContext("/soap"));
 
 		server.start();

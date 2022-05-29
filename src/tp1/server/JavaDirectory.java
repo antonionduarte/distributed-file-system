@@ -8,6 +8,7 @@ import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
 import util.Pair;
+import util.Token;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -29,13 +30,10 @@ public class JavaDirectory implements Directory {
 
 	private final ClientFactory clientFactory;
 
-	private final String savedToken;
-
-	public JavaDirectory(String savedToken) {
+	public JavaDirectory() {
 		this.files = new ConcurrentHashMap<>();
 		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
-		this.savedToken = savedToken;
 	}
 
 	@Override
@@ -77,7 +75,7 @@ public class JavaDirectory implements Directory {
 				serverURI = filesUriAndClient.first();
 				Files filesClient = filesUriAndClient.second();
 
-				filesResult = filesClient.writeFile(fileId, data, savedToken);
+				filesResult = filesClient.writeFile(fileId, data, Token.get());
 			} while (filesResult == null);
 
 
@@ -129,7 +127,7 @@ public class JavaDirectory implements Directory {
 			}
 
 			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-			var filesResult = filesClient.deleteFile(fileId, savedToken);
+			var filesResult = filesClient.deleteFile(fileId, Token.get());
 
 			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
@@ -300,7 +298,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!token.equals(savedToken))
+		if (!Token.matches(token))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
@@ -320,7 +318,7 @@ public class JavaDirectory implements Directory {
 				// delete user's files from files server
 				// different files have different clients although same user
 				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), savedToken);
+				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), Token.get());
 			}
 			// delete user from shareWith of others files
 			file.getSharedWith().remove(userId);

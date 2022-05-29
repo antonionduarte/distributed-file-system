@@ -23,7 +23,7 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
 		sb.append(" - Path: ").append(requestContext.getUriInfo().getPath());
 		sb.append(" - Header: ").append(requestContext.getHeaders());
 		sb.append(" - Entity: ").append(getEntityBody(requestContext));
-		Log.info("HTTP REQUEST : " + sb);
+		Log.info("HTTP REQUEST : {}" + sb);
 	}
 
 	private String getEntityBody(ContainerRequestContext requestContext) {

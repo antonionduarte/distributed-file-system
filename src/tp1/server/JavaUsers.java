@@ -5,6 +5,7 @@ import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
+import util.Token;
 
 import java.util.List;
 import java.util.Map;
@@ -17,12 +18,10 @@ public class JavaUsers implements Users {
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
 	private final Map<String, User> users;
 	private final ClientFactory clientFactory;
-	private final String savedToken;
 
-	public JavaUsers(String savedToken) {
+	public JavaUsers() {
 		this.users = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
-		this.savedToken = savedToken;
 	}
 
 	@Override
@@ -113,7 +112,7 @@ public class JavaUsers implements Users {
 		}
 
 		Directory directoryClient = clientFactory.getDirectoryClient().second();
-		directoryClient.removeUserFiles(userId, savedToken);
+		directoryClient.removeUserFiles(userId, Token.get());
 
 		return Result.ok(valid.value());
 	}
@@ -122,27 +121,27 @@ public class JavaUsers implements Users {
 	public Result<List<User>> searchUsers(String pattern) {
 		Log.info("searchUsers : pattern = " + pattern);
 
-		List<User> users = new CopyOnWriteArrayList<>();
+		List<User> usersList = new CopyOnWriteArrayList<>();
 
 		synchronized (this) {
 			if (pattern == null || pattern.length() == 0) {
-				users.addAll(this.users.values());
-				return Result.ok(users);
+				usersList.addAll(this.users.values());
+				return Result.ok(usersList);
 			}
 
 			if (this.users.isEmpty()) {
-				return Result.ok(users);
+				return Result.ok(usersList);
 			}
 
 			for (User nextUser : this.users.values()) {
 				if (nextUser.getFullName().toLowerCase().contains(pattern.toLowerCase())) {
 					User cleansedUser = new User(nextUser.getUserId(), nextUser.getFullName(),
 							nextUser.getEmail(), "");
-					users.add(cleansedUser);
+					usersList.add(cleansedUser);
 				}
 			}
 		}
-		return Result.ok(users);
+		return Result.ok(usersList);
 	}
 
 	private Result<User> validateUser(String userId, String password) {

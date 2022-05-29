@@ -7,6 +7,7 @@ import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
+import util.Token;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -20,7 +21,7 @@ public class DirectoryServer {
 
 	public static final int PORT = 8080;
 	public static final String SERVICE = "directory";
-	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
+	private static final Logger Log = Logger.getLogger(DirectoryServer.class.getName());
 	private static final String SERVER_URI_FMT = "https://%s:%s/rest";
 
 	static {
@@ -31,9 +32,10 @@ public class DirectoryServer {
 		try {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
+			Token.set(args[0]);
+
 			ResourceConfig config = new ResourceConfig();
-			String token = args[0];
-			config.register(new DirectoryResource(token));
+			config.register(DirectoryResource.class);
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 

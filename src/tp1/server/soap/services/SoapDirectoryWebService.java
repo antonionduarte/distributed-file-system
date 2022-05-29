@@ -9,6 +9,7 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
+import util.Token;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -16,15 +17,8 @@ import java.util.List;
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
 public class SoapDirectoryWebService implements SoapDirectory {
 
-	private final Directory impl;
-	private final ClientFactory clientFactory;
-	private String token;
-
-	public SoapDirectoryWebService(String token) {
-		impl = new JavaDirectory(token);
-		clientFactory = ClientFactory.getInstance();
-		this.token = token;
-	}
+	private final Directory impl = new JavaDirectory();
+	private final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
@@ -90,7 +84,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			if (resultDir.isOK()) {
 				Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI().toString()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, token);
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, Token.get());
 				if (resultFiles == null) {
 					throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 				}

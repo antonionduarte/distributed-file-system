@@ -9,17 +9,11 @@ import tp1.server.JavaUsers;
 import util.ConvertError;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @Singleton
 public class UsersResource implements RestUsers {
 
-	private static final Logger Log = Logger.getLogger(UsersResource.class.getName());
-	private final Users impl;
-
-	public UsersResource(String token) {
-		impl = new JavaUsers(token);
-	}
+	private final Users impl = new JavaUsers();
 
 	@Override
 	public String createUser(User user) {

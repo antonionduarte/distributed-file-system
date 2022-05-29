@@ -18,13 +18,9 @@ import java.util.List;
 @Singleton
 public class DirectoryResource implements RestDirectory {
 
-	private final Directory impl;
+	private final Directory impl = new JavaDirectory();
 
 	private final ClientFactory clientFactory = ClientFactory.getInstance();
-
-	public DirectoryResource(String token) {
-		this.impl = new JavaDirectory(token);
-	}
 
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
