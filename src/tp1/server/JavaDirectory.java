@@ -7,19 +7,21 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
+import tp1.server.rest.FilesServer;
+import util.Discovery;
 import util.Token;
 import util.Pair;
 import util.Secret;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class JavaDirectory implements Directory {
 
@@ -49,7 +51,7 @@ public class JavaDirectory implements Directory {
 				return Result.error(Result.ErrorCode.FORBIDDEN);
 			}
 
-			Pair<String, Users> usersUriAndClient = clientFactory.getUsersClient();
+			Pair<URI, Users> usersUriAndClient = clientFactory.getUsersClient();
 			Users usersClient = usersUriAndClient.second();
 			var userResult = usersClient.getUser(userId, password);
 
@@ -62,22 +64,22 @@ public class JavaDirectory implements Directory {
 				return Result.error(userResult.error());
 			}
 
-			Set<Pair<String, Files>> filesUrisAndClients = new HashSet<>();
+			Set<Pair<URI, Files>> filesUrisAndClients = new HashSet<>();
 
 			Result<Void> filesResult = null;
-			Set<String> serverURIs = new HashSet<>();
+			Set<URI> serverURIs = new HashSet<>();
 			do {
 				if (file == null) {
 					filesUrisAndClients = clientFactory.getFilesClients();
 				} else {
-					for (String url : file.getFileURLs()) {
-						var client = clientFactory.getFilesClient(url);
+					for (URI uri : file.getFileURIs()) {
+						var client = clientFactory.getFilesClient(uri);
 						if (client != null)
 							filesUrisAndClients.add(client);
 					}
 				}
 
-				for (Pair<String, Files> filesUriAndClient : filesUrisAndClients) {
+				for (Pair<URI, Files> filesUriAndClient : filesUrisAndClients) {
 					serverURIs.add(filesUriAndClient.first());
 					Files filesClient = filesUriAndClient.second();
 
@@ -94,10 +96,10 @@ public class JavaDirectory implements Directory {
 			}
 
 			if (file == null) {
-				Set<String> fileURLs = new HashSet<>();
-				for (String serverURI: serverURIs)
-					fileURLs.add(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId));
-				file = new FileInfo(userId, filename, fileURLs, ConcurrentHashMap.newKeySet());
+				Set<URI> fileURIs = new HashSet<>();
+				for (URI serverURI: serverURIs)
+					fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
+				file = new FileInfo(userId, filename, fileURIs, ConcurrentHashMap.newKeySet());
 			}
 
 			files.put(fileId, file);
@@ -138,13 +140,13 @@ public class JavaDirectory implements Directory {
 			}
 
 			Result<Void> filesResult = null;
-			for (String fileURL : file.getFileURLs()) {
-				Files filesClient = clientFactory.getFilesClient(fileURL).second();
+			for (URI fileURI : file.getFileURIs()) {
+				Files filesClient = clientFactory.getFilesClient(fileURI).second();
 				if(filesResult == null)
 					filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				else
 					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
-				clientFactory.deletedFileFromServer(fileURL);
+				clientFactory.deletedFileFromServer(fileURI);
 			}
 
 			if (filesResult == null) {
@@ -281,14 +283,11 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		try {
-			//TODO resoureURI will be intersection between what's in discovery and file.getFileURLs
-			for (String uriStr: file.getFileURLs()) {
-				//only need one
-				return Result.ok(new URI(uriStr));
-			}
-		} catch (URISyntaxException e) {
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		List<URI> discovered = Discovery.getInstance().knownUrisOf(FilesServer.SERVICE);
+		Set<URI> intersection = discovered.stream().distinct().filter(file.getFileURIs()::contains).collect(Collectors.toSet());
+		for (URI uri: intersection) {
+			//only need one
+			return Result.ok(uri);
 		}
 
 		//FileInfo without URIs
@@ -321,7 +320,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!Token.generate(userId, token).equals(token))
+		if (!Token.generate(Secret.get(), userId).equals(token))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
@@ -342,8 +341,8 @@ public class JavaDirectory implements Directory {
 
 				// delete user's files from files server
 				// different files have different clients although same user
-				for (String fileURL : file.getFileURLs() ) {
-					Files filesClient = clientFactory.getFilesClient(fileURL).second();
+				for (URI fileURI : file.getFileURIs() ) {
+					Files filesClient = clientFactory.getFilesClient(fileURI).second();
 					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				}
 			}

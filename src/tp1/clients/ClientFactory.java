@@ -32,9 +32,9 @@ public class ClientFactory {
 
 	private static final int CACHE_DURATION = 10; // 10 seconds for now
 	private static ClientFactory instance;
-	private final Cache<String, Pair<String, Users>> usersCache;
-	private final Cache<String, Pair<String, Files>> filesCache;
-	private final Cache<String, Pair<String, Directory>> directoryCache;
+	private final Cache<URI, Pair<URI, Users>> usersCache;
+	private final Cache<URI, Pair<URI, Files>> filesCache;
+	private final Cache<URI, Pair<URI, Directory>> directoryCache;
 	private final Map<URI, Integer> distribution;
 
 	public ClientFactory() {
@@ -52,15 +52,15 @@ public class ClientFactory {
 		return instance;
 	}
 
-	public Pair<String, Users> getUsersClient() {
+	public Pair<URI, Users> getUsersClient() {
 		var serverURI = discovery.knownUrisOf("users").get(0);
 
 		try {
-			return this.usersCache.get(serverURI.toString(), () -> {
+			return this.usersCache.get(serverURI, () -> {
 				if (serverURI.toString().endsWith("rest")) {
-					return new Pair<>(serverURI.toString(), new RestUsersClient(serverURI));
+					return new Pair<>(serverURI, new RestUsersClient(serverURI));
 				} else {
-					return new Pair<>(serverURI.toString(), new SoapUsersClient(serverURI));
+					return new Pair<>(serverURI, new SoapUsersClient(serverURI));
 				}
 			});
 		} catch (ExecutionException e) {
@@ -68,15 +68,15 @@ public class ClientFactory {
 		}
 	}
 
-	public Pair<String, Directory> getDirectoryClient() {
+	public Pair<URI, Directory> getDirectoryClient() {
 		var serverURI = discovery.knownUrisOf("directory").get(0);
 
 		try {
-			return this.directoryCache.get(serverURI.toString(), () -> {
+			return this.directoryCache.get(serverURI, () -> {
 				if (serverURI.toString().endsWith("rest")) {
-					return new Pair<>(serverURI.toString(), new RestDirectoryClient(serverURI));
+					return new Pair<>(serverURI, new RestDirectoryClient(serverURI));
 				} else {
-					return new Pair<>(serverURI.toString(), new SoapDirectoryClient(serverURI));
+					return new Pair<>(serverURI, new SoapDirectoryClient(serverURI));
 				}
 			});
 		} catch (ExecutionException e) {
@@ -84,7 +84,7 @@ public class ClientFactory {
 		}
 	}
 
-	public Set<Pair<String, Files>> getFilesClients() {
+	public Set<Pair<URI, Files>> getFilesClients() {
 		var serverURIs = discovery.knownUrisOf("files");
 
 		for (URI serverURI : serverURIs) {
@@ -93,16 +93,16 @@ public class ClientFactory {
 
 		var urisFiles = minFiles(serverURIs);
 
-		Set<Pair<String, Files>> clients = new HashSet<>();
+		Set<Pair<URI, Files>> clients = new HashSet<>();
 		for (URI uri : urisFiles) {
 			distribution.put(uri, distribution.get(uri) + 1);
 
 			try {
-				clients.add(this.filesCache.get(urisFiles.toString(), () -> {
+				clients.add(this.filesCache.get(uri, () -> {
 					if (uri.toString().endsWith("rest")) {
-						return new Pair<>(uri.toString(), new RestFilesClient(uri));
+						return new Pair<>(uri, new RestFilesClient(uri));
 					} else {
-						return new Pair<>(uri.toString(), new SoapFilesClient(uri));
+						return new Pair<>(uri, new SoapFilesClient(uri));
 					}
 				}));
 			} catch (ExecutionException e) {
@@ -135,17 +135,17 @@ public class ClientFactory {
 		return uris;
 	}
 
-	public Pair<String, Files> getFilesClient(String resourceURI) {
-		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
-		if (!discovery.knownUrisOf("files").contains(URI.create(serverURI)))
+	public Pair<URI, Files> getFilesClient(URI resourceURI) {
+		URI serverURI = URI.create(resourceURI.toString().substring(0, resourceURI.toString().indexOf("/files")));
+		if (!discovery.knownUrisOf("files").contains(serverURI))
 			return null;
 
 		try {
 			return this.filesCache.get(serverURI, () -> {
-				if (serverURI.endsWith("rest")) {
-					return new Pair<>(serverURI, new RestFilesClient(new URI(serverURI)));
+				if (serverURI.toString().endsWith("rest")) {
+					return new Pair<>(serverURI, new RestFilesClient(serverURI));
 				} else {
-					return new Pair<>(serverURI, new SoapFilesClient(new URI(serverURI)));
+					return new Pair<>(serverURI, new SoapFilesClient(serverURI));
 				}
 			});
 		} catch (ExecutionException e) {
@@ -153,8 +153,8 @@ public class ClientFactory {
 		}
 	}
 
-	public void deletedFileFromServer(String resourceURI) {
-		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
+	public void deletedFileFromServer(URI resourceURI) {
+		String serverURI = resourceURI.toString().substring(0, resourceURI.toString().indexOf("/files"));
 		try {
 			URI uri = new URI(serverURI);
 			distribution.put(uri, distribution.get(uri) - 1);

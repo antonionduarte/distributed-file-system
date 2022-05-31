@@ -6,6 +6,7 @@ import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
 import util.Secret;
+import util.Token;
 
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,7 @@ public class JavaUsers implements Users {
 		}
 
 		Directory directoryClient = clientFactory.getDirectoryClient().second();
-		directoryClient.removeUserFiles(Secret.get(), userId);
+		directoryClient.removeUserFiles(userId, Token.generate(Secret.get(), userId));
 
 		return Result.ok(valid.value());
 	}
