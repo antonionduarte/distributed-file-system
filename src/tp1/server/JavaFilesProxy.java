@@ -13,6 +13,10 @@ import tp1.server.dropbox.DeleteFileV2Args;
 import tp1.server.dropbox.DownloadFileV2Args;
 import tp1.server.dropbox.UploadFileV2Args;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
@@ -22,7 +26,7 @@ public class JavaFilesProxy implements Files {
 	// TODO: Change this to program args
 	private static final String API_KEY = "2v5aoett5ga8tec";
 	private static final String API_SECRET = "1qw5p1vin7d07r2";
-	private static final String ACCESS_TOKEN_STR = "sl.BIdt5A8FVj9EDA9yo7a248yEchTwYDYZ7-nfnVHsHk1dDOiMXFucXhV3jDBdbHPoGhXQBBd8z_4PKGOIPKIvFpgo6Uy1b1E9o9551YKaqPv8sdd4GtYnJXCEyQV9ARrEccGviY4";
+	private static final String ACCESS_TOKEN_STR = "sl.BIox5VmBVAqP32WyJsP4vnESUToytyYEKpBTmoiShv3FOrXZLfbOXv2nwVDXpN-j5OgEoxDcR3oRekB_3TLDZZDm_AC3Kstd9ZGyr32ckbi8ztlhLy8nCBSX87uLcLae6vd-UI8";
 
 	private static final String UPLOAD_FILE_V2_URL = "https://content.dropboxapi.com/2/files/upload";
 	private static final String DELETE_FILE_V2_URL = "https://api.dropboxapi.com/2/files/delete_v2";
@@ -134,5 +138,19 @@ public class JavaFilesProxy implements Files {
 		} catch (Exception e) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
+	}
+
+	public static void main(String[] args) {
+		JavaFilesProxy javaFilesProxy = new JavaFilesProxy();
+		File file = new File("./JavaFiles");
+
+		byte[] data = new byte[0];
+		try (FileInputStream fis = new FileInputStream(file)) {
+			data = fis.readAllBytes();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		javaFilesProxy.writeFile("file-test", data, "");
 	}
 }
