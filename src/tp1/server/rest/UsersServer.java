@@ -2,13 +2,12 @@ package tp1.server.rest;
 
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
-import tp1.server.rest.resources.FilesResource;
 import tp1.server.rest.resources.UsersResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
-import util.Token;
+import util.Secret;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -31,7 +30,7 @@ public class UsersServer {
 		try {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
-			Token.set(args[0]);
+			Secret.set(args[0]);
 
 			ResourceConfig config = new ResourceConfig();
 			config.register(UsersResource.class);

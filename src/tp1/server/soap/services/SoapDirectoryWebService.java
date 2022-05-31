@@ -9,7 +9,7 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
 import tp1.server.JavaDirectory;
-import util.Token;
+import util.Secret;
 
 import java.net.MalformedURLException;
 import java.util.List;
@@ -84,7 +84,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			if (resultDir.isOK()) {
 				Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI().toString()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, Token.get());
+				Result<byte[]> resultFiles = filesClient.getFile(userId + "_" + filename, Secret.get());
 				if (resultFiles == null) {
 					throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 				}

@@ -7,18 +7,19 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
+import util.MAC;
 import util.Pair;
-import util.Token;
+import util.Secret;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 public class JavaDirectory implements Directory {
 
@@ -61,22 +62,31 @@ public class JavaDirectory implements Directory {
 				return Result.error(userResult.error());
 			}
 
-			Pair<String, Files> filesUriAndClient;
+			Set<Pair<String, Files>> filesUrisAndClients = new HashSet<>();
 
-			Result<Void> filesResult;
-			String serverURI;
+			Result<Void> filesResult = null;
+			Set<String> serverURIs = new HashSet<>();
 			do {
 				if (file == null) {
-					filesUriAndClient = clientFactory.getFilesClient();
+					filesUrisAndClients = clientFactory.getFilesClients();
 				} else {
-					filesUriAndClient = clientFactory.getFilesClient(file.getFileURL());
+					for (String url : file.getFileURLs()) {
+						var client = clientFactory.getFilesClient(url);
+						if (client != null)
+							filesUrisAndClients.add(client);
+					}
 				}
 
-				serverURI = filesUriAndClient.first();
-				Files filesClient = filesUriAndClient.second();
+				for (Pair<String, Files> filesUriAndClient : filesUrisAndClients) {
+					serverURIs.add(filesUriAndClient.first());
+					Files filesClient = filesUriAndClient.second();
 
-				filesResult = filesClient.writeFile(fileId, data, Token.get());
-			} while (filesResult == null);
+					if(filesResult == null)
+						filesResult = filesClient.writeFile(fileId, data, MAC.token(Secret.get(), fileId));
+					else
+						filesClient.writeFile(fileId, data, MAC.token(Secret.get(), fileId));
+				}
+			} while (filesResult == null); //if it writes well in at least one of the servers it's okay
 
 
 			if (!filesResult.isOK()) {
@@ -84,15 +94,16 @@ public class JavaDirectory implements Directory {
 			}
 
 			if (file == null) {
-				String fileURL = String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId);
-				file = new FileInfo(userId, filename, fileURL, new CopyOnWriteArraySet<>());
+				Set<String> fileURLs = new HashSet<>();
+				for (String serverURI: serverURIs)
+					fileURLs.add(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId));
+				file = new FileInfo(userId, filename, fileURLs, ConcurrentHashMap.newKeySet());
 			}
 
 			files.put(fileId, file);
 		}
 
-
-		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> new CopyOnWriteArraySet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet());
 		listFiles.add(file);
 
 		return Result.ok(file);
@@ -126,8 +137,15 @@ public class JavaDirectory implements Directory {
 				return Result.error(userResult.error());
 			}
 
-			Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-			var filesResult = filesClient.deleteFile(fileId, Token.get());
+			Result<Void> filesResult = null;
+			for (String fileURL : file.getFileURLs()) {
+				Files filesClient = clientFactory.getFilesClient(fileURL).second();
+				if(filesResult == null)
+					filesResult = filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+				else
+					filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+				clientFactory.deletedFileFromServer(fileURL);
+			}
 
 			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
@@ -138,7 +156,6 @@ public class JavaDirectory implements Directory {
 			}
 
 			files.remove(fileId);
-			clientFactory.deletedFileFromServer(file.getFileURL());
 		}
 
 		accessibleFilesPerUser.get(userId).remove(file);
@@ -221,7 +238,7 @@ public class JavaDirectory implements Directory {
 
 		file.getSharedWith().add(userIdShare);
 
-		var listFiles = accessibleFilesPerUser.computeIfAbsent(userIdShare, k -> new CopyOnWriteArraySet<>());
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userIdShare, k -> ConcurrentHashMap.newKeySet());
 		listFiles.add(file);
 
 		return Result.ok();
@@ -265,11 +282,17 @@ public class JavaDirectory implements Directory {
 		}
 
 		try {
-			URI resourceURI = new URI(file.getFileURL());
-			return Result.ok(resourceURI);
+			//TODO resoureURI will be intersection between what's in discovery and file.getFileURLs
+			for (String uriStr: file.getFileURLs()) {
+				//only need one
+				return Result.ok(new URI(uriStr));
+			}
 		} catch (URISyntaxException e) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
+
+		//FileInfo without URIs
+		return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 	}
 
 	@Override
@@ -298,7 +321,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!Token.matches(token))
+		if (!MAC.token(userId, token).equals(token))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
@@ -308,6 +331,8 @@ public class JavaDirectory implements Directory {
 
 		for (FileInfo file : listFiles) {
 			if (file.getOwner().equals(userId)) {
+				String fileId = String.format("%s_%s", userId, file.getFilename());
+
 				// delete user's files from others accessible files
 				for (String user : file.getSharedWith()) {
 					if (!user.equals(userId)) {
@@ -317,8 +342,10 @@ public class JavaDirectory implements Directory {
 
 				// delete user's files from files server
 				// different files have different clients although same user
-				Files filesClient = clientFactory.getFilesClient(file.getFileURL()).second();
-				filesClient.deleteFile(file.getOwner() + "_" + file.getFilename(), Token.get());
+				for (String fileURL : file.getFileURLs() ) {
+					Files filesClient = clientFactory.getFilesClient(fileURL).second();
+					filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+				}
 			}
 			// delete user from shareWith of others files
 			file.getSharedWith().remove(userId);

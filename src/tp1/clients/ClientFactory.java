@@ -16,13 +16,17 @@ import util.Pair;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class ClientFactory {
+
+	private static final int STORE_IN_HOW_MANY = 2;
 
 	private static final Discovery discovery = Discovery.getInstance();
 
@@ -65,7 +69,7 @@ public class ClientFactory {
 	}
 
 	public Pair<String, Directory> getDirectoryClient() {
-		var serverURI = discovery.knownUrisOf("directory").get(0); // use discovery to find an uri of the Users service
+		var serverURI = discovery.knownUrisOf("directory").get(0);
 
 		try {
 			return this.directoryCache.get(serverURI.toString(), () -> {
@@ -80,45 +84,62 @@ public class ClientFactory {
 		}
 	}
 
-	public Pair<String, Files> getFilesClient() {
-		var serverURIs = discovery.knownUrisOf("files"); // use discovery to find an uri of the Users service
+	public Set<Pair<String, Files>> getFilesClients() {
+		var serverURIs = discovery.knownUrisOf("files");
 
 		for (URI serverURI : serverURIs) {
 			distribution.putIfAbsent(serverURI, 0);
 		}
 
-		var serverURI = minFiles(serverURIs);
+		var urisFiles = minFiles(serverURIs);
 
-		distribution.put(serverURI, distribution.get(serverURI) + 1);
+		Set<Pair<String, Files>> clients = new HashSet<>();
+		for (URI uri : urisFiles) {
+			distribution.put(uri, distribution.get(uri) + 1);
 
-		try {
-			return this.filesCache.get(serverURI.toString(), () -> {
-				if (serverURI.toString().endsWith("rest")) {
-					return new Pair<>(serverURI.toString(), new RestFilesClient(serverURI));
-				} else {
-					return new Pair<>(serverURI.toString(), new SoapFilesClient(serverURI));
-				}
-			});
-		} catch (ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private URI minFiles(List<URI> serverURIs) {
-		Map.Entry<URI, Integer> min = null;
-		for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
-
-			if (serverURIs.contains(entry.getKey()) && (min == null || min.getValue() > entry.getValue())) {
-				min = entry;
+			try {
+				clients.add(this.filesCache.get(urisFiles.toString(), () -> {
+					if (uri.toString().endsWith("rest")) {
+						return new Pair<>(uri.toString(), new RestFilesClient(uri));
+					} else {
+						return new Pair<>(uri.toString(), new SoapFilesClient(uri));
+					}
+				}));
+			} catch (ExecutionException e) {
+				throw new RuntimeException(e);
 			}
 		}
 
-		assert min != null;
-		return min.getKey();
+		return clients;
+	}
+
+	//returns STORE_IN_HOW_MANY servers with the lowest storage
+	private Set<URI> minFiles(List<URI> serverURIs) {
+		Set<URI> uris = new HashSet<>(STORE_IN_HOW_MANY);
+
+		for (int i = 0; i < STORE_IN_HOW_MANY; i++) {
+			Map.Entry<URI, Integer> min = null;
+			for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
+
+				if (serverURIs.contains(entry.getKey()) && (min == null || min.getValue() > entry.getValue()) && !uris.contains(entry.getKey())) {
+					min = entry;
+				}
+			}
+
+			if (min != null)
+				uris.add(min.getKey());
+			else
+				break;
+		}
+
+		return uris;
 	}
 
 	public Pair<String, Files> getFilesClient(String resourceURI) {
 		String serverURI = resourceURI.substring(0, resourceURI.indexOf("/files"));
+		if (!discovery.knownUrisOf("files").contains(URI.create(serverURI)))
+			return null;
+
 		try {
 			return this.filesCache.get(serverURI, () -> {
 				if (serverURI.endsWith("rest")) {

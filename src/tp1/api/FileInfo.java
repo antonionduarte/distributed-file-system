@@ -1,5 +1,6 @@
 package tp1.api;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,9 +14,9 @@ public class FileInfo {
 	private String owner;
 	private String filename;
 	/**
-	 * URL for direct access to a file
+	 * URLs for direct access to a file
 	 */
-	private String fileURL;
+	private Set<String> fileURLs;
 	/**
 	 * List of user with whom the file has been shared
 	 */
@@ -24,10 +25,10 @@ public class FileInfo {
 	public FileInfo() {
 	}
 
-	public FileInfo(String owner, String filename, String fileURL, Set<String> sharedWith) {
+	public FileInfo(String owner, String filename, Set<String> fileURLs, Set<String> sharedWith) {
 		this.owner = owner;
 		this.filename = filename;
-		this.fileURL = fileURL;
+		this.fileURLs = fileURLs;
 		this.sharedWith = sharedWith;
 	}
 
@@ -47,12 +48,12 @@ public class FileInfo {
 		this.filename = filename;
 	}
 
-	public String getFileURL() {
-		return fileURL;
+	public Set<String> getFileURLs() {
+		return fileURLs;
 	}
 
-	public void setFileURL(String fileURL) {
-		this.fileURL = fileURL;
+	public void setFileURL(Set<String> fileURLs) {
+		this.fileURLs = fileURLs;
 	}
 
 	public Set<String> getSharedWith() {
@@ -65,7 +66,7 @@ public class FileInfo {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fileURL, filename);
+		return Objects.hash(fileURLs, filename);
 	}
 
 	@Override
@@ -80,12 +81,12 @@ public class FileInfo {
 			return false;
 		}
 		FileInfo other = (FileInfo) obj;
-		return Objects.equals(fileURL, other.fileURL) && Objects.equals(filename, other.filename);
+		return Objects.equals(fileURLs, other.fileURLs) && Objects.equals(filename, other.filename);
 	}
 
 	@Override
 	public String toString() {
-		return "FileInfo [owner=" + owner + ", filename=" + filename + ", fileURL=" + fileURL + ", sharedWith="
+		return "FileInfo [owner=" + owner + ", filename=" + filename + ", fileURLs=" + fileURLs + ", sharedWith="
 				+ sharedWith + "]";
 	}
 

@@ -7,7 +7,7 @@ import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
-import util.Token;
+import util.Secret;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -30,7 +30,7 @@ public class FilesServer {
 		try {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
-			Token.set(args[0]);
+			Secret.set(args[0]);
 
 			ResourceConfig config = new ResourceConfig();
 			config.register(FilesResource.class);

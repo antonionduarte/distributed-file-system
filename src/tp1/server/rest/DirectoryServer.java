@@ -7,13 +7,11 @@ import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
-import util.Token;
+import util.Secret;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.jar.JarOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +30,7 @@ public class DirectoryServer {
 		try {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
-			Token.set(args[0]);
+			Secret.set(args[0]);
 
 			ResourceConfig config = new ResourceConfig();
 			config.register(DirectoryResource.class);
