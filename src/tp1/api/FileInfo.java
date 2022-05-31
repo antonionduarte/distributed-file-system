@@ -22,9 +22,6 @@ public class FileInfo {
 	 */
 	private Set<String> sharedWith;
 
-	public FileInfo() {
-	}
-
 	public FileInfo(String owner, String filename, Set<String> fileURLs, Set<String> sharedWith) {
 		this.owner = owner;
 		this.filename = filename;

@@ -7,7 +7,7 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
-import util.MAC;
+import util.Token;
 import util.Pair;
 import util.Secret;
 
@@ -82,9 +82,9 @@ public class JavaDirectory implements Directory {
 					Files filesClient = filesUriAndClient.second();
 
 					if(filesResult == null)
-						filesResult = filesClient.writeFile(fileId, data, MAC.token(Secret.get(), fileId));
+						filesResult = filesClient.writeFile(fileId, data, Token.generate(Secret.get(), fileId));
 					else
-						filesClient.writeFile(fileId, data, MAC.token(Secret.get(), fileId));
+						filesClient.writeFile(fileId, data, Token.generate(Secret.get(), fileId));
 				}
 			} while (filesResult == null); //if it writes well in at least one of the servers it's okay
 
@@ -141,9 +141,9 @@ public class JavaDirectory implements Directory {
 			for (String fileURL : file.getFileURLs()) {
 				Files filesClient = clientFactory.getFilesClient(fileURL).second();
 				if(filesResult == null)
-					filesResult = filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+					filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				else
-					filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				clientFactory.deletedFileFromServer(fileURL);
 			}
 
@@ -321,7 +321,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!MAC.token(userId, token).equals(token))
+		if (!Token.generate(userId, token).equals(token))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
@@ -344,7 +344,7 @@ public class JavaDirectory implements Directory {
 				// different files have different clients although same user
 				for (String fileURL : file.getFileURLs() ) {
 					Files filesClient = clientFactory.getFilesClient(fileURL).second();
-					filesClient.deleteFile(fileId, MAC.token(Secret.get(), fileId));
+					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				}
 			}
 			// delete user from shareWith of others files

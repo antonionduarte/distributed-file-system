@@ -8,6 +8,7 @@ import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
 import util.Discovery;
+import util.Secret;
 
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
@@ -30,8 +31,9 @@ public class FilesProxyServer {
 		try {
 			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
+			Secret.set(args[1]);
+
 			ResourceConfig config = new ResourceConfig();
-			String token = args[0];
 			config.register(new FilesProxyResource());
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);

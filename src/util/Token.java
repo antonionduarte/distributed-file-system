@@ -6,11 +6,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
-public class MAC {
+public class Token {
 
-	private MAC() {}
+	private Token() {}
 
-	public static String token(String secret, String... args) {
+	public static String generate(String secret, String... args) {
 
 		try {
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
