@@ -1,6 +1,5 @@
 package tp1.api;
 
-import java.net.URI;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,18 +13,22 @@ public class FileInfo {
 	private String owner;
 	private String filename;
 	/**
-	 * URLs for direct access to a file
+	 * URL for direct access to a file
+	 * For SOAP, URL must be of format: http://ip:port/soap/files/fileid
 	 */
-	private Set<URI> fileURIs;
+	private String fileURL;
 	/**
 	 * List of user with whom the file has been shared
 	 */
 	private Set<String> sharedWith;
 
-	public FileInfo(String owner, String filename, Set<URI> fileURIs, Set<String> sharedWith) {
+	public FileInfo() {
+	}
+
+	public FileInfo(String owner, String filename, String fileURL, Set<String> sharedWith) {
 		this.owner = owner;
 		this.filename = filename;
-		this.fileURIs = fileURIs;
+		this.fileURL = fileURL;
 		this.sharedWith = sharedWith;
 	}
 
@@ -45,12 +48,12 @@ public class FileInfo {
 		this.filename = filename;
 	}
 
-	public Set<URI> getFileURIs() {
-		return fileURIs;
+	public String getFileURL() {
+		return fileURL;
 	}
 
-	public void setFileURL(Set<URI> fileURIs) {
-		this.fileURIs = fileURIs;
+	public void setFileURL(String fileURL) {
+		this.fileURL = fileURL;
 	}
 
 	public Set<String> getSharedWith() {
@@ -63,29 +66,27 @@ public class FileInfo {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(fileURIs, filename);
+		return Objects.hash(fileURL, filename);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		FileInfo other = (FileInfo) obj;
-		return Objects.equals(fileURIs, other.fileURIs) && Objects.equals(filename, other.filename);
+		return Objects.equals(fileURL, other.fileURL) && Objects.equals(filename, other.filename);
 	}
 
 	@Override
 	public String toString() {
-		return "FileInfo [owner=" + owner + ", filename=" + filename + ", fileURIs=" + fileURIs + ", sharedWith="
+		return "FileInfo [owner=" + owner + ", filename=" + filename + ", fileURL=" + fileURL + ", sharedWith="
 				+ sharedWith + "]";
 	}
+
 
 
 }

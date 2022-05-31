@@ -27,6 +27,7 @@ public class JavaDirectory implements Directory {
 
 	// String: filename
 	private final Map<String, FileInfo> files;
+	private final Map<FileInfo, Set<URI>> URIsPerFile;
 
 	// String: userId
 	private final Map<String, Set<FileInfo>> accessibleFilesPerUser;
@@ -37,6 +38,7 @@ public class JavaDirectory implements Directory {
 		this.files = new ConcurrentHashMap<>();
 		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
+		this.URIsPerFile = new ConcurrentHashMap<>();
 	}
 
 	@Override
@@ -72,7 +74,8 @@ public class JavaDirectory implements Directory {
 				if (file == null) {
 					filesUrisAndClients = clientFactory.getFilesClients();
 				} else {
-					for (URI uri : file.getFileURIs()) {
+
+					for (URI uri : URIsPerFile.get(file)) {
 						var client = clientFactory.getFilesClient(uri);
 						if (client != null)
 							filesUrisAndClients.add(client);
@@ -96,10 +99,11 @@ public class JavaDirectory implements Directory {
 			}
 
 			if (file == null) {
-				Set<URI> fileURIs = new HashSet<>();
+				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
 				for (URI serverURI: serverURIs)
 					fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
-				file = new FileInfo(userId, filename, fileURIs, ConcurrentHashMap.newKeySet());
+				file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
+				URIsPerFile.put(file, fileURIs);
 			}
 
 			files.put(fileId, file);
@@ -140,7 +144,7 @@ public class JavaDirectory implements Directory {
 			}
 
 			Result<Void> filesResult = null;
-			for (URI fileURI : file.getFileURIs()) {
+			for (URI fileURI : URIsPerFile.get(file)) {
 				Files filesClient = clientFactory.getFilesClient(fileURI).second();
 				if(filesResult == null)
 					filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
@@ -284,7 +288,7 @@ public class JavaDirectory implements Directory {
 		}
 
 		List<URI> discovered = Discovery.getInstance().knownUrisOf(FilesServer.SERVICE);
-		Set<URI> intersection = discovered.stream().distinct().filter(file.getFileURIs()::contains).collect(Collectors.toSet());
+		Set<URI> intersection = discovered.stream().distinct().filter(URIsPerFile.get(file)::contains).collect(Collectors.toSet());
 		for (URI uri: intersection) {
 			//only need one
 			return Result.ok(uri);
@@ -341,7 +345,7 @@ public class JavaDirectory implements Directory {
 
 				// delete user's files from files server
 				// different files have different clients although same user
-				for (URI fileURI : file.getFileURIs() ) {
+				for (URI fileURI : URIsPerFile.get(file) ) {
 					Files filesClient = clientFactory.getFilesClient(fileURI).second();
 					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				}
