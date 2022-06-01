@@ -13,9 +13,9 @@ import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public class RestClient {
+	public static final int RETRY_SLEEP = 1000;
 	protected static final int READ_TIMEOUT = 10000;
 	protected static final int CONNECT_TIMEOUT = 10000;
-	protected static final int RETRY_SLEEP = 1000;
 	protected static final int MAX_RETRIES = 3;
 	private static final Logger Log = Logger.getLogger(RestClient.class.getName());
 	final URI serverURI;
