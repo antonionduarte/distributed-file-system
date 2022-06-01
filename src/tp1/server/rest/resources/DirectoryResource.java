@@ -102,7 +102,7 @@ public class DirectoryResource implements RestDirectory {
 			if (result.redirectURI().toString().contains("/soap/")) {
 				Files filesClient = clientFactory.getFilesClient(result.redirectURI()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(fileId, Secret.get());
+				Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
 				if (resultFiles == null) {
 					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 				}
