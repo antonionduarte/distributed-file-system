@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ClientFactory {
 
-	private static final int STORE_IN_HOW_MANY = 2;
+	private static final int FILES_REPLICATION_FACTOR = 2;
 
 	private static final Discovery discovery = Discovery.getInstance();
 
@@ -115,9 +115,9 @@ public class ClientFactory {
 
 	//returns STORE_IN_HOW_MANY servers with the lowest storage
 	private Set<URI> minFiles(List<URI> serverURIs) {
-		Set<URI> uris = new HashSet<>(STORE_IN_HOW_MANY);
+		Set<URI> uris = new HashSet<>(FILES_REPLICATION_FACTOR);
 
-		for (int i = 0; i < STORE_IN_HOW_MANY; i++) {
+		for (int i = 0; i < FILES_REPLICATION_FACTOR; i++) {
 			Map.Entry<URI, Integer> min = null;
 			for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
 

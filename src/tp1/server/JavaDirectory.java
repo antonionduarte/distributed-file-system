@@ -15,10 +15,7 @@ import util.Secret;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -288,13 +285,19 @@ public class JavaDirectory implements Directory {
 		}
 
 		List<URI> discovered = Discovery.getInstance().knownUrisOf(FilesServer.SERVICE);
-		Set<URI> intersection = discovered.stream().distinct().filter(URIsPerFile.get(file)::contains).collect(Collectors.toSet());
+		Set<URI> intersection = URIsPerFile.get(file).stream().filter(uri -> {
+			for (URI discoveredURI: discovered) {
+				if (uri.toString().contains(discoveredURI.toString()))
+					return true;
+			}
+			return false;
+		}).collect(Collectors.toSet());
 		for (URI uri: intersection) {
 			//only need one
 			return Result.ok(uri);
 		}
 
-		//FileInfo without URIs
+		// no intersection
 		return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 	}
 

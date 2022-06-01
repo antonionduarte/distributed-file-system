@@ -18,12 +18,6 @@ public class Token {
 		}
 	}
 
-	synchronized private static byte[] digest(byte[] data) {
-		md.reset();
-		md.update(data);
-		return md.digest();
-	}
-
 	synchronized public static String generate(Object ...values) {
 		md.reset();
 		md.update((byte) (System.currentTimeMillis() / 1000));
