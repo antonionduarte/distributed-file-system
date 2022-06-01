@@ -118,8 +118,8 @@ public class JavaFilesProxy implements Files {
 		var jsonArgs = json.toJson(new DownloadFileV2Args("/" + fileId));
 
 		var downloadFile = new OAuthRequest(Verb.POST, DOWNLOAD_FILE_V2_URL);
-		downloadFile.addHeader(CONTENT_TYPE_HDR, DROPBOX_API_ARG_HDR);
-		downloadFile.setPayload(jsonArgs);
+		downloadFile.addHeader(DROPBOX_API_ARG_HDR, jsonArgs);
+		downloadFile.addHeader(CONTENT_TYPE_HDR, OCTET_STREAM_CONTENT_TYPE);
 
 		service.signRequest(accessToken, downloadFile);
 
@@ -140,9 +140,10 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
+	/*
 	public static void main(String[] args) {
 		JavaFilesProxy javaFilesProxy = new JavaFilesProxy();
-		File file = new File("./JavaFiles");
+		/*File file = new File("./JavaFiles");
 
 		byte[] data = new byte[0];
 		try (FileInputStream fis = new FileInputStream(file)) {
@@ -151,6 +152,7 @@ public class JavaFilesProxy implements Files {
 			e.printStackTrace();
 		}
 
-		javaFilesProxy.writeFile("file-test", data, "");
+		javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
 	}
+	*/
 }
