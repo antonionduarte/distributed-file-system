@@ -24,16 +24,9 @@ public class Token {
 		return md.digest();
 	}
 
-	public static String generate(byte[] data) {
-		return String.format("%016X", new BigInteger(1,digest(data)));
-	}
-
-	public static String generate(String data) {
-		return generate( data.getBytes() );
-	}
-
 	synchronized public static String generate(Object ...values) {
 		md.reset();
+		md.update((byte) (System.currentTimeMillis() / 1000));
 		for( var o : values )
 			md.update( o.toString().getBytes() );
 
