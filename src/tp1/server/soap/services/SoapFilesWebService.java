@@ -11,6 +11,8 @@ public class SoapFilesWebService implements SoapFiles {
 
 	private final Files impl = new JavaFiles();
 
+	public SoapFilesWebService() {}
+
 	@Override
 	public void writeFile(String fileId, byte[] data, String token) throws FilesException {
 		var result = impl.writeFile(fileId, data, token);

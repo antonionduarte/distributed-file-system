@@ -40,7 +40,7 @@ public class SoapUsersServer {
 
 		Secret.set(args[0]);
 
-		var endpoint = Endpoint.create(SoapUsersWebService.class);
+		var endpoint = Endpoint.create(new SoapUsersWebService());
 		endpoint.publish(server.createContext("/soap"));
 
 		server.start();

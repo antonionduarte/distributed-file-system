@@ -14,6 +14,8 @@ public class SoapUsersWebService implements SoapUsers {
 
 	private final Users impl  = new JavaUsers();
 
+	public SoapUsersWebService() {}
+
 	@Override
 	public String createUser(User user) throws UsersException {
 		var result = impl.createUser(user);

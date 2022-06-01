@@ -21,6 +21,8 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	private final Directory impl = new JavaDirectory();
 	private final ClientFactory clientFactory = ClientFactory.getInstance();
 
+	public SoapDirectoryWebService() {}
+
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
 		Result<FileInfo> result;

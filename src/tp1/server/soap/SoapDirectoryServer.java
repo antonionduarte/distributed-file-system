@@ -40,7 +40,7 @@ public class SoapDirectoryServer {
 
 		Secret.set(args[0]);
 
-		var endpoint = Endpoint.create(SoapDirectoryWebService.class);
+		var endpoint = Endpoint.create(new SoapDirectoryWebService());
 		endpoint.publish(server.createContext("/soap"));
 
 		server.start();
