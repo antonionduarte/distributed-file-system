@@ -327,7 +327,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!Token.generate(Secret.get(), userId).equals(token))
+		if (!Token.validate(token, Secret.get(), userId))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
 		var listFiles = accessibleFilesPerUser.remove(userId);

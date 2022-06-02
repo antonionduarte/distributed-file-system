@@ -16,7 +16,7 @@ public class JavaFiles implements Files {
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		Log.info("writeFile : " + fileId);
 
-		if (!Token.generate(Secret.get(), fileId).equals(token)) {
+		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
@@ -40,7 +40,7 @@ public class JavaFiles implements Files {
 
 		File file = new File(fileId);
 		if (file.exists()) {
-			if (!Token.generate(Secret.get(), fileId).equals(token)) {
+			if (!Token.validate(token, Secret.get(), fileId)) {
 				return Result.error(Result.ErrorCode.FORBIDDEN);
 			}
 
@@ -65,7 +65,7 @@ public class JavaFiles implements Files {
 					data = fis.readAllBytes();
 				}
 			}
-			if (!Token.generate(Secret.get(), fileId).equals(token)) {
+			if (!Token.validate(token, Secret.get(), fileId)) {
 				return Result.error(Result.ErrorCode.FORBIDDEN);
 			}
 
