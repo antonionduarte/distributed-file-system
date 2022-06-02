@@ -23,8 +23,6 @@ public class JavaFilesProxy implements Files {
 
 	private static final Logger Log = Logger.getLogger(JavaFiles.class.getName());
 
-	// TODO: Change this to program args
-
 	private static final String UPLOAD_FILE_V2_URL = "https://content.dropboxapi.com/2/files/upload";
 	private static final String DELETE_FILE_V2_URL = "https://api.dropboxapi.com/2/files/delete_v2";
 	private static final String DOWNLOAD_FILE_V2_URL = "https://content.dropboxapi.com/2/files/download";
@@ -45,13 +43,17 @@ public class JavaFilesProxy implements Files {
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 
-	public JavaFilesProxy(String apiSecret, String accessKey, String apiKey) {
+	public JavaFilesProxy(boolean deleteAll, String apiSecret, String accessKey, String apiKey) {
 		this.apiKey = apiKey;
 		this.apiSecret = apiSecret;
 		this.accessKey = accessKey;
 		this.json = new Gson();
 		this.accessToken = new OAuth2AccessToken(accessKey);
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
+
+		if (deleteAll) {
+			deleteFile("", "");
+		}
 	}
 
 	@Override
@@ -62,7 +64,7 @@ public class JavaFilesProxy implements Files {
 				false,
 				false,
 				false,
-				"/" + fileId,
+				"/distributed-fs/" + fileId,
 				"overwrite"
 		));
 
@@ -90,7 +92,12 @@ public class JavaFilesProxy implements Files {
 	public Result<Void> deleteFile(String fileId, String token) {
 		Log.info("deleteFile : " + fileId);
 
-		var jsonArgs = json.toJson(new DeleteFileV2Args("/" + fileId));
+		String path = "/distributed-fs";
+		if (!fileId.equals("")) {
+			path += "/" + fileId;
+		}
+
+		var jsonArgs = json.toJson(new DeleteFileV2Args(path));
 
 		var deleteFile = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
 		deleteFile.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);
@@ -119,7 +126,7 @@ public class JavaFilesProxy implements Files {
 	public Result<byte[]> getFile(String fileId, String token) {
 		Log.info("getFile : " + fileId);
 
-		var jsonArgs = json.toJson(new DownloadFileV2Args("/" + fileId));
+		var jsonArgs = json.toJson(new DownloadFileV2Args("/distributed-fs/" + fileId));
 
 		var downloadFile = new OAuthRequest(Verb.POST, DOWNLOAD_FILE_V2_URL);
 		downloadFile.addHeader(DROPBOX_API_ARG_HDR, jsonArgs);
@@ -144,10 +151,15 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
-	/*
-	public static void main(String[] args) {
-		JavaFilesProxy javaFilesProxy = new JavaFilesProxy();
-		/*File file = new File("./JavaFiles");
+	/*public static void main(String[] args) {
+		JavaFilesProxy javaFilesProxy = new JavaFilesProxy(
+				true,
+				"1qw5p1vin7d07r2",
+				"sl.BIvhWp4Z4U7B1tLwzkg50lzpxAbD-fePPVKJKVgUwNC0_HEsiTvsIxK1_r2_FNmjW-8HyURT6sOMm0OZZFwXlshbs0eP8jJEJTQ05vdCTI04xozMBJPfO8iX9LSrp-JS4LWSrJI",
+				"2v5aoett5ga8tec"
+		);
+
+		File file = new File("./Dockerfile");
 
 		byte[] data = new byte[0];
 		try (FileInputStream fis = new FileInputStream(file)) {
@@ -156,7 +168,11 @@ public class JavaFilesProxy implements Files {
 			e.printStackTrace();
 		}
 
-		javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
-	}
-	*/
+		//var response = javaFilesProxy.deleteFile("", "");
+		//System.out.println(response.toString());
+		//var response = javaFilesProxy.writeFile("Dockerfile", data, "");
+		//System.out.println(response.toString());
+
+		// javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
+	}*/
 }
