@@ -34,7 +34,7 @@ public class FilesProxyServer {
 			Secret.set(args[1]);
 
 			ResourceConfig config = new ResourceConfig();
-			config.register(new FilesProxyResource());
+			config.register(new FilesProxyResource(args[1], args[2], args[3]));
 			config.register(CustomLoggingFilter.class);
 			config.register(GenericExceptionMapper.class);
 

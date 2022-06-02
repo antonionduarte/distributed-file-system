@@ -24,9 +24,6 @@ public class JavaFilesProxy implements Files {
 	private static final Logger Log = Logger.getLogger(JavaFiles.class.getName());
 
 	// TODO: Change this to program args
-	private static final String API_KEY = "2v5aoett5ga8tec";
-	private static final String API_SECRET = "1qw5p1vin7d07r2";
-	private static final String ACCESS_TOKEN_STR = "sl.BIox5VmBVAqP32WyJsP4vnESUToytyYEKpBTmoiShv3FOrXZLfbOXv2nwVDXpN-j5OgEoxDcR3oRekB_3TLDZZDm_AC3Kstd9ZGyr32ckbi8ztlhLy8nCBSX87uLcLae6vd-UI8";
 
 	private static final String UPLOAD_FILE_V2_URL = "https://content.dropboxapi.com/2/files/upload";
 	private static final String DELETE_FILE_V2_URL = "https://api.dropboxapi.com/2/files/delete_v2";
@@ -40,14 +37,21 @@ public class JavaFilesProxy implements Files {
 	private static final String JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final String OCTET_STREAM_CONTENT_TYPE = "application/octet-stream";
 
+	private final String apiKey;
+	private final String apiSecret;
+	private final String accessKey;
+
 	private final Gson json;
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 
-	public JavaFilesProxy() {
+	public JavaFilesProxy(String apiSecret, String accessKey, String apiKey) {
+		this.apiKey = apiKey;
+		this.apiSecret = apiSecret;
+		this.accessKey = accessKey;
 		this.json = new Gson();
-		this.accessToken = new OAuth2AccessToken(ACCESS_TOKEN_STR);
-		this.service = new ServiceBuilder(API_KEY).apiSecret(API_SECRET).build(DropboxApi20.INSTANCE);
+		this.accessToken = new OAuth2AccessToken(accessKey);
+		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
 	}
 
 	@Override
