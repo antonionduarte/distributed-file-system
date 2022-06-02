@@ -13,6 +13,10 @@ public class FilesProxyResource implements RestFiles {
 
 	private final Files impl;
 
+	public FilesProxyResource() {
+		this.impl = new JavaFilesProxy(false, null, null, null);
+	}
+
 	public FilesProxyResource(boolean deleteAll, String apiSecret, String apiKey, String accessKey) {
 		this.impl = new JavaFilesProxy(deleteAll, apiSecret, accessKey, apiKey);
 	}
