@@ -12,6 +12,8 @@ import tp1.api.service.util.Result;
 import tp1.server.dropbox.DeleteFileV2Args;
 import tp1.server.dropbox.DownloadFileV2Args;
 import tp1.server.dropbox.UploadFileV2Args;
+import util.Secret;
+import util.Token;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,18 +37,11 @@ public class JavaFilesProxy implements Files {
 	private static final String JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final String OCTET_STREAM_CONTENT_TYPE = "application/octet-stream";
 
-	private final String apiKey;
-	private final String apiSecret;
-	private final String accessKey;
-
 	private final Gson json;
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 
 	public JavaFilesProxy(boolean deleteAll, String apiSecret, String accessKey, String apiKey) {
-		this.apiKey = apiKey;
-		this.apiSecret = apiSecret;
-		this.accessKey = accessKey;
 		this.json = new Gson();
 		this.accessToken = new OAuth2AccessToken(accessKey);
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
@@ -59,6 +54,10 @@ public class JavaFilesProxy implements Files {
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
 		Log.info("writeFile : " + fileId);
+
+		if (!Token.validate(token, Secret.get(), fileId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
 
 		var jsonArgs = json.toJson(new UploadFileV2Args(
 				false,
@@ -91,6 +90,10 @@ public class JavaFilesProxy implements Files {
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
 		Log.info("deleteFile : " + fileId);
+
+		if (!Token.validate(token, Secret.get(), fileId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
 
 		String path = "/distributed-fs";
 		if (!fileId.equals("")) {
@@ -126,6 +129,10 @@ public class JavaFilesProxy implements Files {
 	public Result<byte[]> getFile(String fileId, String token) {
 		Log.info("getFile : " + fileId);
 
+		if (!Token.validate(token, Secret.get(), fileId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
 		var jsonArgs = json.toJson(new DownloadFileV2Args("/distributed-fs/" + fileId));
 
 		var downloadFile = new OAuthRequest(Verb.POST, DOWNLOAD_FILE_V2_URL);
@@ -157,7 +164,7 @@ public class JavaFilesProxy implements Files {
 				"1qw5p1vin7d07r2",
 				"sl.BIvhWp4Z4U7B1tLwzkg50lzpxAbD-fePPVKJKVgUwNC0_HEsiTvsIxK1_r2_FNmjW-8HyURT6sOMm0OZZFwXlshbs0eP8jJEJTQ05vdCTI04xozMBJPfO8iX9LSrp-JS4LWSrJI",
 				"2v5aoett5ga8tec"
-		);
+		); gay shit
 
 		File file = new File("./Dockerfile");
 

@@ -38,12 +38,12 @@ public class JavaFiles implements Files {
 	public Result<Void> deleteFile(String fileId, String token) {
 		Log.info("deleteFile : " + fileId);
 
+		if (!Token.validate(token, Secret.get(), fileId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
 		File file = new File(fileId);
 		if (file.exists()) {
-			if (!Token.validate(token, Secret.get(), fileId)) {
-				return Result.error(Result.ErrorCode.FORBIDDEN);
-			}
-
 			file.delete();
 			Log.info("File deleted.");
 		} else {
@@ -57,6 +57,10 @@ public class JavaFiles implements Files {
 	public Result<byte[]> getFile(String fileId, String token) {
 		Log.info("getFile : " + fileId);
 
+		if (!Token.validate(token, Secret.get(), fileId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
 		File file = new File(fileId);
 		try {
 			byte[] data;
@@ -64,9 +68,6 @@ public class JavaFiles implements Files {
 				try (FileInputStream fis = new FileInputStream(file)) {
 					data = fis.readAllBytes();
 				}
-			}
-			if (!Token.validate(token, Secret.get(), fileId)) {
-				return Result.error(Result.ErrorCode.FORBIDDEN);
 			}
 
 			return Result.ok(data);
