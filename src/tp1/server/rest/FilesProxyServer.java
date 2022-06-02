@@ -3,7 +3,6 @@ package tp1.server.rest;
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import tp1.server.rest.resources.FilesProxyResource;
-import tp1.server.rest.resources.FilesResource;
 import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
