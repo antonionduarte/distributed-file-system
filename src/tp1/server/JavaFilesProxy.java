@@ -15,10 +15,6 @@ import tp1.server.dropbox.UploadFileV2Args;
 import util.Secret;
 import util.Token;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
