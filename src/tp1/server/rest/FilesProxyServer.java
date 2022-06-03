@@ -12,6 +12,7 @@ import util.Secret;
 import javax.net.ssl.SSLContext;
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

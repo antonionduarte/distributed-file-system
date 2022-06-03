@@ -15,6 +15,8 @@ import tp1.server.dropbox.UploadFileV2Args;
 import util.Secret;
 import util.Token;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
@@ -43,7 +45,7 @@ public class JavaFilesProxy implements Files {
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
 
 		if (deleteAll) {
-			deleteFile("", "");
+			this.deleteAll();
 		}
 	}
 
@@ -154,13 +156,32 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
-	/*public static void main(String[] args) {
+	private void deleteAll() {
+		String path = "/distributed-fs";
+
+		var jsonArgs = json.toJson(new DeleteFileV2Args(path));
+
+		var deleteFile = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
+		deleteFile.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);
+		deleteFile.setPayload(jsonArgs);
+
+		service.signRequest(accessToken, deleteFile);
+
+		try {
+			service.execute(deleteFile);
+		} catch (Exception e) {
+			// do nothing
+		}
+	}
+
+	/*
+	public static void main(String[] args) {
 		JavaFilesProxy javaFilesProxy = new JavaFilesProxy(
 				true,
 				"1qw5p1vin7d07r2",
-				"sl.BIvhWp4Z4U7B1tLwzkg50lzpxAbD-fePPVKJKVgUwNC0_HEsiTvsIxK1_r2_FNmjW-8HyURT6sOMm0OZZFwXlshbs0eP8jJEJTQ05vdCTI04xozMBJPfO8iX9LSrp-JS4LWSrJI",
+				"sl.BIwj-NhPvbbpSBSp4yJig7tet4av0P_x5PMd5IuauqIzPbuiUD-dhRwdA-Y3ujUq-xHOn5Fw8ARuvASBPLAzbgbbgLzvDdS06-OD_F3-_XA4CAxMhHlh3jkh91oM-NSx_ywLomM",
 				"2v5aoett5ga8tec"
-		); gay shit
+		);
 
 		File file = new File("./Dockerfile");
 
@@ -177,5 +198,6 @@ public class JavaFilesProxy implements Files {
 		//System.out.println(response.toString());
 
 		// javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
-	}*/
+	}
+	 */
 }
