@@ -28,6 +28,7 @@ import java.util.logging.Logger;
  */
 public class Discovery {
 	private static final Logger Log = Logger.getLogger(Discovery.class.getName());
+	private static final int RESET_FREQUENCY = 5;
 
 	static {
 		// addresses some multicast issues on some TCP/IP stacks
@@ -101,14 +102,15 @@ public class Discovery {
 			try (var ms = new MulticastSocket(DISCOVERY_ADDR.getPort())) {
 				joinGroupInAllInterfaces(ms);
 				// long startTime = System.currentTimeMillis();
+				int i = 0;
 				for (; ; ) {
 					try {
 						pkt.setLength(MAX_DATAGRAM_SIZE);
 						ms.receive(pkt);
 
 						var msg = new String(pkt.getData(), 0, pkt.getLength());
-						/*System.out.printf("FROM %s (%s) : %s\n", pkt.getAddress().getCanonicalHostName(),
-								pkt.getAddress().getHostAddress(), msg);*/
+						System.out.printf("FROM %s (%s) : %s\n", pkt.getAddress().getCanonicalHostName(),
+								pkt.getAddress().getHostAddress(), msg);
 						var tokens = msg.split(DELIMITER);
 
 						// service found, add the URI to the list of URIs of the service
@@ -128,6 +130,11 @@ public class Discovery {
 					} catch (IOException e) {
 						e.printStackTrace();
 						try {
+							if (i >= RESET_FREQUENCY) {
+								reset();
+								i = 0;
+							} else
+								i++;
 							Thread.sleep(DISCOVERY_PERIOD);
 						} catch (InterruptedException e1) {
 							// do nothing
@@ -176,19 +183,9 @@ public class Discovery {
 	public void start(String serviceName, String serviceURI) {
 		announce(serviceName, serviceURI);
 		listener();
-		resetPeriodically();
 	}
 
-	private void resetPeriodically() {
-		new Thread(() -> {
-			for (; ; ) {
-				try {
-					Thread.sleep(DISCOVERY_TIMEOUT);
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
-				this.services = new ConcurrentHashMap<>();
-			}
-		}).start();
+	private void reset() {
+		this.services = new ConcurrentHashMap<>();
 	}
 }
