@@ -189,6 +189,6 @@ public class Discovery {
 				}
 				this.services = new ConcurrentHashMap<>();
 			}
-		});
+		}).start();
 	}
 }
