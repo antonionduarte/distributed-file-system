@@ -292,7 +292,6 @@ public class JavaDirectory implements Directory {
 			}
 			return false;
 		}).collect(Collectors.toSet());
-		System.out.println(intersection);
 		for (URI uri: intersection) {
 			//only need one
 			return Result.ok(uri);
