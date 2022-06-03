@@ -130,12 +130,12 @@ public class Discovery {
 					} catch (IOException e) {
 						e.printStackTrace();
 						try {
+							Thread.sleep(DISCOVERY_PERIOD);
 							if (i >= RESET_FREQUENCY) {
 								reset();
 								i = 0;
 							} else
 								i++;
-							Thread.sleep(DISCOVERY_PERIOD);
 						} catch (InterruptedException e1) {
 							// do nothing
 						}
