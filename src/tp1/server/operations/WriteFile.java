@@ -1,5 +1,7 @@
 package tp1.server.operations;
 
+import tp1.api.FileInfo;
+
 import java.net.URI;
 import java.util.Set;
 
@@ -12,13 +14,15 @@ public class WriteFile implements Operation {
 	private byte[] data;
 
 	private Set<URI> serverUris;
+	private FileInfo fileInfo;
 
-	public WriteFile(String filename, byte[] data, String userId, String password, Set<URI> serverUris) {
+	public WriteFile(String filename, byte[] data, String userId, String password, Set<URI> serverUris, FileInfo fileInfo) {
 		this.filename = filename;
 		this.data = data;
 		this.userId = userId;
 		this.password = password;
 		this.serverUris = serverUris;
+		this.fileInfo = fileInfo;
 	}
 
 	public String getFilename() {
@@ -39,5 +43,9 @@ public class WriteFile implements Operation {
 
 	public byte[] getData() {
 		return data;
+	}
+
+	public FileInfo getFileInfo() {
+		return fileInfo;
 	}
 }
