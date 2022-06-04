@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class GetFile {
+public class GetFile implements Operation {
 
 	private String filename;
 	private String userId;

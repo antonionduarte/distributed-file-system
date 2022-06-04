@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class ShareFile {
+public class ShareFile implements Operation {
 
 	private String filename;
 	private String userId;

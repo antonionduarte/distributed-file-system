@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class RemoveUserFiles {
+public class RemoveUserFiles implements Operation {
 
 	private String userId;
 	private String token;

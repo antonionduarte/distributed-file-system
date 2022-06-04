@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class LsFile {
+public class LsFile implements Operation {
 
 	private String userId;
 	private String password;

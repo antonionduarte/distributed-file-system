@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class UnshareFile {
+public class UnshareFile implements Operation {
 
 	private String filename;
 	private String userId;

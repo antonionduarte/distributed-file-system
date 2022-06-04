@@ -2,16 +2,16 @@ package tp1.server.operations;
 
 public class JsonOperation {
 
-	private String json;
-	private OperationType operationType;
+	private final Operation operation;
+	private final OperationType operationType;
 
-	public JsonOperation(String json, OperationType operationType) {
-		this.json = json;
+	public JsonOperation(Operation operation, OperationType operationType) {
+		this.operation = operation;
 		this.operationType = operationType;
 	}
 
-	public String getJson() {
-		return json;
+	public Operation getOperation() {
+		return operation;
 	}
 
 	public OperationType getOperationType() {

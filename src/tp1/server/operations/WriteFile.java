@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class WriteFile {
+public class WriteFile implements Operation {
 
 	private String filename;
 	private String userId;
