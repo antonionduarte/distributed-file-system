@@ -136,7 +136,7 @@ public class DirectoryResource implements RestDirectory {
 
 	@Override
 	public void removeUser(String userId, String token) {
-		Result<Void> result = impl.removeUserFiles(userId, token);
+		Result<Void> result = impl.removeUser(userId, token);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);

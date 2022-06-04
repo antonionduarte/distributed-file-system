@@ -220,7 +220,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 	}
 
 	@Override
-	public Result<Void> removeUserFiles(String userId, String token) {
+	public Result<Void> removeUser(String userId, String token) {
 		return null;
 	}
 

@@ -36,6 +36,11 @@ public class RestFilesClient extends RestClient implements Files {
 		return super.reTry(() -> clt_getFile(fileId, token));
 	}
 
+	@Override
+	public Result<Void> deleteUserFiles(String userId, String token) {
+		return super.reTry(() -> clt_deleteUserFiles(userId, token));
+	}
+
 	private Result<Void> clt_writeFile(String fileId, byte[] data, String token) {
 		Response response = target
 				.path(fileId)
@@ -74,4 +79,19 @@ public class RestFilesClient extends RestClient implements Files {
 
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
+
+	private Result<Void> clt_deleteUserFiles(String userId, String token) {
+		Response response = target
+				.path(userId)
+				.queryParam(RestFiles.TOKEN, token)
+				.request()
+				.delete();
+
+		if (response.getStatus() == Response.Status.OK.getStatusCode() && response.hasEntity()) {
+			return Result.ok();
+		}
+
+		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
+	}
+
 }

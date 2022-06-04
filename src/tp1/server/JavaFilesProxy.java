@@ -15,8 +15,6 @@ import tp1.server.dropbox.UploadFileV2Args;
 import util.Secret;
 import util.Token;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
@@ -154,6 +152,11 @@ public class JavaFilesProxy implements Files {
 		} catch (Exception e) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}
+	}
+
+	@Override
+	public Result<Void> deleteUserFiles(String userId, String token) {
+		return null;
 	}
 
 	private void deleteAll() {

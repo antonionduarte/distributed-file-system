@@ -1,81 +1,82 @@
 package tp1.server;
 
+import static tp1.api.service.util.Result.ErrorCode.*;
+import static tp1.api.service.util.Result.error;
+import static tp1.api.service.util.Result.ok;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Comparator;
+
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
+import util.IO;
 import util.Secret;
 import util.Token;
 
-import java.io.*;
-import java.util.logging.Logger;
-
 public class JavaFiles implements Files {
 
-	private static final Logger Log = Logger.getLogger(JavaFiles.class.getName());
+	static final String DELIMITER = "_";
+	private static final String ROOT = "/tmp/";
+	private static final String DELETE_USER_TOPIC = "delete_user";
 
-	@Override
-	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		Log.info("writeFile : " + fileId);
-
-		if (!Token.validate(token, Secret.get(), fileId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		File file = new File(fileId);
-		try {
-			synchronized (this) {
-				try (FileOutputStream outputStream = new FileOutputStream(file)) {
-					outputStream.write(data);
-				}
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
-		return Result.ok();
-	}
-
-	@Override
-	public Result<Void> deleteFile(String fileId, String token) {
-		Log.info("deleteFile : " + fileId);
-
-		if (!Token.validate(token, Secret.get(), fileId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		File file = new File(fileId);
-		if (file.exists()) {
-			file.delete();
-			Log.info("File deleted.");
-		} else {
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		return Result.ok();
+	public JavaFiles() {
+		new File( ROOT ).mkdirs();
 	}
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		Log.info("getFile : " + fileId);
+		if (!Token.validate(token, Secret.get(), fileId))
+			return error(FORBIDDEN);
 
-		if (!Token.validate(token, Secret.get(), fileId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
+		fileId = fileId.replace( DELIMITER, "/");
+		byte[] data = IO.read( new File( ROOT + fileId ));
+		return data != null ? ok( data) : error( NOT_FOUND );
+	}
 
-		File file = new File(fileId);
+	@Override
+	public Result<Void> deleteFile(String fileId, String token) {
+		if (!Token.validate(token, Secret.get(), fileId))
+			return error(FORBIDDEN);
+
+		fileId = fileId.replace( DELIMITER, "/");
+		boolean res = IO.delete( new File( ROOT + fileId ));
+		return res ? ok() : error( NOT_FOUND );
+	}
+
+	@Override
+	public Result<Void> writeFile(String fileId, byte[] data, String token) {
+		if (!Token.validate(token, Secret.get(), fileId))
+			return error(FORBIDDEN);
+
+		fileId = fileId.replace( DELIMITER, "/");
+		File file = new File(ROOT + fileId);
+		file.getParentFile().mkdirs();
+		IO.write( file, data);
+		return ok();
+	}
+
+	@Override
+	public Result<Void> deleteUserFiles(String userId, String token) {
+		if (!Token.validate(token, Secret.get(), userId))
+			return error(FORBIDDEN);
+
+		File file = new File(ROOT + userId);
 		try {
-			byte[] data;
-			synchronized (this) {
-				try (FileInputStream fis = new FileInputStream(file)) {
-					data = fis.readAllBytes();
-				}
-			}
-
-			return Result.ok(data);
-		} catch (FileNotFoundException e) {
-			return Result.error(Result.ErrorCode.NOT_FOUND);
+			java.nio.file.Files.walk(file.toPath())
+					.sorted(Comparator.reverseOrder())
+					.map(Path::toFile)
+					.forEach(File::delete);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			return error(INTERNAL_ERROR);
 		}
+		return ok();
+	}
+
+	public static String fileId(String filename, String userId) {
+		return userId + JavaFiles.DELIMITER + filename;
 	}
 }
+

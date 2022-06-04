@@ -1,6 +1,9 @@
 package tp1.api.service.util;
 
 
+import java.io.File;
+import java.io.IOException;
+
 public interface Files {
 
 	/**
@@ -31,4 +34,6 @@ public interface Files {
 	 * FORBIDDEN if the token is incorrect. BAD_REQUEST otherwise.
 	 */
 	Result<byte[]> getFile(String fileId, String token);
+
+    Result<Void> deleteUserFiles(String userId, String token);
 }
