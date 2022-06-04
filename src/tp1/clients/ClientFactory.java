@@ -16,8 +16,8 @@ import util.Pair;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,7 +53,7 @@ public class ClientFactory {
 	}
 
 	public Pair<URI, Users> getUsersClient() {
-		var serverURI = discovery.knownUrisOf("users").get(0);
+		var serverURI = discovery.knownUrisOf("users")[0];
 
 		try {
 			return this.usersCache.get(serverURI, () -> {
@@ -69,7 +69,7 @@ public class ClientFactory {
 	}
 
 	public Pair<URI, Directory> getDirectoryClient() {
-		var serverURI = discovery.knownUrisOf("directory").get(0);
+		var serverURI = discovery.knownUrisOf("directory")[0];
 
 		try {
 			return this.directoryCache.get(serverURI, () -> {
@@ -114,14 +114,14 @@ public class ClientFactory {
 	}
 
 	//returns STORE_IN_HOW_MANY servers with the lowest storage
-	private Set<URI> minFiles(List<URI> serverURIs) {
+	private Set<URI> minFiles(URI[] serverURIs) {
 		Set<URI> uris = new HashSet<>(FILES_REPLICATION_FACTOR);
 
 		for (int i = 0; i < FILES_REPLICATION_FACTOR; i++) {
 			Map.Entry<URI, Integer> min = null;
 			for (Map.Entry<URI, Integer> entry : distribution.entrySet()) {
 
-				if (serverURIs.contains(entry.getKey()) && (min == null || min.getValue() > entry.getValue()) && !uris.contains(entry.getKey())) {
+				if (Arrays.stream(serverURIs).toList().contains(entry.getKey()) && (min == null || min.getValue() > entry.getValue()) && !uris.contains(entry.getKey())) {
 					min = entry;
 				}
 			}
@@ -137,7 +137,7 @@ public class ClientFactory {
 
 	public Pair<URI, Files> getFilesClient(URI resourceURI) {
 		URI serverURI = URI.create(resourceURI.toString().substring(0, resourceURI.toString().indexOf("/files")));
-		if (!discovery.knownUrisOf("files").contains(serverURI))
+		if (!Arrays.stream(discovery.knownUrisOf("files")).toList().contains(serverURI))
 			return null;
 
 		try {
