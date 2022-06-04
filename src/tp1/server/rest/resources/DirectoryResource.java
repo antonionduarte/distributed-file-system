@@ -26,7 +26,7 @@ public class DirectoryResource implements RestDirectory {
 	private final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
+	public FileInfo writeFile(Long header, String filename, byte[] data, String userId, String password) {
 		Result<FileInfo> result;
 		try {
 			result = impl.writeFile(filename, data, userId, password);
@@ -43,7 +43,7 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteFile(String filename, String userId, String password) {
+	public void deleteFile(Long header, String filename, String userId, String password) {
 		Result<Void> result;
 		try {
 			result = impl.deleteFile(filename, userId, password);
@@ -58,7 +58,7 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void shareFile(String filename, String userId, String userIdShare, String password) {
+	public void shareFile(Long header, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
@@ -73,7 +73,7 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void unshareFile(String filename, String userId, String userIdShare, String password) {
+	public void unshareFile(Long header, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
@@ -88,7 +88,7 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public byte[] getFile(String filename, String userId, String accUserId, String password) {
+	public byte[] getFile(Long header, String filename, String userId, String accUserId, String password) {
 		Result<byte[]> result;
 		try {
 			result = impl.getFile(filename, userId, accUserId, password);

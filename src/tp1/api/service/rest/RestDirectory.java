@@ -12,6 +12,7 @@ public interface RestDirectory {
 
 	String PATH = "/dir";
 	String TOKEN = "token";
+	String HEADER_VERSION = "X-DFS-version";
 
 	/**
 	 * Write a new version of a file. If the file exists, its contents are overwritten. Only the owner (userId) can
@@ -30,7 +31,7 @@ public interface RestDirectory {
 	@Path("/{userId}/{filename}")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
 	@Produces(MediaType.APPLICATION_JSON)
-	FileInfo writeFile(@PathParam("filename") String filename, byte[] data,
+	FileInfo writeFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, byte[] data,
 	                   @PathParam("userId") String userId, @QueryParam("password") String password);
 
 	/**
@@ -44,7 +45,7 @@ public interface RestDirectory {
 	 */
 	@DELETE
 	@Path("/{userId}/{filename}")
-	void deleteFile(@PathParam("filename") String filename,
+	void deleteFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename,
 	                @PathParam("userId") String userId, @QueryParam("password") String password);
 
 	/**
@@ -62,7 +63,7 @@ public interface RestDirectory {
 	 */
 	@POST
 	@Path("/{userId}/{filename}/share/{userIdShare}")
-	void shareFile(@PathParam("filename") String filename, @PathParam("userId") String userId,
+	void shareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, @PathParam("userId") String userId,
 	               @PathParam("userIdShare") String userIdShare, @QueryParam("password") String password);
 
 	/**
@@ -80,7 +81,7 @@ public interface RestDirectory {
 	 */
 	@DELETE
 	@Path("/{userId}/{filename}/share/{userIdShare}")
-	void unshareFile(@PathParam("filename") String filename, @PathParam("userId") String userId,
+	void unshareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, @PathParam("userId") String userId,
 	                 @PathParam("userIdShare") String userIdShare, @QueryParam("password") String password);
 
 	/**
@@ -99,7 +100,7 @@ public interface RestDirectory {
 	@GET
 	@Path("/{userId}/{filename}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	byte[] getFile(@PathParam("filename") String filename, @PathParam("userId") String userId,
+	byte[] getFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, @PathParam("userId") String userId,
 	               @QueryParam("accUserId") String accUserId, @QueryParam("password") String password);
 
 	/**

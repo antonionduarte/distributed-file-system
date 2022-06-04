@@ -31,7 +31,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
+	public FileInfo writeFile(Long version, String filename, byte[] data, String userId, String password) {
 		Result<FileInfo> result;
 		try {
 			result = impl.writeFile(filename, data, userId, password);
@@ -40,7 +40,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 		}
 
 		if (result.isOK()) {
-			return result.value();
+			throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).entity(result.value()).build());
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
@@ -48,7 +48,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteFile(String filename, String userId, String password) {
+	public void deleteFile(Long version, String filename, String userId, String password) {
 		Result<Void> result;
 		try {
 			result = impl.deleteFile(filename, userId, password);
@@ -60,10 +60,12 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
+		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
+
 	}
 
 	@Override
-	public void shareFile(String filename, String userId, String userIdShare, String password) {
+	public void shareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
 			result = impl.shareFile(filename, userId, userIdShare, password);
@@ -75,10 +77,12 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
+
+		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
 	}
 
 	@Override
-	public void unshareFile(String filename, String userId, String userIdShare, String password) {
+	public void unshareFile(Long version, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
 		try {
 			result = impl.unshareFile(filename, userId, userIdShare, password);
@@ -90,10 +94,12 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
+
+		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
 	}
 
 	@Override
-	public byte[] getFile(String filename, String userId, String accUserId, String password) {
+	public byte[] getFile(Long version, String filename, String userId, String accUserId, String password) {
 		Result<byte[]> result;
 		try {
 			result = impl.getFile(filename, userId, accUserId, password);
@@ -113,13 +119,13 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 				}
 
 				if (resultFiles.isOK()) {
-					return resultFiles.value();
+					throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).entity(result.value()).build());
 				} else {
 					throw new WebApplicationException(ConvertError.resultErrorToWebAppError(resultFiles));
 				}
 			} else {
 				URI uriWithToken = URI.create(result.redirectURI().toString() + "?token=" + Token.generate(Secret.get(), fileId));
-				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).build());
+				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, version).build());
 			}
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);

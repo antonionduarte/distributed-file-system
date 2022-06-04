@@ -46,7 +46,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 	static final String FROM_BEGINNING = "earliest";
 	static final String TOPIC = "directory_replication";
-	static final String KAFKA_BROKERS = "localhost:9092";
+	static final String KAFKA_BROKERS = "kafka:9092";
 
 	//final String replicaId;
 	final KafkaPublisher sender;
@@ -54,7 +54,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 	private SyncPoint<String> syncPoint;
 
-	Gson gson;
+	private final Gson gson;
 
 	public JavaReplicatedDirectory(SyncPoint<String> syncPoint) {
 		this.sender = KafkaPublisher.createPublisher(KAFKA_BROKERS);
