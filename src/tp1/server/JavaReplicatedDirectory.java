@@ -72,6 +72,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException {
 		String fileId = String.format("%s_%s", userId, filename);
 
+		Set<URI> serverURIs = new HashSet<>();
 		FileInfo file;
 		synchronized (this) {
 			file = files.get(fileId);
@@ -106,7 +107,6 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 				}
 			}
 
-			Set<URI> serverURIs = new HashSet<>();
 			Result<Void> filesResult = null;
 			for (Pair<URI, Files> filesUriAndClient : filesUrisAndClients) {
 				serverURIs.add(filesUriAndClient.first());
@@ -121,27 +121,18 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 			}
-
-			//if (file == null) {
-			//	Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
-			//	for (URI serverURI : serverURIs)
-			//		fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
-			//	file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
-			//	URIsPerFile.put(fileId, fileURIs);
-			//}
-
-			//files.put(fileId, file);
 		}
 
 		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet());
 		listFiles.add(file);
 
-		var writeFile = new WriteFile(filename, data, userId, password);
+		var writeFile = new WriteFile(filename, data, userId, password, serverURIs);
 		var jsonOperation = new JsonOperation(writeFile, OperationType.WRITE_FILE);
 
 		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
-		var result = syncPoint.waitForResult(version);
+		this.syncPoint.waitForResult(version);
 
+		file = files.get(fileId);
 		return Result.ok(file);
 	}
 
@@ -181,16 +172,41 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 	public void onReceive(ConsumerRecord<String, String> record) {
 		var version = record.offset();
 		var result = record.value();
-		this.syncPoint.setResult(version, result);
 
 		JsonOperation jsonOperation = gson.fromJson(result, JsonOperation.class);
 
 		switch (jsonOperation.getOperationType()) {
-			case WRITE_FILE -> /* call file */
+			case WRITE_FILE -> dir_writeFile((WriteFile) jsonOperation.getOperation());
+			case GET_FILE -> System.out.println("suck my..");
+			case SHARE_FILE -> System.out.println("suck my..");
+			case DELETE_FILE -> System.out.println("suck my..");
+			case UNSHARE_FILE -> System.out.println("suck my..");
+			case REMOVE_USER_FILES -> System.out.println("suck my..");
+			case LS_FILE -> System.out.println("suck my..");
 		}
 
+		this.syncPoint.setResult(version, result);
+	}
 
 
+	private void dir_writeFile(WriteFile writeFile) {
+		var userId = writeFile.getUserId();
+		var filename = writeFile.getFilename();
+		var serverURIs = writeFile.getServerUris();
+
+		String fileId = String.format("%s_%s", userId, filename);
+
+		var file = files.get(fileId);
+
+		if (file == null) {
+			Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
+			for (URI serverURI : serverURIs)
+				fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
+			file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
+			URIsPerFile.put(fileId, fileURIs);
+		}
+
+		files.put(fileId, file);
 	}
 
 	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file) {
