@@ -60,7 +60,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
-		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
 
 	}
 
@@ -78,7 +78,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			throw new WebApplicationException(errorCode);
 		}
 
-		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			throw new WebApplicationException(errorCode);
 		}
 
-		throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
 	}
 
 	@Override
@@ -147,7 +147,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 
 	@Override
 	public void removeUser(String userId, String token) {
-		Result<Void> result = impl.removeUserFiles(userId, token);
+		Result<Void> result = impl.removeUser(userId, token);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);

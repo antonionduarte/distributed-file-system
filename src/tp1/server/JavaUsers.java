@@ -1,12 +1,9 @@
 package tp1.server;
 
 import tp1.api.User;
-import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
-import tp1.clients.ClientFactory;
-import util.Secret;
-import util.Token;
+import util.kafka.KafkaPublisher;
 
 import java.util.List;
 import java.util.Map;
@@ -17,12 +14,17 @@ import java.util.logging.Logger;
 public class JavaUsers implements Users {
 
 	private static final Logger Log = Logger.getLogger(JavaUsers.class.getName());
+	private static final String KAFKA_BROKERS = "kafka:9092";
+	private static final String DELETE_USER_TOPIC = "delete_user";
+
 	private final Map<String, User> users;
-	private final ClientFactory clientFactory;
+	//private final ClientFactory clientFactory;
+	private final KafkaPublisher pub;
 
 	public JavaUsers() {
 		this.users = new ConcurrentHashMap<>();
-		this.clientFactory = ClientFactory.getInstance();
+		//this.clientFactory = ClientFactory.getInstance();
+		this.pub = KafkaPublisher.createPublisher(KAFKA_BROKERS);
 	}
 
 	@Override
@@ -112,8 +114,10 @@ public class JavaUsers implements Users {
 			users.remove(userId);
 		}
 
-		Directory directoryClient = clientFactory.getDirectoryClient().second();
-		directoryClient.removeUserFiles(userId, Token.generate(Secret.get(), userId));
+		//Directory directoryClient = clientFactory.getDirectoryClient().second();
+		//directoryClient.removeUserFiles(userId, Token.generate(Secret.get(), userId));
+
+		pub.publish(DELETE_USER_TOPIC, userId);
 
 		return Result.ok(valid.value());
 	}

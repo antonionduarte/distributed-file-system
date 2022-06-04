@@ -97,5 +97,5 @@ public interface Directory {
 	 * @param token - secret token
 	 * @return OK if token is correct, FORBIDDEN otherwise
 	 */
-	Result<Void> removeUserFiles(String userId, String token);
+	Result<Void> removeUser(String userId, String token);
 }

@@ -22,6 +22,14 @@ public class SoapFilesWebService implements SoapFiles {
 	}
 
 	@Override
+	public void deleteUserFiles(String userId, String token) throws FilesException {
+		var result = impl.deleteUserFiles(userId, token);
+		if (!result.isOK()) {
+			throw new FilesException(result.error().toString());
+		}
+	}
+
+	@Override
 	public void deleteFile(String fileId, String token) throws FilesException {
 		var result = impl.deleteFile(fileId, token);
 		if (!result.isOK()) {

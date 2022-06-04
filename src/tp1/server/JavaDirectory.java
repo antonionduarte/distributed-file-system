@@ -312,7 +312,7 @@ public class JavaDirectory implements Directory {
 	}
 
 	@Override
-	public Result<Void> removeUserFiles(String userId, String token) {
+	public Result<Void> removeUser(String userId, String token) {
 		if (!Token.validate(token, Secret.get(), userId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
@@ -331,13 +331,6 @@ public class JavaDirectory implements Directory {
 					if (!user.equals(userId)) {
 						accessibleFilesPerUser.get(user).remove(file);
 					}
-				}
-
-				// delete user's files from files server
-				// different files have different clients although same user
-				for (URI fileURI : intersectionWithDiscoveryOfFiles(file)) {
-					Files filesClient = clientFactory.getFilesClient(fileURI).second();
-					filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				}
 			}
 			// delete user from shareWith of others files

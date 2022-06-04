@@ -57,7 +57,7 @@ public class RestDirectoryClient extends RestClient implements Directory {
 	}
 
 	@Override
-	public Result<Void> removeUserFiles(String userId, String token) {
+	public Result<Void> removeUser(String userId, String token) {
 		return super.reTry(() -> clt_removeUserFiles(userId, token));
 	}
 
