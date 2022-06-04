@@ -284,7 +284,7 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		List<URI> discovered = Discovery.getInstance().knownUrisOf(FilesServer.SERVICE);
+		List<URI> discovered = Discovery.getInstance().knownUrisOf("files");
 		Set<URI> intersection = URIsPerFile.get(file).stream().filter(uri -> {
 			for (URI discoveredURI: discovered) {
 				if (uri.toString().contains(discoveredURI.toString()))
