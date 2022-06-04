@@ -14,7 +14,10 @@ import util.Token;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -71,7 +74,9 @@ public class JavaDirectory implements Directory {
 			} else {
 				for (URI uri : intersectionWithDiscoveryOfFiles(file)) {
 					var client = clientFactory.getFilesClient(uri);
-					if (client != null) filesUrisAndClients.add(client);
+					if (client != null) {
+						filesUrisAndClients.add(client);
+					}
 				}
 			}
 
@@ -87,7 +92,9 @@ public class JavaDirectory implements Directory {
 				}
 			}
 
-			if (filesResult == null) return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			if (filesResult == null) {
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
 
 			if (file == null) {
 				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
@@ -306,7 +313,9 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public Result<Void> removeUserFiles(String userId, String token) {
-		if (!Token.validate(token, Secret.get(), userId)) return Result.error(Result.ErrorCode.FORBIDDEN);
+		if (!Token.validate(token, Secret.get(), userId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
 
 		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
@@ -345,13 +354,16 @@ public class JavaDirectory implements Directory {
 		Set<URI> uris = URIsPerFile.get(fileId);
 		Set<URI> intersection = uris.stream().filter(uri -> {
 			for (URI discoveredURI : discovered) {
-				if (uri.toString().contains(discoveredURI.toString())) return true;
+				if (uri.toString().contains(discoveredURI.toString())) {
+					return true;
+				}
 			}
 			return false;
 		}).collect(Collectors.toSet());
 
-		if (intersection.size() != uris.size())
+		if (intersection.size() != uris.size()) {
 			file.setFileURL(intersection.toArray()[0].toString());
+		}
 
 		return intersection;
 	}
