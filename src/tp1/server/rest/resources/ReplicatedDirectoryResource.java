@@ -40,7 +40,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 		}
 
 		if (result.isOK()) {
-			throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).entity(result.value()).build());
+			throw new WebApplicationException(Response.ok().header(HEADER_VERSION, result.version()).entity(result.value()).build());
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
@@ -60,7 +60,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
-		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, result.version()).build());
 
 	}
 
@@ -78,7 +78,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			throw new WebApplicationException(errorCode);
 		}
 
-		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, result.version()).build());
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 			throw new WebApplicationException(errorCode);
 		}
 
-		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, version).build());
+		throw new WebApplicationException(Response.noContent().header(HEADER_VERSION, result.version()).build());
 	}
 
 	@Override
@@ -119,13 +119,13 @@ public class ReplicatedDirectoryResource implements RestDirectory {
 				}
 
 				if (resultFiles.isOK()) {
-					throw new WebApplicationException(Response.ok().header(HEADER_VERSION, version).entity(result.value()).build());
+					throw new WebApplicationException(Response.ok().header(HEADER_VERSION, result.version()).entity(result.value()).build());
 				} else {
 					throw new WebApplicationException(ConvertError.resultErrorToWebAppError(resultFiles));
 				}
 			} else {
 				URI uriWithToken = URI.create(result.redirectURI().toString() + "?token=" + Token.generate(Secret.get(), fileId));
-				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, version).build());
+				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, result.version()).build());
 			}
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
