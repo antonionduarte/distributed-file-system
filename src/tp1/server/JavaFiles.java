@@ -8,21 +8,30 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import util.IO;
 import util.Secret;
 import util.Token;
+import util.kafka.KafkaSubscriber;
+import util.kafka.RecordProcessor;
 
-public class JavaFiles implements Files {
+public class JavaFiles implements Files, RecordProcessor {
 
-	static final String DELIMITER = "_";
+	private static final String DELIMITER = "_";
 	private static final String ROOT = "/tmp/";
+	private static final String FROM_BEGINNING = "earliest";
+	private static final String KAFKA_BROKERS = "kafka:9092";
 	private static final String DELETE_USER_TOPIC = "delete_user";
 
 	public JavaFiles() {
 		new File( ROOT ).mkdirs();
+
+		KafkaSubscriber sub = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DELETE_USER_TOPIC), FROM_BEGINNING);
+		sub.start(false, this);
 	}
 
 	@Override
@@ -62,6 +71,10 @@ public class JavaFiles implements Files {
 		if (!Token.validate(token, Secret.get(), userId))
 			return error(FORBIDDEN);
 
+		return aux_deleteUserFiles(userId);
+	}
+
+	private Result<Void> aux_deleteUserFiles(String userId) {
 		File file = new File(ROOT + userId);
 		try {
 			java.nio.file.Files.walk(file.toPath())
@@ -77,6 +90,11 @@ public class JavaFiles implements Files {
 
 	public static String fileId(String filename, String userId) {
 		return userId + JavaFiles.DELIMITER + filename;
+	}
+
+	@Override
+	public void onReceive(ConsumerRecord<String, String> record) {
+		aux_deleteUserFiles(record.value());
 	}
 }
 
