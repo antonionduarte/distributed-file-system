@@ -10,6 +10,7 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.api.service.util.Users;
 import tp1.clients.ClientFactory;
+import tp1.server.operations.DeleteFile;
 import tp1.server.operations.JsonOperation;
 import tp1.server.operations.OperationType;
 import tp1.server.operations.WriteFile;
@@ -138,9 +139,64 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 	@Override
 	public Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException {
+		String fileId = String.format("%s_%s", userId, filename);
 
+		FileInfo file;
+		synchronized (this) {
+			file = files.get(fileId);
 
-		return null;
+			if (file != null) {
+				if (!file.getOwner().equals(userId)) {
+					return Result.error(Result.ErrorCode.FORBIDDEN);
+				}
+			} else {
+				return Result.error(Result.ErrorCode.NOT_FOUND);
+			}
+
+			Users usersClient = clientFactory.getUsersClient().second();
+			var userResult = usersClient.getUser(userId, password);
+
+			if (userResult == null) {
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
+
+			// authenticate the user
+			if (!userResult.isOK()) {
+				return Result.error(userResult.error());
+			}
+
+			Result<Void> filesResult = null;
+			for (URI fileURI : intersectionWithDiscoveryOfFiles(file)) {
+				Files filesClient = clientFactory.getFilesClient(fileURI).second();
+				filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
+				clientFactory.deletedFileFromServer(fileURI);
+			}
+
+			if (filesResult == null) {
+				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+			}
+
+			if (!filesResult.isOK()) {
+				return Result.error(filesResult.error());
+			}
+
+			// TODO!
+			//files.remove(fileId);
+			//URIsPerFile.remove(fileId);
+		}
+
+		//accessibleFilesPerUser.get(userId).remove(file);
+		//for (String user : file.getSharedWith()) {
+		//	accessibleFilesPerUser.get(user).remove(file);
+		//}
+
+		var deleteFile = new DeleteFile(filename, userId, password);
+		var jsonOperation = new JsonOperation(deleteFile, OperationType.DELETE_FILE);
+
+		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		this.syncPoint.waitForResult(version);
+
+		return Result.ok();
 	}
 
 	@Override
@@ -179,7 +235,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			case WRITE_FILE -> dir_writeFile((WriteFile) jsonOperation.getOperation());
 			case GET_FILE -> System.out.println("suck my..");
 			case SHARE_FILE -> System.out.println("suck my..");
-			case DELETE_FILE -> System.out.println("suck my..");
+			case DELETE_FILE -> dir_deleteFile((DeleteFile) jsonOperation.getOperation());
 			case UNSHARE_FILE -> System.out.println("suck my..");
 			case REMOVE_USER_FILES -> System.out.println("suck my..");
 			case LS_FILE -> System.out.println("suck my..");
@@ -196,17 +252,36 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 		String fileId = String.format("%s_%s", userId, filename);
 
-		var file = files.get(fileId);
+		synchronized (this) {
+			var file = files.get(fileId);
 
-		if (file == null) {
-			Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
-			for (URI serverURI : serverURIs)
-				fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
-			file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
-			URIsPerFile.put(fileId, fileURIs);
+			if (file == null) {
+				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
+				for (URI serverURI : serverURIs)
+					fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
+				file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
+				this.URIsPerFile.put(fileId, fileURIs);
+			}
+
+			this.files.put(fileId, file);
 		}
+	}
 
-		files.put(fileId, file);
+	private void dir_deleteFile(DeleteFile deleteFile) {
+		var userId = deleteFile.getUserId();
+		var filename = deleteFile.getFilename();
+
+		synchronized (this) {
+			var fileId = String.format("%s_%s", userId, filename);
+			var file = files.get(fileId);
+
+			this.files.remove(fileId);
+			this.URIsPerFile.remove(fileId);
+
+			for (String user : file.getSharedWith()) {
+				this.accessibleFilesPerUser.get(user).remove(file);
+			}
+		}
 	}
 
 	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file) {
