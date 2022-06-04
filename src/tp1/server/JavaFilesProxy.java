@@ -33,6 +33,9 @@ public class JavaFilesProxy implements Files {
 	private static final String JSON_CONTENT_TYPE = "application/json; charset=utf-8";
 	private static final String OCTET_STREAM_CONTENT_TYPE = "application/octet-stream";
 
+	private static final String ROOT = "/distributed-fs";
+	private static final String DELIMITER = "_";
+
 	private final Gson json;
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
@@ -43,12 +46,14 @@ public class JavaFilesProxy implements Files {
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
 
 		if (deleteAll) {
-			this.deleteAll();
+			this.deleteAll("");
 		}
 	}
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
+		fileId = fileId.replace( DELIMITER, "/");
+
 		Log.info("writeFile : " + fileId);
 
 		if (!Token.validate(token, Secret.get(), fileId)) {
@@ -59,7 +64,7 @@ public class JavaFilesProxy implements Files {
 				false,
 				false,
 				false,
-				"/distributed-fs/" + fileId,
+				ROOT + "/" + fileId,
 				"overwrite"
 		));
 
@@ -85,13 +90,16 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
+		fileId = fileId.replace( DELIMITER, "/");
+
 		Log.info("deleteFile : " + fileId);
+
 
 		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		String path = "/distributed-fs";
+		String path = ROOT;
 		if (!fileId.equals("")) {
 			path += "/" + fileId;
 		}
@@ -123,13 +131,15 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
+		fileId = fileId.replace( DELIMITER, "/");
+
 		Log.info("getFile : " + fileId);
 
 		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		var jsonArgs = json.toJson(new DownloadFileV2Args("/distributed-fs/" + fileId));
+		var jsonArgs = json.toJson(new DownloadFileV2Args(ROOT + "/" + fileId));
 
 		var downloadFile = new OAuthRequest(Verb.POST, DOWNLOAD_FILE_V2_URL);
 		downloadFile.addHeader(DROPBOX_API_ARG_HDR, jsonArgs);
@@ -156,22 +166,27 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String token) {
-		return null;
+		if (!Token.validate(token, Secret.get(), userId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		deleteAll(userId);
+
+		return Result.ok();
 	}
 
-	private void deleteAll() {
-		String path = "/distributed-fs";
+	private void deleteAll(String folder) {
 
-		var jsonArgs = json.toJson(new DeleteFileV2Args(path));
+		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + "/" + folder));
 
-		var deleteFile = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
-		deleteFile.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);
-		deleteFile.setPayload(jsonArgs);
+		var deleteFolder = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
+		deleteFolder.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);
+		deleteFolder.setPayload(jsonArgs);
 
-		service.signRequest(accessToken, deleteFile);
+		service.signRequest(accessToken, deleteFolder);
 
 		try {
-			service.execute(deleteFile);
+			service.execute(deleteFolder);
 		} catch (Exception e) {
 			// do nothing
 		}
