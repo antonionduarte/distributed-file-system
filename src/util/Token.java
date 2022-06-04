@@ -4,10 +4,9 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static tp1.clients.rest.RestClient.RETRY_SLEEP;
-
 public class Token {
 
+	private static final int TOKEN_EXPIRE = 10000;
 	private static final String DELIMITER = "_";
 
 	private Token() {}
@@ -24,7 +23,7 @@ public class Token {
 
 	synchronized public static String generate(Object ...values) {
 		md.reset();
-		long time = System.currentTimeMillis() + RETRY_SLEEP;
+		long time = System.currentTimeMillis() + TOKEN_EXPIRE;
 		md.update((byte) (time));
 		for( var o : values )
 			md.update( o.toString().getBytes() );

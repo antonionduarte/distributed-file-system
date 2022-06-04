@@ -1,21 +1,20 @@
 package util;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URI;
+import java.net.*;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.logging.Logger;
 
 /**
+ * Performs service discovery. Used by servers to announce themselves, and clients
+ * to discover services on demand.
+ *
+ * @author smduarte
+ *
  * <p>A class to perform service discovery, based on periodic service contact endpoint
  * announcements over multicast communication.</p>
  *
@@ -27,8 +26,9 @@ import java.util.logging.Logger;
  * <p>&lt;service-name-string&gt;&lt;delimiter-char&gt;&lt;service-uri-string&gt;</p>
  */
 public class Discovery {
+	private static Discovery instance = null;
+
 	private static final Logger Log = Logger.getLogger(Discovery.class.getName());
-	private static final int RESET_FREQUENCY = 5;
 
 	static {
 		// addresses some multicast issues on some TCP/IP stacks
@@ -37,21 +37,20 @@ public class Discovery {
 		System.setProperty("java.util.logging.SimpleFormatter.format", "%4$s: %5$s");
 	}
 
+
 	// The pre-agreed multicast endpoint assigned to perform discovery.
-	public static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress("227.227.227.227", 2277);
+	static final InetSocketAddress DISCOVERY_ADDR = new InetSocketAddress("227.227.227.227", 2277);
 	static final int DISCOVERY_PERIOD = 1000;
+	static final int DISCOVERY_RESET = 5000;
 	static final int DISCOVERY_TIMEOUT = 5000;
 
 	// Used separate the two fields that make up a service announcement.
 	private static final String DELIMITER = "\t";
 
-	private Map<String, List<URI>> services;
+	private static Map<String, Set<URI>> services = new ConcurrentHashMap<>();
 
-	private static Discovery instance;
 
-	private Discovery() {
-		this.services = new ConcurrentHashMap<>();
-	}
+	private Discovery() { }
 
 	public static Discovery getInstance() {
 		if (instance == null) {
@@ -64,10 +63,11 @@ public class Discovery {
 	 * Continuously announces a service given its name and uri
 	 *
 	 * @param serviceName the composite service name: <domain:service>
-	 * @param serviceURI  - the uri of the service
+	 * @param serviceURI - the uri of the service
 	 */
 	public void announce(String serviceName, String serviceURI) {
-		Log.info(String.format("Starting Discovery announcements on: %s for: %s -> %s\n", DISCOVERY_ADDR, serviceName, serviceURI));
+		Log.info(String.format("Starting Discovery announcements on: %s for: %s -> %s\n",
+				DISCOVERY_ADDR, serviceName, serviceURI));
 
 		var pktBytes = String.format("%s%s%s", serviceName, DELIMITER, serviceURI).getBytes();
 
@@ -75,7 +75,7 @@ public class Discovery {
 		// start thread to send periodic announcements
 		new Thread(() -> {
 			try (var ds = new DatagramSocket()) {
-				for (; ; ) {
+				for (;;) {
 					try {
 						Thread.sleep(DISCOVERY_PERIOD);
 						ds.send(pkt);
@@ -89,11 +89,10 @@ public class Discovery {
 		}).start();
 	}
 
-	/**
-	 * Listens for the given composite service name, blocks until a minimum number of replies is collected.
-	 */
+
 	public void listener() {
-		Log.info(String.format("Starting discovery on multicast group: %s, port: %d\n", DISCOVERY_ADDR.getAddress(), DISCOVERY_ADDR.getPort()));
+		Log.info(String.format("Starting discovery on multicast group: %s, port: %d\n",
+				DISCOVERY_ADDR.getAddress(), DISCOVERY_ADDR.getPort()));
 
 		final int MAX_DATAGRAM_SIZE = 65536;
 		var pkt = new DatagramPacket(new byte[MAX_DATAGRAM_SIZE], MAX_DATAGRAM_SIZE);
@@ -101,41 +100,31 @@ public class Discovery {
 		new Thread(() -> {
 			try (var ms = new MulticastSocket(DISCOVERY_ADDR.getPort())) {
 				joinGroupInAllInterfaces(ms);
-				// long startTime = System.currentTimeMillis();
-				int i = 0;
-				for (; ; ) {
+				for(;;) {
 					try {
 						pkt.setLength(MAX_DATAGRAM_SIZE);
 						ms.receive(pkt);
 
 						var msg = new String(pkt.getData(), 0, pkt.getLength());
-						/*System.out.printf("FROM %s (%s) : %s\n", pkt.getAddress().getCanonicalHostName(),
+						/*System.out.printf( "FROM %s (%s) : %s\n", pkt.getAddress().getCanonicalHostName(),
 								pkt.getAddress().getHostAddress(), msg);*/
 						var tokens = msg.split(DELIMITER);
 
-						// service found, add the URI to the list of URIs of the service
 						if (tokens.length == 2) {
-							List<URI> service = services.get(tokens[0]);
-							if (service != null) {
-								service.add(URI.create(tokens[1]));
-							} else {
-								service = new CopyOnWriteArrayList<>();
-								service.add(URI.create(tokens[1]));
-								services.put(tokens[0], service);
-							}
+							String service = tokens[0];
+							URI newUri = URI.create(tokens[1]);
+							Set<URI> uris;
+
+							uris = services.computeIfAbsent(service, k -> new CopyOnWriteArraySet<>());
+							uris.add(newUri);
+
+							services.put(service, uris);
 						}
 
-						// break discovery once Timeout ends.
-						// if (System.currentTimeMillis() - startTime > DISCOVERY_TIMEOUT) break;
 					} catch (IOException e) {
 						e.printStackTrace();
 						try {
 							Thread.sleep(DISCOVERY_PERIOD);
-							if (i >= RESET_FREQUENCY) {
-								reset();
-								i = 0;
-							} else
-								i++;
 						} catch (InterruptedException e1) {
 							// do nothing
 						}
@@ -148,22 +137,54 @@ public class Discovery {
 		}).start();
 	}
 
+	private void resetPeriodically() {
+		new Thread(() -> {
+			for(;;) {
+				try {
+					services = new ConcurrentHashMap<>();
+					Thread.sleep(DISCOVERY_RESET);
+				} catch (InterruptedException e) {
+					// nothing
+				}
+			}
+		}).start();
+	}
+
 	/**
 	 * Returns the known servers for a service.
 	 *
-	 * @param serviceName the name of the service being discovered
+	 * @param  serviceName the name of the service being discovered
 	 * @return an array of URI with the service instances discovered.
+	 *
 	 */
-	public List<URI> knownUrisOf(String serviceName) {
-		long startTime = System.currentTimeMillis();
-		do {
-			List<URI> service = services.get(serviceName);
-			if (service != null) {
-				return service;
+	public URI[] knownUrisOf(String serviceName) {
+		URI[] uris = retrieveUris(serviceName);
+		int replies = uris.length;
+
+		try {
+			while (replies == 0) {
+				Thread.sleep(DISCOVERY_PERIOD);
+				uris = retrieveUris(serviceName);
+				replies = uris.length;
 			}
-		} while (System.currentTimeMillis() - startTime <= DISCOVERY_TIMEOUT);
-		return null;
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return uris;
 	}
+
+
+	private URI[] retrieveUris(String serviceName) {
+		if (!services.containsKey(serviceName))
+			return new URI[0];
+
+		else {
+			Set<URI> uris = services.get(serviceName);
+			return uris.toArray(new URI[0]);
+		}
+	}
+
 
 	private void joinGroupInAllInterfaces(MulticastSocket ms) throws SocketException {
 		Enumeration<NetworkInterface> ifs = NetworkInterface.getNetworkInterfaces();
@@ -177,15 +198,10 @@ public class Discovery {
 		}
 	}
 
-	/**
-	 * Starts sending service announcements at regular intervals...
-	 */
 	public void start(String serviceName, String serviceURI) {
 		announce(serviceName, serviceURI);
 		listener();
+		resetPeriodically();
 	}
 
-	private void reset() {
-		this.services = new ConcurrentHashMap<>();
-	}
 }
