@@ -4,17 +4,29 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import tp1.api.FileInfo;
 import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
+import util.kafka.KafkaPublisher;
+import util.kafka.KafkaSubscriber;
 import util.kafka.RecordProcessor;
 import util.kafka.sync.SyncPoint;
 
 import java.net.MalformedURLException;
 import java.util.List;
 
-public class JavaReplicatedDirectory implements Directory, RecordProcessor {
+public class JavaReplicatedDirectory extends Thread implements Directory, RecordProcessor {
+	static final String FROM_BEGINNING = "earliest";
+	static final String TOPIC = "directory_replication";
+	static final String KAFKA_BROKERS = "localhost:9092";
+
+	//final String replicaId;
+	final KafkaPublisher sender;
+	final KafkaSubscriber receiver;
 
 	private SyncPoint<String> syncPoint;
 
 	public JavaReplicatedDirectory(SyncPoint<String> syncPoint) {
+		this.sender = KafkaPublisher.createPublisher(KAFKA_BROKERS);
+		this.receiver = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(TOPIC), FROM_BEGINNING);
+		this.receiver.start(false, this);
 		this.syncPoint = syncPoint;
 	}
 
