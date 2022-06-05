@@ -43,21 +43,22 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 	private final ClientFactory clientFactory;
 
-	static final String FROM_BEGINNING = "earliest";
-	static final String TOPIC = "directory_replication";
-	static final String KAFKA_BROKERS = "kafka:9092";
+	private static final String FROM_BEGINNING = "earliest";
+	private static final String DIRECTORY_REPLICATION_TOPIC = "directory_replication";
+	private static final String DELETE_USER_TOPIC = "delete_user";
+	private static final String KAFKA_BROKERS = "kafka:9092";
 
 	//final String replicaId;
 	final KafkaPublisher sender;
 	final KafkaSubscriber receiver;
 
-	private SyncPoint<String> syncPoint;
+	private final SyncPoint<String> syncPoint;
 
 	private final Gson gson;
 
 	public JavaReplicatedDirectory(SyncPoint<String> syncPoint) {
 		this.sender = KafkaPublisher.createPublisher(KAFKA_BROKERS);
-		this.receiver = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(TOPIC), FROM_BEGINNING);
+		this.receiver = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DIRECTORY_REPLICATION_TOPIC, DELETE_USER_TOPIC), FROM_BEGINNING);
 		this.receiver.start(false, this);
 		this.syncPoint = syncPoint;
 		this.gson = new GsonBuilder().create();
@@ -125,7 +126,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, files.get(fileId));
 		var jsonOperation = new JsonOperation(writeFile, OperationType.WRITE_FILE);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		file = files.get(fileId);
@@ -179,7 +180,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		var deleteFile = new DeleteFile(filename, userId, password, files.get(fileId));
 		var jsonOperation = new JsonOperation(deleteFile, OperationType.DELETE_FILE);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -219,7 +220,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		var shareFile = new ShareFile(filename, userId, userIdShare, password);
 		var jsonOperation = new JsonOperation(shareFile, OperationType.SHARE_FILE);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -259,7 +260,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		var shareFile = new UnshareFile(filename, userId, userIdShare, password);
 		var jsonOperation = new JsonOperation(shareFile, OperationType.UNSHARE_FILE);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -307,7 +308,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		var getFile = new GetFile(filename, userId, accUserId, password, files.get(fileId));
 		var jsonOperation = new JsonOperation(getFile, OperationType.GET_FILE);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		file = files.get(fileId);
@@ -343,15 +344,19 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
+		return aux_removeUser(userId);
+	}
+
+	private Result<Void> aux_removeUser(String userId) {
 		var listFiles = accessibleFilesPerUser.get(userId);
 		if (listFiles == null) {
 			return Result.ok();
 		}
 
-		var removeUser = new RemoveUserFiles(userId, token);
+		var removeUser = new RemoveUserFiles(userId, "remove"); //TODO
 		var jsonOperation = new JsonOperation(removeUser, OperationType.REMOVE_USER_FILES);
 
-		var version = sender.publish(TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -359,21 +364,25 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 
 	@Override
 	public void onReceive(ConsumerRecord<String, String> record) {
-		var version = record.offset();
-		var result = record.value();
+		if (record.topic().equals(DIRECTORY_REPLICATION_TOPIC)) {
+			var version = record.offset();
+			var result = record.value();
 
-		JsonOperation jsonOperation = gson.fromJson(result, JsonOperation.class);
+			JsonOperation jsonOperation = gson.fromJson(result, JsonOperation.class);
 
-		switch (jsonOperation.getOperationType()) {
-			case WRITE_FILE -> dir_writeFile((WriteFile) jsonOperation.getOperation());
-			case GET_FILE -> dir_getFile((GetFile) jsonOperation.getOperation());
-			case SHARE_FILE -> dir_shareFile((ShareFile) jsonOperation.getOperation());
-			case DELETE_FILE -> dir_deleteFile((DeleteFile) jsonOperation.getOperation());
-			case UNSHARE_FILE -> dir_unshareFile((UnshareFile) jsonOperation.getOperation());
-			case REMOVE_USER_FILES -> dir_removeUser((RemoveUserFiles) jsonOperation.getOperation());
+			switch (jsonOperation.getOperationType()) {
+				case WRITE_FILE -> dir_writeFile((WriteFile) jsonOperation.getOperation());
+				case GET_FILE -> dir_getFile((GetFile) jsonOperation.getOperation());
+				case SHARE_FILE -> dir_shareFile((ShareFile) jsonOperation.getOperation());
+				case DELETE_FILE -> dir_deleteFile((DeleteFile) jsonOperation.getOperation());
+				case UNSHARE_FILE -> dir_unshareFile((UnshareFile) jsonOperation.getOperation());
+				case REMOVE_USER_FILES -> dir_removeUser((RemoveUserFiles) jsonOperation.getOperation());
+			}
+
+			this.syncPoint.setResult(version, result);
+		} else if (record.topic().equals(DELETE_USER_TOPIC)) {
+			aux_removeUser(record.value());
 		}
-
-		this.syncPoint.setResult(version, result);
 	}
 
 	private void dir_removeUser(RemoveUserFiles removeUserFiles) {
