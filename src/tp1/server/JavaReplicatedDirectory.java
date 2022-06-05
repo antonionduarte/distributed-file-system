@@ -123,7 +123,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 		}
 
-		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, file);
+		var writeFile = new WriteFile(filename, userId, serverURIs, file);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.WRITE_FILE.name(), gson.toJson(writeFile));
 		this.syncPoint.waitForResult(version);
 
@@ -176,7 +176,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 		}
 
-		var deleteFile = new DeleteFile(filename, userId, password);
+		var deleteFile = new DeleteFile(filename, userId);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.DELETE_FILE.name(), gson.toJson(deleteFile));
 		this.syncPoint.waitForResult(version);
 
@@ -214,7 +214,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		var shareFile = new ShareFile(filename, userId, userIdShare, password);
+		var shareFile = new ShareFile(filename, userId, userIdShare);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.SHARE_FILE.name(), gson.toJson(shareFile));
 		this.syncPoint.waitForResult(version);
 
@@ -252,7 +252,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		var unshareFile = new UnshareFile(filename, userId, userIdShare, password);
+		var unshareFile = new UnshareFile(filename, userId, userIdShare);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.UNSHARE_FILE.name(), gson.toJson(unshareFile));
 		this.syncPoint.waitForResult(version);
 
@@ -298,7 +298,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 		intersectionWithDiscoveryOfFiles(file, true);
 
-		var getFile = new GetFile(filename, userId, accUserId, password, files.get(fileId));
+		var getFile = new GetFile(filename, userId, files.get(fileId));
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
 		this.syncPoint.waitForResult(version);
 

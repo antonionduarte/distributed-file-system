@@ -5,13 +5,11 @@ public class ShareFile {
 	private final String filename;
 	private final String userId;
 	private final String userIdShare;
-	private final String password;
 
-	public ShareFile(String filename, String userId, String userIdShare, String password) {
+	public ShareFile(String filename, String userId, String userIdShare) {
 		this.filename = filename;
 		this.userId = userId;
 		this.userIdShare = userIdShare;
-		this.password = password;
 	}
 
 	@Override
@@ -20,7 +18,6 @@ public class ShareFile {
 				"filename='" + filename + '\'' +
 				", userId='" + userId + '\'' +
 				", userIdShare='" + userIdShare + '\'' +
-				", password='" + password + '\'' +
 				'}';
 	}
 
@@ -34,9 +31,5 @@ public class ShareFile {
 
 	public String getUserIdShare() {
 		return userIdShare;
-	}
-
-	public String getPassword() {
-		return password;
 	}
 }

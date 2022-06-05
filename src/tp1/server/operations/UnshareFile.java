@@ -12,25 +12,17 @@ public class UnshareFile {
 				"filename='" + filename + '\'' +
 				", userId='" + userId + '\'' +
 				", userIdShare='" + userIdShare + '\'' +
-				", password='" + password + '\'' +
 				'}';
 	}
 
-	private final String password;
-
-	public UnshareFile(String filename, String userId, String userIdShare, String password) {
+	public UnshareFile(String filename, String userId, String userIdShare) {
 		this.filename = filename;
 		this.userId = userId;
 		this.userIdShare = userIdShare;
-		this.password = password;
 	}
 
 	public String getFilename() {
 		return filename;
-	}
-
-	public String getPassword() {
-		return password;
 	}
 
 	public String getUserId() {
