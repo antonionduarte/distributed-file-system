@@ -308,7 +308,6 @@ public class JavaDirectory implements Directory {
 		} else {
 			return Result.ok(new CopyOnWriteArrayList<>(list));
 		}
-
 	}
 
 	@Override
@@ -324,8 +323,6 @@ public class JavaDirectory implements Directory {
 
 		for (FileInfo file : listFiles) {
 			if (file.getOwner().equals(userId)) {
-				String fileId = String.format("%s_%s", userId, file.getFilename());
-
 				// delete user's files from others accessible files
 				for (String user : file.getSharedWith()) {
 					if (!user.equals(userId)) {
