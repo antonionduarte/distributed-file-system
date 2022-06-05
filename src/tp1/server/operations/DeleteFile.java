@@ -6,6 +6,17 @@ public class DeleteFile {
 
 	private final String filename;
 	private final String userId;
+
+	@Override
+	public String toString() {
+		return "DeleteFile{" +
+				"filename='" + filename + '\'' +
+				", userId='" + userId + '\'' +
+				", password='" + password + '\'' +
+				", fileInfo=" + fileInfo +
+				'}';
+	}
+
 	private final String password;
 	private final FileInfo fileInfo;
 

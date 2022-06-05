@@ -10,6 +10,17 @@ public class GetFile {
 	private final String password;
 	private final FileInfo fileInfo;
 
+	@Override
+	public String toString() {
+		return "GetFile{" +
+				"filename='" + filename + '\'' +
+				", userId='" + userId + '\'' +
+				", accUserId='" + accUserId + '\'' +
+				", password='" + password + '\'' +
+				", fileInfo=" + fileInfo +
+				'}';
+	}
+
 	public GetFile(String filename, String userId, String accUserId, String password, FileInfo fileInfo) {
 		this.filename = filename;
 		this.userId = userId;

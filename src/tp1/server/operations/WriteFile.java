@@ -3,6 +3,7 @@ package tp1.server.operations;
 import tp1.api.FileInfo;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 
 public class WriteFile {
@@ -15,6 +16,18 @@ public class WriteFile {
 
 	private final Set<URI> serverUris;
 	private final FileInfo fileInfo;
+
+	@Override
+	public String toString() {
+		return "WriteFile{" +
+				"filename='" + filename + '\'' +
+				", userId='" + userId + '\'' +
+				", password='" + password + '\'' +
+				", data=" + Arrays.toString(data) +
+				", serverUris=" + serverUris +
+				", fileInfo=" + fileInfo +
+				'}';
+	}
 
 	public WriteFile(String filename, byte[] data, String userId, String password, Set<URI> serverUris, FileInfo fileInfo) {
 		this.filename = filename;

@@ -14,6 +14,16 @@ public class ShareFile {
 		this.password = password;
 	}
 
+	@Override
+	public String toString() {
+		return "ShareFile{" +
+				"filename='" + filename + '\'' +
+				", userId='" + userId + '\'' +
+				", userIdShare='" + userIdShare + '\'' +
+				", password='" + password + '\'' +
+				'}';
+	}
+
 	public String getFilename() {
 		return filename;
 	}
