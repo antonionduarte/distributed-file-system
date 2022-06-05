@@ -68,6 +68,8 @@ public interface Result<T> {
 	 */
 	ErrorCode error();
 
+	long version();
+
 
 	/**
 	 * @author smd
@@ -88,6 +90,8 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 
 	URI redirectURI;
 
+	long version = -1;
+
 	OkResult(T result) {
 		this.result = result;
 	}
@@ -95,6 +99,17 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 	OkResult(URI redirectURI) {
 		this.redirectURI = redirectURI;
 	}
+
+	OkResult(T result, long version) {
+		this.result = result;
+		this.version = version;
+	}
+
+	OkResult(URI redirectURI, long version) {
+		this.redirectURI = redirectURI;
+		this.version = version;
+	}
+
 
 
 	@Override
@@ -110,6 +125,11 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 	@Override
 	public URI redirectURI() {
 		return redirectURI;
+	}
+
+	@Override
+	public long version() {
+		return version;
 	}
 
 
@@ -149,6 +169,11 @@ class ErrorResult<T> implements tp1.api.service.util.Result<T> {
 	@Override
 	public ErrorCode error() {
 		return error;
+	}
+
+	@Override
+	public long version() {
+		return -1;
 	}
 
 	public String toString() {
