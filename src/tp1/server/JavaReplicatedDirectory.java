@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class JavaReplicatedDirectory extends Thread implements Directory, RecordProcessor {
+public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 	// String: filename
 	private final Map<String, FileInfo> files;
@@ -98,7 +98,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			if (file == null) {
 				filesUrisAndClients = clientFactory.getFilesClients();
 			} else {
-				for (URI uri : intersectionWithDiscoveryOfFiles(file)) {
+				for (URI uri : intersectionWithDiscoveryOfFiles(file, false)) {
 					var client = clientFactory.getFilesClient(uri);
 					if (client != null) {
 						filesUrisAndClients.add(client);
@@ -121,19 +121,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 			}
 
-			if (file == null) {
-				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
-				for (URI serverURI : serverURIs)
-					fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
-				file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
-				URIsPerFile.put(fileId, fileURIs);
-			}
-
-			files.put(fileId, file);
 		}
-
-		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet());
-		listFiles.add(file);
 
 		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, file);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.WRITE_FILE.name(), gson.toJson(writeFile));
@@ -172,7 +160,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			}
 
 			Result<Void> filesResult = null;
-			for (URI fileURI : intersectionWithDiscoveryOfFiles(file)) {
+			for (URI fileURI : intersectionWithDiscoveryOfFiles(file, false)) {
 				Files filesClient = clientFactory.getFilesClient(fileURI).second();
 				filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 				clientFactory.deletedFileFromServer(fileURI);
@@ -185,9 +173,10 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			if (!filesResult.isOK()) {
 				return Result.error(filesResult.error());
 			}
+
 		}
 
-		var deleteFile = new DeleteFile(filename, userId, password, files.get(fileId));
+		var deleteFile = new DeleteFile(filename, userId, password);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.DELETE_FILE.name(), gson.toJson(deleteFile));
 		this.syncPoint.waitForResult(version);
 
@@ -307,7 +296,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		intersectionWithDiscoveryOfFiles(file);
+		intersectionWithDiscoveryOfFiles(file, true);
 
 		var getFile = new GetFile(filename, userId, accUserId, password, files.get(fileId));
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
@@ -366,6 +355,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			var version = record.offset();
 			var result = record.value();
 
+
 			switch (OperationType.valueOf(record.key())) {
 				case WRITE_FILE -> dir_writeFile(gson.fromJson(result, WriteFile.class));
 				case GET_FILE -> dir_getFile(gson.fromJson(result, GetFile.class));
@@ -399,8 +389,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		String fileId = String.format("%s_%s", userId, filename);
 
 		synchronized (this) {
-			var file = files.get(fileId);
-			this.files.put(fileId, writeFile.getFileInfo());
+			var file = writeFile.getFileInfo();
 
 			if (file == null) {
 				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
@@ -424,7 +413,6 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		synchronized (this) {
 			var fileId = String.format("%s_%s", userId, filename);
 			var file = files.get(fileId);
-			this.files.put(fileId, deleteFile.getFileInfo());
 
 			this.files.remove(fileId);
 			this.URIsPerFile.remove(fileId);
@@ -467,7 +455,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		}
 	}
 
-	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file) {
+	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file, boolean changeFileURL) {
 		URI[] discovered = Discovery.getInstance().knownUrisOf("files");
 		String fileId = String.format("%s_%s", file.getOwner(), file.getFilename());
 
@@ -481,7 +469,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			return false;
 		}).collect(Collectors.toSet());
 
-		if (intersection.size() != uris.size()) {
+		if (intersection.size() != uris.size() && changeFileURL) {
 			file.setFileURL(intersection.toArray()[0].toString());
 		}
 

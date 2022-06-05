@@ -13,18 +13,15 @@ public class DeleteFile {
 				"filename='" + filename + '\'' +
 				", userId='" + userId + '\'' +
 				", password='" + password + '\'' +
-				", fileInfo=" + fileInfo +
 				'}';
 	}
 
 	private final String password;
-	private final FileInfo fileInfo;
 
-	public DeleteFile(String filename, String userId, String password, FileInfo fileInfo) {
+	public DeleteFile(String filename, String userId, String password) {
 		this.filename = filename;
 		this.userId = userId;
 		this.password = password;
-		this.fileInfo = fileInfo;
 	}
 
 	public String getFilename() {
@@ -37,9 +34,5 @@ public class DeleteFile {
 
 	public String getPassword() {
 		return password;
-	}
-
-	public FileInfo getFileInfo() {
-		return fileInfo;
 	}
 }
