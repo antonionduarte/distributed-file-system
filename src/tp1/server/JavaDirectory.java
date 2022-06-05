@@ -1,5 +1,6 @@
 package tp1.server;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import tp1.api.FileInfo;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Directory;
@@ -11,6 +12,8 @@ import util.Discovery;
 import util.Pair;
 import util.Secret;
 import util.Token;
+import util.kafka.KafkaSubscriber;
+import util.kafka.RecordProcessor;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -22,7 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
-public class JavaDirectory implements Directory {
+public class JavaDirectory implements Directory, RecordProcessor {
+
+	private static final String FROM_BEGINNING = "earliest";
+	private static final String KAFKA_BROKERS = "kafka:9092";
+	private static final String DELETE_USER_TOPIC = "delete_user";
 
 	// String: filename
 	private final Map<String, FileInfo> files;
@@ -40,6 +47,9 @@ public class JavaDirectory implements Directory {
 		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
 		this.clientFactory = ClientFactory.getInstance();
 		this.URIsPerFile = new ConcurrentHashMap<>();
+
+		KafkaSubscriber sub = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DELETE_USER_TOPIC), FROM_BEGINNING);
+		sub.start(false, this);
 	}
 
 	@Override
@@ -289,8 +299,7 @@ public class JavaDirectory implements Directory {
 
 	@Override
 	public synchronized Result<List<FileInfo>> lsFile(String userId, String password) {
-		Users usersClient;
-		usersClient = clientFactory.getUsersClient().second();
+		Users usersClient = clientFactory.getUsersClient().second();
 		var userResult = usersClient.getUser(userId, password);
 
 		if (userResult == null) {
@@ -316,6 +325,10 @@ public class JavaDirectory implements Directory {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
+		return aux_removeUser(userId);
+	}
+
+	private Result<Void> aux_removeUser(String userId) {
 		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
 			return Result.ok();
@@ -356,5 +369,10 @@ public class JavaDirectory implements Directory {
 		}
 
 		return intersection;
+	}
+
+	@Override
+	public void onReceive(ConsumerRecord<String, String> record) {
+		aux_removeUser(record.value());
 	}
 }
