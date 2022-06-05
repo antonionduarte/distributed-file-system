@@ -37,7 +37,7 @@ public class SoapClient {
 				return func.get();
 			} catch (WebServiceException x) {
 				Log.fine("WebServiceException: " + x.getMessage());
-				sleep(RETRY_SLEEP);
+				sleep();
 			} catch (Exception x) {
 				Log.fine("Exception: " + x.getMessage());
 				x.printStackTrace();
@@ -46,9 +46,9 @@ public class SoapClient {
 		return null;
 	}
 
-	private void sleep(int ms) {
+	private void sleep() {
 		try {
-			Thread.sleep(ms);
+			Thread.sleep(SoapClient.RETRY_SLEEP);
 		} catch (InterruptedException x) { // nothing to do...
 		}
 	}

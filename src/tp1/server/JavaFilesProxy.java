@@ -15,8 +15,6 @@ import tp1.server.dropbox.UploadFileV2Args;
 import util.Secret;
 import util.Token;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
@@ -54,7 +52,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
@@ -92,7 +90,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
@@ -132,7 +130,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
@@ -167,7 +165,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String token) {
-		if (!Token.validate(token, Secret.get(), userId)) {
+		if (Token.notValid(token, Secret.get(), userId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 

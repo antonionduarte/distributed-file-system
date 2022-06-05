@@ -4,7 +4,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
 
-import java.io.IOException;
 import java.util.List;
 
 @Path(RestDirectory.PATH)

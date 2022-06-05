@@ -14,7 +14,6 @@ import util.ConvertError;
 import util.Secret;
 import util.Token;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.List;
 
@@ -28,11 +27,7 @@ public class DirectoryResource implements RestDirectory {
 	@Override
 	public FileInfo writeFile(Long header, String filename, byte[] data, String userId, String password) {
 		Result<FileInfo> result;
-		try {
-			result = impl.writeFile(filename, data, userId, password);
-		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-		}
+		result = impl.writeFile(filename, data, userId, password);
 
 		if (result.isOK()) {
 			return result.value();
@@ -45,11 +40,7 @@ public class DirectoryResource implements RestDirectory {
 	@Override
 	public void deleteFile(Long header, String filename, String userId, String password) {
 		Result<Void> result;
-		try {
-			result = impl.deleteFile(filename, userId, password);
-		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-		}
+		result = impl.deleteFile(filename, userId, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -60,11 +51,7 @@ public class DirectoryResource implements RestDirectory {
 	@Override
 	public void shareFile(Long header, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
-		try {
-			result = impl.shareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-		}
+		result = impl.shareFile(filename, userId, userIdShare, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -75,11 +62,7 @@ public class DirectoryResource implements RestDirectory {
 	@Override
 	public void unshareFile(Long header, String filename, String userId, String userIdShare, String password) {
 		Result<Void> result;
-		try {
-			result = impl.unshareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-		}
+		result = impl.unshareFile(filename, userId, userIdShare, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -90,11 +73,7 @@ public class DirectoryResource implements RestDirectory {
 	@Override
 	public byte[] getFile(Long header, String filename, String userId, String accUserId, String password) {
 		Result<byte[]> result;
-		try {
-			result = impl.getFile(filename, userId, accUserId, password);
-		} catch (MalformedURLException e) {
-			throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-		}
+		result = impl.getFile(filename, userId, accUserId, password);
 
 		if (result.isOK()) {
 

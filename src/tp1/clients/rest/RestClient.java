@@ -40,7 +40,7 @@ public class RestClient {
 				return func.get();
 			} catch (ProcessingException x) {
 				Log.fine("ProcessingException: " + x.getMessage());
-				sleep(RETRY_SLEEP);
+				sleep();
 			} catch (Exception x) {
 				Log.fine("Exception: " + x.getMessage());
 				x.printStackTrace();
@@ -49,9 +49,9 @@ public class RestClient {
 		return null;
 	}
 
-	private void sleep(int ms) {
+	private void sleep() {
 		try {
-			Thread.sleep(ms);
+			Thread.sleep(RestClient.RETRY_SLEEP);
 		} catch (InterruptedException x) { // nothing to do...
 		}
 	}

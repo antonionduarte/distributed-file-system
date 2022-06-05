@@ -4,11 +4,11 @@ import tp1.api.FileInfo;
 
 public class GetFile implements Operation {
 
-	private String filename;
-	private String userId;
-	private String accUserId;
-	private String password;
-	private FileInfo fileInfo;
+	private final String filename;
+	private final String userId;
+	private final String accUserId;
+	private final String password;
+	private final FileInfo fileInfo;
 
 	public GetFile(String filename, String userId, String accUserId, String password, FileInfo fileInfo) {
 		this.filename = filename;

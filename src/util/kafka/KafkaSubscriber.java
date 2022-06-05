@@ -23,7 +23,7 @@ public class KafkaSubscriber {
 
 		props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 
-		return new KafkaSubscriber(new KafkaConsumer<String, String>(props), topics);
+		return new KafkaSubscriber(new KafkaConsumer<>(props), topics);
 	}
 
 	private static final long POLL_TIMEOUT = 1L;
@@ -45,9 +45,7 @@ public class KafkaSubscriber {
 
 	private void consume(RecordProcessor processor) {
 		for (; ; ) {
-			consumer.poll(Duration.ofSeconds(POLL_TIMEOUT)).forEach(r -> {
-				processor.onReceive(r);
-			});
+			consumer.poll(Duration.ofSeconds(POLL_TIMEOUT)).forEach(processor::onReceive);
 		}
 	}
 }

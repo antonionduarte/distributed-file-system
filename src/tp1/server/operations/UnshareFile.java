@@ -2,10 +2,10 @@ package tp1.server.operations;
 
 public class UnshareFile implements Operation {
 
-	private String filename;
-	private String userId;
-	private String userIdShare;
-	private String password;
+	private final String filename;
+	private final String userId;
+	private final String userIdShare;
+	private final String password;
 
 	public UnshareFile(String filename, String userId, String userIdShare, String password) {
 		this.filename = filename;

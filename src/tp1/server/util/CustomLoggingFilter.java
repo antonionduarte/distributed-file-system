@@ -19,10 +19,9 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
 
 	@Override
 	public void filter(ContainerRequestContext requestContext) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(" - Path: ").append(requestContext.getUriInfo().getPath());
-		sb.append(" - Header: ").append(requestContext.getHeaders());
-		sb.append(" - Entity: ").append(getEntityBody(requestContext));
+		String sb = " - Path: " + requestContext.getUriInfo().getPath() +
+				" - Header: " + requestContext.getHeaders() +
+				" - Entity: " + getEntityBody(requestContext);
 		Log.info("HTTP REQUEST : {}" + sb);
 	}
 
@@ -51,9 +50,8 @@ public class CustomLoggingFilter implements ContainerRequestFilter, ContainerRes
 	@Override
 	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) {
 
-		StringBuilder sb = new StringBuilder();
-		sb.append("Header: ").append(responseContext.getHeaders());
-		sb.append(" - Entity (JSON): ").append(Entity.entity(responseContext.getEntity(), MediaType.APPLICATION_JSON).getEntity());
+		String sb = "Header: " + responseContext.getHeaders() +
+				" - Entity (JSON): " + Entity.entity(responseContext.getEntity(), MediaType.APPLICATION_JSON).getEntity();
 		Log.info("HTTP RESPONSE : " + sb);
 	}
 

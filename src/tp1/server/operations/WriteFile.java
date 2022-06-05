@@ -7,14 +7,14 @@ import java.util.Set;
 
 public class WriteFile implements Operation {
 
-	private String filename;
-	private String userId;
-	private String password;
+	private final String filename;
+	private final String userId;
+	private final String password;
 
-	private byte[] data;
+	private final byte[] data;
 
-	private Set<URI> serverUris;
-	private FileInfo fileInfo;
+	private final Set<URI> serverUris;
+	private final FileInfo fileInfo;
 
 	public WriteFile(String filename, byte[] data, String userId, String password, Set<URI> serverUris, FileInfo fileInfo) {
 		this.filename = filename;

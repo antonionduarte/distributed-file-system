@@ -19,6 +19,7 @@ import static tp1.api.service.util.Result.ErrorCode.*;
 import static tp1.api.service.util.Result.error;
 import static tp1.api.service.util.Result.ok;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class JavaFiles implements Files, RecordProcessor {
 
 	private static final String DELIMITER = "_";
@@ -36,7 +37,7 @@ public class JavaFiles implements Files, RecordProcessor {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return error(FORBIDDEN);
 		}
 
@@ -47,7 +48,7 @@ public class JavaFiles implements Files, RecordProcessor {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return error(FORBIDDEN);
 		}
 
@@ -58,7 +59,7 @@ public class JavaFiles implements Files, RecordProcessor {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		if (!Token.validate(token, Secret.get(), fileId)) {
+		if (Token.notValid(token, Secret.get(), fileId)) {
 			return error(FORBIDDEN);
 		}
 
@@ -71,7 +72,7 @@ public class JavaFiles implements Files, RecordProcessor {
 
 	@Override
 	public Result<Void> deleteUserFiles(String userId, String token) {
-		if (!Token.validate(token, Secret.get(), userId)) {
+		if (Token.notValid(token, Secret.get(), userId)) {
 			return error(FORBIDDEN);
 		}
 

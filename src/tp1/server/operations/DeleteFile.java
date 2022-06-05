@@ -4,9 +4,9 @@ import tp1.api.FileInfo;
 
 public class DeleteFile implements Operation {
 
-	private String filename;
-	private String userId;
-	private String password;
+	private final String filename;
+	private final String userId;
+	private final String password;
 	private FileInfo fileInfo;
 
 	public DeleteFile(String filename, String userId, String password, FileInfo fileInfo) {

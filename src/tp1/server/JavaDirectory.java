@@ -15,7 +15,6 @@ import util.Token;
 import util.kafka.KafkaSubscriber;
 import util.kafka.RecordProcessor;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +52,7 @@ public class JavaDirectory implements Directory, RecordProcessor {
 	}
 
 	@Override
-	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) throws MalformedURLException {
+	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file;
@@ -124,7 +123,7 @@ public class JavaDirectory implements Directory, RecordProcessor {
 	}
 
 	@Override
-	public Result<Void> deleteFile(String filename, String userId, String password) throws MalformedURLException {
+	public Result<Void> deleteFile(String filename, String userId, String password) {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file;
@@ -257,7 +256,7 @@ public class JavaDirectory implements Directory, RecordProcessor {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) throws MalformedURLException {
+	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) {
 		String fileId = String.format("%s_%s", userId, filename);
 
 		FileInfo file = files.get(fileId);
@@ -321,7 +320,7 @@ public class JavaDirectory implements Directory, RecordProcessor {
 
 	@Override
 	public Result<Void> removeUser(String userId, String token) {
-		if (!Token.validate(token, Secret.get(), userId)) {
+		if (Token.notValid(token, Secret.get(), userId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 

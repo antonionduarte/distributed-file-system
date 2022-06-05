@@ -12,7 +12,6 @@ import tp1.server.JavaDirectory;
 import util.Secret;
 import util.Token;
 
-import java.net.MalformedURLException;
 import java.util.List;
 
 @WebService(serviceName = SoapDirectory.NAME, targetNamespace = SoapDirectory.NAMESPACE, endpointInterface = SoapDirectory.INTERFACE)
@@ -26,11 +25,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public FileInfo writeFile(String filename, byte[] data, String userId, String password) throws DirectoryException {
 		Result<FileInfo> result;
-		try {
-			result = impl.writeFile(filename, data, userId, password);
-		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
-		}
+		result = impl.writeFile(filename, data, userId, password);
 
 		if (result.isOK()) {
 			return result.value();
@@ -42,11 +37,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public void deleteFile(String filename, String userId, String password) throws DirectoryException {
 		Result<Void> result;
-		try {
-			result = impl.deleteFile(filename, userId, password);
-		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
-		}
+		result = impl.deleteFile(filename, userId, password);
 		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
 		}
@@ -55,11 +46,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public void shareFile(String filename, String userId, String userIdShare, String password) throws DirectoryException {
 		Result<Void> result;
-		try {
-			result = impl.shareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
-		}
+		result = impl.shareFile(filename, userId, userIdShare, password);
 		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
 		}
@@ -68,11 +55,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public void unshareFile(String filename, String userId, String userIdShare, String password) throws DirectoryException {
 		Result<Void> result;
-		try {
-			result = impl.unshareFile(filename, userId, userIdShare, password);
-		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
-		}
+		result = impl.unshareFile(filename, userId, userIdShare, password);
 		if (!result.isOK()) {
 			throw new DirectoryException(result.error().toString());
 		}
@@ -81,28 +64,24 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException {
 		Result<byte[]> resultDir;
-		try {
-			resultDir = impl.getFile(filename, userId, accUserId, password);
+		resultDir = impl.getFile(filename, userId, accUserId, password);
 
-			if (resultDir.isOK()) {
-				Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI()).second();
+		if (resultDir.isOK()) {
+			Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI()).second();
 
-				String fileId = userId + "_" + filename;
-				Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
-				if (resultFiles == null) {
-					throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
-				}
-
-				if (resultFiles.isOK()) {
-					return resultFiles.value();
-				} else {
-					throw new DirectoryException(resultFiles.error().toString());
-				}
-			} else {
-				throw new DirectoryException(resultDir.error().toString());
+			String fileId = userId + "_" + filename;
+			Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
+			if (resultFiles == null) {
+				throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 			}
-		} catch (MalformedURLException e) {
-			throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
+
+			if (resultFiles.isOK()) {
+				return resultFiles.value();
+			} else {
+				throw new DirectoryException(resultFiles.error().toString());
+			}
+		} else {
+			throw new DirectoryException(resultDir.error().toString());
 		}
 	}
 

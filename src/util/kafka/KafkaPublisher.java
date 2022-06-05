@@ -19,7 +19,7 @@ public class KafkaPublisher {
 
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-		return new KafkaPublisher(new KafkaProducer<String, String>(props));
+		return new KafkaPublisher(new KafkaProducer<>(props));
 	}
 
 	private final KafkaProducer<String, String> producer;
@@ -51,8 +51,4 @@ public class KafkaPublisher {
 	}
 
 
-	public static void main(String[] args) throws Exception {
-
-
-	}
 }

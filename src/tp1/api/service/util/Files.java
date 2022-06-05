@@ -1,9 +1,6 @@
 package tp1.api.service.util;
 
 
-import java.io.File;
-import java.io.IOException;
-
 public interface Files {
 
 	/**
