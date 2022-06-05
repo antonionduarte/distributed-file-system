@@ -177,7 +177,7 @@ public class JavaFilesProxy implements Files {
 
 	private void deleteAll(String folder) {
 
-		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + "/" + folder));
+		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + (folder.equals("") ? "" : ("/" + folder))));
 
 		var deleteFolder = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
 		deleteFolder.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);

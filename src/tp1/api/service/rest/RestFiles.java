@@ -50,7 +50,7 @@ public interface RestFiles {
 	               @QueryParam("token") @DefaultValue("") String token);
 
 	@DELETE
-	@Path("/{userId}")
+	@Path("/user/{userId}")
 	void deleteUserFiles(@PathParam("userId") String userId,
 						 @QueryParam("token") @DefaultValue("") String token);
 }
