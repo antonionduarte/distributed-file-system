@@ -46,7 +46,7 @@ public class JavaFilesProxy implements Files {
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);
 
 		if (deleteAll) {
-			this.deleteAll("");
+			this.deleteAll();
 		}
 	}
 
@@ -163,19 +163,8 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
-	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
-		if (Token.notValid(token, Secret.get(), userId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		deleteAll(userId);
-
-		return Result.ok();
-	}
-
-	private void deleteAll(String folder) {
-		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + (folder.equals("") ? "" : ("/" + folder))));
+	private void deleteAll() {
+		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT));
 
 		var deleteFolder = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
 		deleteFolder.addHeader(CONTENT_TYPE_HDR, JSON_CONTENT_TYPE);

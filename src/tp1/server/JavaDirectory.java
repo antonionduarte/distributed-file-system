@@ -318,19 +318,10 @@ public class JavaDirectory implements Directory, RecordProcessor {
 		}
 	}
 
-	@Override
-	public Result<Void> removeUser(String userId, String token) {
-		if (Token.notValid(token, Secret.get(), userId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		return aux_removeUser(userId);
-	}
-
-	private Result<Void> aux_removeUser(String userId) {
+	private void removeUserInfo(String userId) {
 		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
-			return Result.ok();
+			return;
 		}
 
 		for (FileInfo file : listFiles) {
@@ -345,8 +336,6 @@ public class JavaDirectory implements Directory, RecordProcessor {
 			// delete user from shareWith of others files
 			file.getSharedWith().remove(userId);
 		}
-
-		return Result.ok();
 	}
 
 	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file) {
@@ -372,6 +361,6 @@ public class JavaDirectory implements Directory, RecordProcessor {
 
 	@Override
 	public void onReceive(ConsumerRecord<String, String> record) {
-		aux_removeUser(record.value());
+		removeUserInfo(record.value());
 	}
 }

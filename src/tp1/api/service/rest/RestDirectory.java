@@ -116,9 +116,4 @@ public interface RestDirectory {
 	@Produces(MediaType.APPLICATION_JSON)
 	List<FileInfo> lsFile(@PathParam("userId") String userId,
 	                      @QueryParam("password") String password);
-
-	@DELETE
-	@Path("/{userId}")
-	void removeUser(@PathParam("userId") String userId,  @QueryParam("token") @DefaultValue("") String token);
-
 }

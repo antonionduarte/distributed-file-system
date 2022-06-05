@@ -2,7 +2,7 @@ package tp1.server.operations;
 
 import tp1.api.FileInfo;
 
-public class GetFile implements Operation {
+public class GetFile {
 
 	private final String filename;
 	private final String userId;

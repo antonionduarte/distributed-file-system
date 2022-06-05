@@ -2,17 +2,18 @@ package tp1.server.operations;
 
 import tp1.api.FileInfo;
 
-public class DeleteFile implements Operation {
+public class DeleteFile {
 
 	private final String filename;
 	private final String userId;
 	private final String password;
-	private FileInfo fileInfo;
+	private final FileInfo fileInfo;
 
 	public DeleteFile(String filename, String userId, String password, FileInfo fileInfo) {
 		this.filename = filename;
 		this.userId = userId;
 		this.password = password;
+		this.fileInfo = fileInfo;
 	}
 
 	public String getFilename() {

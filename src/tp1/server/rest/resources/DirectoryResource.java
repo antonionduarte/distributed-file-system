@@ -112,14 +112,4 @@ public class DirectoryResource implements RestDirectory {
 			throw new WebApplicationException(errorCode);
 		}
 	}
-
-	@Override
-	public void removeUser(String userId, String token) {
-		Result<Void> result = impl.removeUser(userId, token);
-
-		if (!result.isOK()) {
-			var errorCode = ConvertError.resultErrorToWebAppError(result);
-			throw new WebApplicationException(errorCode);
-		}
-	}
 }

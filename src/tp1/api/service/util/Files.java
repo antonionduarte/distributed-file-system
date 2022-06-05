@@ -31,6 +31,4 @@ public interface Files {
 	 * FORBIDDEN if the token is incorrect. BAD_REQUEST otherwise.
 	 */
 	Result<byte[]> getFile(String fileId, String token);
-
-    Result<Void> deleteUserFiles(String userId, String token);
 }

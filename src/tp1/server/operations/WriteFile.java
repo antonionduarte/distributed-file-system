@@ -5,7 +5,7 @@ import tp1.api.FileInfo;
 import java.net.URI;
 import java.util.Set;
 
-public class WriteFile implements Operation {
+public class WriteFile {
 
 	private final String filename;
 	private final String userId;

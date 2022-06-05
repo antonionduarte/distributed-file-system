@@ -123,9 +123,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		}
 
 		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, files.get(fileId));
-		var jsonOperation = new JsonOperation(writeFile, OperationType.WRITE_FILE);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.WRITE_FILE.name(), gson.toJson(writeFile));
 		this.syncPoint.waitForResult(version);
 
 		file = files.get(fileId);
@@ -177,9 +175,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		}
 
 		var deleteFile = new DeleteFile(filename, userId, password, files.get(fileId));
-		var jsonOperation = new JsonOperation(deleteFile, OperationType.DELETE_FILE);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.DELETE_FILE.name(), gson.toJson(deleteFile));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -217,9 +213,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		}
 
 		var shareFile = new ShareFile(filename, userId, userIdShare, password);
-		var jsonOperation = new JsonOperation(shareFile, OperationType.SHARE_FILE);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.SHARE_FILE.name(), gson.toJson(shareFile));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -256,10 +250,8 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
 
-		var shareFile = new UnshareFile(filename, userId, userIdShare, password);
-		var jsonOperation = new JsonOperation(shareFile, OperationType.UNSHARE_FILE);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
+		var unshareFile = new UnshareFile(filename, userId, userIdShare, password);
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.UNSHARE_FILE.name(), gson.toJson(unshareFile));
 		this.syncPoint.waitForResult(version);
 
 		return Result.ok();
@@ -305,9 +297,7 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		intersectionWithDiscoveryOfFiles(file);
 
 		var getFile = new GetFile(filename, userId, accUserId, password, files.get(fileId));
-		var jsonOperation = new JsonOperation(getFile, OperationType.GET_FILE);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
+		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
 		this.syncPoint.waitForResult(version);
 
 		file = files.get(fileId);
@@ -337,28 +327,24 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 		}
 	}
 
-	@Override
-	public Result<Void> removeUser(String userId, String token) {
-		if (Token.notValid(token, Secret.get(), userId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		return aux_removeUser(userId);
-	}
-
-	private Result<Void> aux_removeUser(String userId) {
-		var listFiles = accessibleFilesPerUser.get(userId);
+	private void removeUserInfo(String userId) {
+		var listFiles = accessibleFilesPerUser.remove(userId);
 		if (listFiles == null) {
-			return Result.ok();
+			return;
 		}
 
-		var removeUser = new RemoveUserFiles(userId, "remove"); //TODO
-		var jsonOperation = new JsonOperation(removeUser, OperationType.REMOVE_USER_FILES);
-
-		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, gson.toJson(jsonOperation));
-		this.syncPoint.waitForResult(version);
-
-		return Result.ok();
+		for (FileInfo file : listFiles) {
+			if (file.getOwner().equals(userId)) {
+				// delete user's files from others accessible files
+				for (String user : file.getSharedWith()) {
+					if (!user.equals(userId)) {
+						accessibleFilesPerUser.get(user).remove(file);
+					}
+				}
+			}
+			// delete user from shareWith of others files
+			file.getSharedWith().remove(userId);
+		}
 	}
 
 	@Override
@@ -367,39 +353,17 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			var version = record.offset();
 			var result = record.value();
 
-			JsonOperation jsonOperation = gson.fromJson(result, JsonOperation.class);
-
-			switch (jsonOperation.getOperationType()) {
-				case WRITE_FILE -> dir_writeFile((WriteFile) jsonOperation.getOperation());
-				case GET_FILE -> dir_getFile((GetFile) jsonOperation.getOperation());
-				case SHARE_FILE -> dir_shareFile((ShareFile) jsonOperation.getOperation());
-				case DELETE_FILE -> dir_deleteFile((DeleteFile) jsonOperation.getOperation());
-				case UNSHARE_FILE -> dir_unshareFile((UnshareFile) jsonOperation.getOperation());
-				case REMOVE_USER_FILES -> dir_removeUser((RemoveUserFiles) jsonOperation.getOperation());
+			switch (OperationType.valueOf(record.key())) {
+				case WRITE_FILE -> dir_writeFile(gson.fromJson(result, WriteFile.class));
+				case GET_FILE -> dir_getFile(gson.fromJson(result, GetFile.class));
+				case SHARE_FILE -> dir_shareFile(gson.fromJson(result, ShareFile.class));
+				case DELETE_FILE -> dir_deleteFile(gson.fromJson(result, DeleteFile.class));
+				case UNSHARE_FILE -> dir_unshareFile(gson.fromJson(result, UnshareFile.class));
 			}
 
 			this.syncPoint.setResult(version, result);
 		} else if (record.topic().equals(DELETE_USER_TOPIC)) {
-			aux_removeUser(record.value());
-		}
-	}
-
-	private void dir_removeUser(RemoveUserFiles removeUserFiles) {
-		var userId = removeUserFiles.getUserId();
-
-		var listFiles = this.accessibleFilesPerUser.remove(userId);
-
-		for (FileInfo file : listFiles) {
-			if (file.getOwner().equals(userId)) {
-				// delete user's files from others accessible files
-				for (String user : file.getSharedWith()) {
-					if (!user.equals(userId)) {
-						this.accessibleFilesPerUser.get(user).remove(file);
-					}
-				}
-			}
-			// delete user from shareWith of others files
-			file.getSharedWith().remove(userId);
+			removeUserInfo(record.value());
 		}
 	}
 

@@ -70,16 +70,7 @@ public class JavaFiles implements Files, RecordProcessor {
 		return ok();
 	}
 
-	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
-		if (Token.notValid(token, Secret.get(), userId)) {
-			return error(FORBIDDEN);
-		}
-
-		return aux_deleteUserFiles(userId);
-	}
-
-	private Result<Void> aux_deleteUserFiles(String userId) {
+	private void deleteUserFiles(String userId) {
 		File file = new File(ROOT + userId);
 		try {
 			java.nio.file.Files.walk(file.toPath())
@@ -88,9 +79,7 @@ public class JavaFiles implements Files, RecordProcessor {
 					.forEach(File::delete);
 		} catch (IOException e) {
 			e.printStackTrace();
-			return error(INTERNAL_ERROR);
 		}
-		return ok();
 	}
 
 	public static String fileId(String filename, String userId) {
@@ -99,7 +88,7 @@ public class JavaFiles implements Files, RecordProcessor {
 
 	@Override
 	public void onReceive(ConsumerRecord<String, String> record) {
-		aux_deleteUserFiles(record.value());
+		deleteUserFiles(record.value());
 	}
 }
 

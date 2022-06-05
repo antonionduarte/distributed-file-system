@@ -50,14 +50,4 @@ public class FilesProxyResource implements RestFiles {
 			throw new WebApplicationException(errorCode);
 		}
 	}
-
-	@Override
-	public void deleteUserFiles(String userId, String token) {
-		var result = impl.deleteUserFiles(userId, token);
-
-		if (!result.isOK()) {
-			var errorCode = ConvertError.resultErrorToWebAppError(result);
-			throw new WebApplicationException(errorCode);
-		}
-	}
 }

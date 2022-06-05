@@ -56,16 +56,4 @@ public class SoapFilesClient extends SoapClient implements Files {
 			}
 		});
 	}
-
-	@Override
-	public Result<Void> deleteUserFiles(String userId, String token) {
-		return super.reTry(() -> {
-			try {
-				files.deleteUserFiles(userId, token);
-				return Result.ok();
-			} catch (FilesException e) {
-				return Result.error(Result.ErrorCode.valueOf(e.getMessage()));
-			}
-		});
-	}
 }

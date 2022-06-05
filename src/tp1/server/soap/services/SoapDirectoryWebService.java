@@ -95,13 +95,4 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			throw new DirectoryException(result.error().toString());
 		}
 	}
-
-	@Override
-	public void removeUser(String userId, String token) throws DirectoryException {
-		Result<Void> result = impl.removeUser(userId, token);
-
-		if (!result.isOK()) {
-			throw new DirectoryException(result.error().toString());
-		}
-	}
 }
