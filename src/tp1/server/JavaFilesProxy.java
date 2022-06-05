@@ -15,6 +15,8 @@ import tp1.server.dropbox.UploadFileV2Args;
 import util.Secret;
 import util.Token;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.logging.Logger;
 
 public class JavaFilesProxy implements Files {
@@ -52,7 +54,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		fileId = fileId.replace( DELIMITER, "/");
+		fileId = fileId.replace(DELIMITER, "/");
 
 		Log.info("writeFile : " + fileId);
 
@@ -90,7 +92,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		fileId = fileId.replace( DELIMITER, "/");
+		fileId = fileId.replace(DELIMITER, "/");
 
 		Log.info("deleteFile : " + fileId);
 
@@ -131,7 +133,7 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		fileId = fileId.replace( DELIMITER, "/");
+		fileId = fileId.replace(DELIMITER, "/");
 
 		Log.info("getFile : " + fileId);
 
@@ -176,7 +178,6 @@ public class JavaFilesProxy implements Files {
 	}
 
 	private void deleteAll(String folder) {
-
 		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + "/" + folder));
 
 		var deleteFolder = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
@@ -186,18 +187,19 @@ public class JavaFilesProxy implements Files {
 		service.signRequest(accessToken, deleteFolder);
 
 		try {
-			service.execute(deleteFolder);
+			var res = service.execute(deleteFolder);
+			System.out.println("TEST 1: " + res);
 		} catch (Exception e) {
 			// do nothing
 		}
 	}
 
-	/*
 	public static void main(String[] args) {
+		/*
 		JavaFilesProxy javaFilesProxy = new JavaFilesProxy(
 				true,
 				"1qw5p1vin7d07r2",
-				"sl.BIwj-NhPvbbpSBSp4yJig7tet4av0P_x5PMd5IuauqIzPbuiUD-dhRwdA-Y3ujUq-xHOn5Fw8ARuvASBPLAzbgbbgLzvDdS06-OD_F3-_XA4CAxMhHlh3jkh91oM-NSx_ywLomM",
+				"sl.BI5OUtax8EQWDKAtSRW1EHBhRfHAKRGXxn3Otsp_SnCFvlw0N-Wwp4znI6KeRYIyRq2hUJjaUnv4zTj39_KdIX9m2XGiGh8x7CVTdVXXNjUHRd5vbT0LVKSkVrdLpdGSW6X9FMg",
 				"2v5aoett5ga8tec"
 		);
 
@@ -210,6 +212,8 @@ public class JavaFilesProxy implements Files {
 			e.printStackTrace();
 		}
 
+		var response = javaFilesProxy.writeFile("file_0", data, "mysecret");
+		System.out.println(response);*/
 		//var response = javaFilesProxy.deleteFile("", "");
 		//System.out.println(response.toString());
 		//var response = javaFilesProxy.writeFile("Dockerfile", data, "");
@@ -217,5 +221,4 @@ public class JavaFilesProxy implements Files {
 
 		// javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
 	}
-	 */
 }
