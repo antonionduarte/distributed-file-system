@@ -54,13 +54,13 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> writeFile(String fileId, byte[] data, String token) {
-		fileId = fileId.replace(DELIMITER, "/");
-
-		Log.info("writeFile : " + fileId);
-
 		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
+
+		fileId = fileId.replace(DELIMITER, "/");
+		System.out.println("test " + fileId);
+		Log.info("writeFile : " + fileId);
 
 		var jsonArgs = json.toJson(new UploadFileV2Args(
 				false,
@@ -92,14 +92,13 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<Void> deleteFile(String fileId, String token) {
-		fileId = fileId.replace(DELIMITER, "/");
-
-		Log.info("deleteFile : " + fileId);
-
-
 		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
+
+		fileId = fileId.replace(DELIMITER, "/");
+
+		Log.info("deleteFile : " + fileId);
 
 		String path = ROOT;
 		if (!fileId.equals("")) {
@@ -133,13 +132,13 @@ public class JavaFilesProxy implements Files {
 
 	@Override
 	public Result<byte[]> getFile(String fileId, String token) {
-		fileId = fileId.replace(DELIMITER, "/");
-
-		Log.info("getFile : " + fileId);
-
 		if (!Token.validate(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
+
+		fileId = fileId.replace(DELIMITER, "/");
+
+		Log.info("getFile : " + fileId);
 
 		var jsonArgs = json.toJson(new DownloadFileV2Args(ROOT + "/" + fileId));
 
@@ -178,7 +177,6 @@ public class JavaFilesProxy implements Files {
 	}
 
 	private void deleteAll(String folder) {
-
 		var jsonArgs = json.toJson(new DeleteFileV2Args(ROOT + (folder.equals("") ? "" : ("/" + folder))));
 
 		var deleteFolder = new OAuthRequest(Verb.POST, DELETE_FILE_V2_URL);
@@ -194,10 +192,10 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
-/*
+	/*
 	public static void main(String[] args) {
 		JavaFilesProxy javaFilesProxy = new JavaFilesProxy(
-				true,
+				false,
 				"1qw5p1vin7d07r2",
 				"sl.BI5D_b4DSz6_90YLFJv7QR71EtOEHoL7fYOJVss9M1oDm1lrXUx6Ya_EaBO7c8JRPGEoSvoxCQGZOj4H5FQZ2Bq5tNzNctKWWfBZAvaHltxQWb9rD8Tu2nqfm6JEE4CphRshUSQ",
 				"2v5aoett5ga8tec"
@@ -212,14 +210,11 @@ public class JavaFilesProxy implements Files {
 			e.printStackTrace();
 		}
 
-		var response = javaFilesProxy.writeFile("vagina_Dockerfile", data, "mysecret");
-		System.out.println(response.toString());
-		//var response = javaFilesProxy.deleteFile("", "");
+		//var response = javaFilesProxy.writeFile("vagina_Dockerfile", data, "mysecret");
 		//System.out.println(response.toString());
 		//var response = javaFilesProxy.writeFile("Dockerfile", data, "");
 		//System.out.println(response.toString());
 
 		// javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
-	}
-*/
+	}*/
 }
