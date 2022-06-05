@@ -157,7 +157,10 @@ public class ClientFactory {
 		String serverURI = resourceURI.toString().substring(0, resourceURI.toString().indexOf("/files"));
 		try {
 			URI uri = new URI(serverURI);
-			distribution.put(uri, distribution.get(uri) - 1);
+			if (distribution.containsKey(uri))
+				distribution.put(uri, distribution.get(uri) - 1);
+			else
+				distribution.put(uri, 0);
 		} catch (URISyntaxException e) {
 			throw new RuntimeException(e);
 		}

@@ -23,7 +23,6 @@ public class WriteFile {
 				"filename='" + filename + '\'' +
 				", userId='" + userId + '\'' +
 				", password='" + password + '\'' +
-				", data=" + Arrays.toString(data) +
 				", serverUris=" + serverUris +
 				", fileInfo=" + fileInfo +
 				'}';

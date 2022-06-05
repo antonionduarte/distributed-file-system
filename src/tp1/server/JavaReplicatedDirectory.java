@@ -120,9 +120,22 @@ public class JavaReplicatedDirectory extends Thread implements Directory, Record
 			if (filesResult == null) {
 				return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 			}
+
+			if (file == null) {
+				Set<URI> fileURIs = ConcurrentHashMap.newKeySet();
+				for (URI serverURI : serverURIs)
+					fileURIs.add(URI.create(String.format("%s%s/%s", serverURI, RestFiles.PATH, fileId)));
+				file = new FileInfo(userId, filename, fileURIs.toArray()[0].toString(), ConcurrentHashMap.newKeySet());
+				URIsPerFile.put(fileId, fileURIs);
+			}
+
+			files.put(fileId, file);
 		}
 
-		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, files.get(fileId));
+		var listFiles = accessibleFilesPerUser.computeIfAbsent(userId, k -> ConcurrentHashMap.newKeySet());
+		listFiles.add(file);
+
+		var writeFile = new WriteFile(filename, data, userId, password, serverURIs, file);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.WRITE_FILE.name(), gson.toJson(writeFile));
 		this.syncPoint.waitForResult(version);
 
