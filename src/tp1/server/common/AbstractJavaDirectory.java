@@ -127,22 +127,11 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 			return Result.error(userResult.error());
 		}
 
-		Result<Void> filesResult = null;
+		pub.publish(DELETE_FILE_TOPIC, fileId);
+
 		for (URI fileURI : intersectionWithDiscoveryOfFiles(file, false)) {
-			Files filesClient = clientFactory.getFilesClient(fileURI).second();
-			filesResult = filesClient.deleteFile(fileId, Token.generate(Secret.get(), fileId));
 			clientFactory.deletedFileFromServer(fileURI);
 		}
-
-		if (filesResult == null) {
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
-
-		if (!filesResult.isOK()) {
-			return Result.error(filesResult.error());
-		}
-
-		pub.publish(DELETE_FILE_TOPIC, fileId);
 
 		return Result.ok();
 	}
