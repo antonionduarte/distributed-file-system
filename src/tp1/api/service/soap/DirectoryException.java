@@ -10,10 +10,6 @@ public class DirectoryException extends Exception {
 	@Serial
 	private static final long serialVersionUID = 1L;
 
-	public DirectoryException() {
-		super("");
-	}
-
 	public DirectoryException(String errorMessage) {
 		super(errorMessage);
 	}

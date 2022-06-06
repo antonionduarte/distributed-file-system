@@ -114,9 +114,6 @@ public class JavaUsers implements Users {
 			users.remove(userId);
 		}
 
-		//Directory directoryClient = clientFactory.getDirectoryClient().second();
-		//directoryClient.removeUserFiles(userId, Token.generate(Secret.get(), userId));
-
 		pub.publish(DELETE_USER_TOPIC, userId);
 
 		return Result.ok(valid.value());

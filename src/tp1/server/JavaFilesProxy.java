@@ -179,29 +179,4 @@ public class JavaFilesProxy implements Files {
 		}
 	}
 
-	/*
-	public static void main(String[] args) {
-		JavaFilesProxy javaFilesProxy = new JavaFilesProxy(
-				false,
-				"1qw5p1vin7d07r2",
-				"sl.BI5D_b4DSz6_90YLFJv7QR71EtOEHoL7fYOJVss9M1oDm1lrXUx6Ya_EaBO7c8JRPGEoSvoxCQGZOj4H5FQZ2Bq5tNzNctKWWfBZAvaHltxQWb9rD8Tu2nqfm6JEE4CphRshUSQ",
-				"2v5aoett5ga8tec"
-		);
-
-		File file = new File("./Dockerfile");
-
-		byte[] data = new byte[0];
-		try (FileInputStream fis = new FileInputStream(file)) {
-			data = fis.readAllBytes();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		//var response = javaFilesProxy.writeFile("vagina_Dockerfile", data, "mysecret");
-		//System.out.println(response.toString());
-		//var response = javaFilesProxy.writeFile("Dockerfile", data, "");
-		//System.out.println(response.toString());
-
-		// javaFilesProxy.getFile("ANT_OMEGALUL_NI_OMEGALUL", "");
-	}*/
 }

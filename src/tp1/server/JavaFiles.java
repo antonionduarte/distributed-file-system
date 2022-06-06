@@ -19,7 +19,6 @@ import static tp1.api.service.util.Result.ErrorCode.*;
 import static tp1.api.service.util.Result.error;
 import static tp1.api.service.util.Result.ok;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
 public class JavaFiles implements Files, RecordProcessor {
 
 	private static final String DELIMITER = "_";
@@ -80,10 +79,6 @@ public class JavaFiles implements Files, RecordProcessor {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public static String fileId(String filename, String userId) {
-		return userId + JavaFiles.DELIMITER + filename;
 	}
 
 	@Override

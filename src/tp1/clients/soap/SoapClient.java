@@ -26,7 +26,7 @@ public class SoapClient {
 		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 	}
 
-	public static void setTimeouts(BindingProvider port) {
+	protected static void setTimeouts(BindingProvider port) {
 		port.getRequestContext().put(BindingProviderProperties.CONNECT_TIMEOUT, CONNECT_TIMEOUT);
 		port.getRequestContext().put(BindingProviderProperties.REQUEST_TIMEOUT, READ_TIMEOUT);
 	}

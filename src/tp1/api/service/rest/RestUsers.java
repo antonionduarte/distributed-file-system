@@ -34,9 +34,9 @@ public interface RestUsers {
 	 * is incorrect 404 if no user exists with the provided userId
 	 */
 	@GET
-	@Path("/{userId}")
+	@Path("/{"+USER_ID+"}")
 	@Produces(MediaType.APPLICATION_JSON)
-	User getUser(@PathParam("userId") String userId, @QueryParam("password") String password);
+	User getUser(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
 
 	/**
 	 * Modifies the information of a user. Values of null in any field of the user will be considered as if the
@@ -49,10 +49,10 @@ public interface RestUsers {
 	 * password is incorrect 404 if no user exists with the provided userId 400 otherwise.
 	 */
 	@PUT
-	@Path("/{userId}")
+	@Path("/{"+USER_ID+"}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	User updateUser(@PathParam("userId") String userId, @QueryParam("password") String password, User user);
+	User updateUser(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password, User user);
 
 	/**
 	 * Deletes the user identified by userId. The files owned by the user should be eventually removed (asynchronous
@@ -64,9 +64,9 @@ public interface RestUsers {
 	 * is incorrect 404 if no user exists with the provided userId
 	 */
 	@DELETE
-	@Path("/{userId}")
+	@Path("/{"+USER_ID+"}")
 	@Produces(MediaType.APPLICATION_JSON)
-	User deleteUser(@PathParam("userId") String userId, @QueryParam("password") String password);
+	User deleteUser(@PathParam(USER_ID) String userId, @QueryParam(PASSWORD) String password);
 
 	/**
 	 * Returns the list of users for which the pattern is a substring of the name (of the user), case-insensitive. The
@@ -77,5 +77,5 @@ public interface RestUsers {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	List<User> searchUsers(@QueryParam("query") String pattern);
+	List<User> searchUsers(@QueryParam(QUERY) String pattern);
 }
