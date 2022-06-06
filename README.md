@@ -24,8 +24,3 @@ Distributed Systems project repository.
 - `mvn docker:build`: builds a docker image using the Dockerfile
 - `mvn clean compile assembly:single docker:build`: run everything at once
 
-### dropbox
-- `app key`: 2v5aoett5ga8tec
-- `app secret`: 1qw5p1vin7d07r2
-- `access token`: sl.BIdt5A8FVj9EDA9yo7a248yEchTwYDYZ7-nfnVHsHk1dDOiMXFucXhV3jDBdbHPoGhXQBBd8z_4PKGOIPKIvFpgo6Uy1b1E9o9551YKaqPv8sdd4GtYnJXCEyQV9ARrEccGviY4
-
