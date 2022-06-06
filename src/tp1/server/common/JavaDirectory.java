@@ -12,7 +12,6 @@ import java.util.List;
 
 public class JavaDirectory extends AbstractJavaDirectory implements Directory, RecordProcessor {
 
-
 	public JavaDirectory() {
 		KafkaSubscriber sub = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DELETE_USER_TOPIC), FROM_BEGINNING);
 		sub.start(false, this);

@@ -26,6 +26,7 @@ public class JavaFiles implements Files, RecordProcessor {
 	private static final String FROM_BEGINNING = "earliest";
 	private static final String KAFKA_BROKERS = "kafka:9092";
 	private static final String DELETE_USER_TOPIC = "delete_user";
+	private static final String DELETE_FILE_TOPIC = "delete_file";
 
 	public JavaFiles() {
 		new File(ROOT).mkdirs();
@@ -51,9 +52,7 @@ public class JavaFiles implements Files, RecordProcessor {
 			return error(FORBIDDEN);
 		}
 
-		fileId = fileId.replace(DELIMITER, "/");
-		boolean res = IO.delete(new File(ROOT + fileId));
-		return res ? ok() : error(NOT_FOUND);
+		return aux_deleteFile(fileId);
 	}
 
 	@Override
@@ -81,9 +80,19 @@ public class JavaFiles implements Files, RecordProcessor {
 		}
 	}
 
+	private Result<Void> aux_deleteFile(String fileId) {
+		fileId = fileId.replace(DELIMITER, "/");
+		boolean res = IO.delete(new File(ROOT + fileId));
+		return res ? ok() : error(NOT_FOUND);
+	}
+
 	@Override
 	public void onReceive(ConsumerRecord<String, String> record) {
-		deleteUserFiles(record.value());
+		if (record.topic().equals(DELETE_USER_TOPIC)) {
+			deleteUserFiles(record.value());
+		} else if (record.topic().equals(DELETE_FILE_TOPIC)) {
+			aux_deleteFile(record.value());
+		}
 	}
 }
 

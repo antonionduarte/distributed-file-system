@@ -16,7 +16,6 @@ import java.util.List;
 
 public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Directory, RecordProcessor {
 
-
 	private static final String DIRECTORY_REPLICATION_TOPIC = "directory_replication";
 
 	private final SyncPoint<String> syncPoint;

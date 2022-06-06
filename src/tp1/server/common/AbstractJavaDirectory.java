@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractJavaDirectory implements Directory, RecordProcessor {
 
-
 	// String: fileId
 	protected final Map<String, FileInfo> files;
 	protected final Map<String, Set<URI>> URIsPerFile;
