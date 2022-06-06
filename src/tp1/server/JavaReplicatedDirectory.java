@@ -298,7 +298,7 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 		intersectionWithDiscoveryOfFiles(file, true);
 
-		var getFile = new GetFile(filename, userId, files.get(fileId));
+		var getFile = new GetFile(filename, userId, file);
 		var version = sender.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
 		this.syncPoint.waitForResult(version);
 
@@ -412,11 +412,11 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 
 		synchronized (this) {
 			var fileId = String.format("%s_%s", userId, filename);
-			var file = files.get(fileId);
 
-			this.files.remove(fileId);
+			var file = this.files.remove(fileId);
 			this.URIsPerFile.remove(fileId);
 
+			accessibleFilesPerUser.get(userId).remove(file);
 			for (String user : file.getSharedWith()) {
 				this.accessibleFilesPerUser.get(user).remove(file);
 			}
