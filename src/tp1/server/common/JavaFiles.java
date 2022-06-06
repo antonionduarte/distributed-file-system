@@ -1,4 +1,4 @@
-package tp1.server;
+package tp1.server.common;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import tp1.api.service.util.Files;

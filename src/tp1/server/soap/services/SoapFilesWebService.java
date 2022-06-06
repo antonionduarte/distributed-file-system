@@ -4,7 +4,7 @@ import jakarta.jws.WebService;
 import tp1.api.service.soap.FilesException;
 import tp1.api.service.soap.SoapFiles;
 import tp1.api.service.util.Files;
-import tp1.server.JavaFiles;
+import tp1.server.common.JavaFiles;
 
 @WebService(serviceName = SoapFiles.NAME, targetNamespace = SoapFiles.NAMESPACE, endpointInterface = SoapFiles.INTERFACE)
 public class SoapFilesWebService implements SoapFiles {

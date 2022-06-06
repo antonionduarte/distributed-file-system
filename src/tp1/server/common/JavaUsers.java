@@ -1,4 +1,4 @@
-package tp1.server;
+package tp1.server.common;
 
 import tp1.api.User;
 import tp1.api.service.util.Result;

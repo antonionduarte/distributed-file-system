@@ -5,7 +5,7 @@ import tp1.api.User;
 import tp1.api.service.soap.SoapUsers;
 import tp1.api.service.soap.UsersException;
 import tp1.api.service.util.Users;
-import tp1.server.JavaUsers;
+import tp1.server.common.JavaUsers;
 
 import java.util.List;
 

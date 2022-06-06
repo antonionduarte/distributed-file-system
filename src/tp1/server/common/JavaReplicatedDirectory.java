@@ -1,4 +1,4 @@
-package tp1.server;
+package tp1.server.common;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

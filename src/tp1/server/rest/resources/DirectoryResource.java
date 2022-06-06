@@ -9,7 +9,7 @@ import tp1.api.service.util.Directory;
 import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
-import tp1.server.JavaDirectory;
+import tp1.server.common.JavaDirectory;
 import util.ConvertError;
 import util.Secret;
 import util.Token;

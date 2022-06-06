@@ -1,54 +1,39 @@
 package tp1.server.rest;
 
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import tp1.api.service.util.Directory;
 import tp1.server.rest.resources.DirectoryResource;
-import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
-import util.Discovery;
 import util.Secret;
 
-import javax.net.ssl.SSLContext;
-import java.net.InetAddress;
-import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DirectoryServer {
+public class DirectoryServer extends AbstractRestServer {
 
 	public static final int PORT = 8080;
-	public static final String SERVICE = "directory";
-	private static final Logger Log = Logger.getLogger(DirectoryServer.class.getName());
-	private static final String SERVER_URI_FMT = "https://%s:%s/rest";
 
-	static {
-		System.setProperty("java.net.preferIPv4Stack", "true");
+	private static final Logger Log = Logger.getLogger(DirectoryServer.class.getName());
+
+	DirectoryServer() {
+		super(Log, Directory.SERVICE_NAME, PORT);
 	}
 
-	public static void main(String[] args) {
-		try {
-			Debug.setLogLevel(Level.INFO, Debug.SD2122);
+	@Override
+	void registerResources(ResourceConfig config) {
+		config.register( DirectoryResource.class );
+		config.register( GenericExceptionMapper.class );
+//		config.register( CustomLoggingFilter.class);
+	}
 
-			Secret.set(args[0]);
+	public static void main(String[] args) throws Exception {
 
-			ResourceConfig config = new ResourceConfig();
-			config.register(DirectoryResource.class);
-			config.register(CustomLoggingFilter.class);
-			config.register(GenericExceptionMapper.class);
+		Debug.setLogLevel( Level.INFO, Debug.SD2122);
 
-			String ip = InetAddress.getLocalHost().getHostAddress();
-			String serverURI = String.format(SERVER_URI_FMT, ip, PORT);
-			JdkHttpServerFactory.createHttpServer(URI.create(serverURI), config, SSLContext.getDefault());
+		Secret.set(args[0]);
 
-			Log.info(String.format("%s Server ready @ %s\n", SERVICE, serverURI));
-
-			Discovery discovery = Discovery.getInstance();
-			discovery.start(SERVICE, serverURI);
-
-		} catch (Exception e) {
-			Log.severe(e.getMessage());
-		}
+		new DirectoryServer().start();
 	}
 
 }

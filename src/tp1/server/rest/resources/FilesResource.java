@@ -5,7 +5,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Files;
-import tp1.server.JavaFiles;
+import tp1.server.common.JavaFiles;
 import util.ConvertError;
 
 @Singleton

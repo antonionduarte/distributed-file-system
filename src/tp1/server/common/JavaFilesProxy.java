@@ -1,4 +1,4 @@
-package tp1.server;
+package tp1.server.common;
 
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.OAuth2AccessToken;
@@ -40,7 +40,7 @@ public class JavaFilesProxy implements Files {
 	private final OAuth20Service service;
 	private final OAuth2AccessToken accessToken;
 
-	public JavaFilesProxy(boolean deleteAll, String apiSecret, String accessKey, String apiKey) {
+	public JavaFilesProxy(boolean deleteAll, String apiKey, String apiSecret, String accessKey) {
 		this.json = new Gson();
 		this.accessToken = new OAuth2AccessToken(accessKey);
 		this.service = new ServiceBuilder(apiKey).apiSecret(apiSecret).build(DropboxApi20.INSTANCE);

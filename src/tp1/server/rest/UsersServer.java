@@ -1,54 +1,39 @@
 package tp1.server.rest;
 
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import tp1.api.service.util.Users;
 import tp1.server.rest.resources.UsersResource;
-import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
-import util.Discovery;
 import util.Secret;
 
-import javax.net.ssl.SSLContext;
-import java.net.InetAddress;
-import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class UsersServer {
+public class UsersServer extends AbstractRestServer {
 
 	public static final int PORT = 8080;
-	public static final String SERVICE = "users";
-	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
-	private static final String SERVER_URI_FMT = "https://%s:%s/rest";
 
-	static {
-		System.setProperty("java.net.preferIPv4Stack", "true");
+	private static final Logger Log = Logger.getLogger(UsersServer.class.getName());
+
+	UsersServer() {
+		super( Log, Users.SERVICE_NAME, PORT);
 	}
 
-	public static void main(String[] args) {
-		try {
-			Debug.setLogLevel(Level.INFO, Debug.SD2122);
 
-			Secret.set(args[0]);
+	@Override
+	void registerResources(ResourceConfig config) {
+		config.register( UsersResource.class );
+		config.register( GenericExceptionMapper.class);
+	}
 
-			ResourceConfig config = new ResourceConfig();
-			config.register(UsersResource.class);
-			config.register(CustomLoggingFilter.class);
-			config.register(GenericExceptionMapper.class);
 
-			String ip = InetAddress.getLocalHost().getHostAddress();
-			String serverURI = String.format(SERVER_URI_FMT, ip, PORT);
-			JdkHttpServerFactory.createHttpServer(URI.create(serverURI), config, SSLContext.getDefault());
+	public static void main(String[] args) throws Exception {
 
-			Log.info(String.format("%s Server ready @ %s\n", SERVICE, serverURI));
+		Debug.setLogLevel( Level.INFO, Debug.SD2122);
 
-			Discovery discovery = Discovery.getInstance();
-			discovery.start(SERVICE, serverURI);
+		Secret.set(args[0]);
 
-			// More code can be executed here...
-		} catch (Exception e) {
-			Log.severe(e.getMessage());
-		}
+		new UsersServer().start();
 	}
 }

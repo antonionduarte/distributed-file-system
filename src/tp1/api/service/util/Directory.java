@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface Directory {
 
+	String SERVICE_NAME = "directory";
+
 	/**
 	 * Write a new version of a file. If the file exists, its contents are overwritten. Only the owner (userId) can
 	 * write the file.

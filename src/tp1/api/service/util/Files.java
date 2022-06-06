@@ -3,6 +3,8 @@ package tp1.api.service.util;
 
 public interface Files {
 
+	String SERVICE_NAME = "files";
+
 	/**
 	 * Write a file. If the file exists, overwrites the contents.
 	 *

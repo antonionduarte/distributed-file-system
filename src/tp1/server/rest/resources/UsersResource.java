@@ -5,7 +5,7 @@ import jakarta.ws.rs.WebApplicationException;
 import tp1.api.User;
 import tp1.api.service.rest.RestUsers;
 import tp1.api.service.util.Users;
-import tp1.server.JavaUsers;
+import tp1.server.common.JavaUsers;
 import util.ConvertError;
 
 import java.util.List;

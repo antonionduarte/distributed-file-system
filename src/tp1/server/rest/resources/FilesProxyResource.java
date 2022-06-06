@@ -5,7 +5,7 @@ import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import tp1.api.service.rest.RestFiles;
 import tp1.api.service.util.Files;
-import tp1.server.JavaFilesProxy;
+import tp1.server.common.JavaFilesProxy;
 import util.ConvertError;
 
 @Singleton
@@ -13,8 +13,8 @@ public class FilesProxyResource implements RestFiles {
 
 	private final Files impl;
 
-	public FilesProxyResource(boolean deleteAll, String apiSecret, String apiKey, String accessKey) {
-		this.impl = new JavaFilesProxy(deleteAll, apiSecret, accessKey, apiKey);
+	public FilesProxyResource(boolean deleteAll, String apiKey, String apiSecret, String accessKey) {
+		this.impl = new JavaFilesProxy(deleteAll, apiKey, apiSecret, accessKey);
 	}
 
 	@Override

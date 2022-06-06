@@ -6,6 +6,8 @@ import java.util.List;
 
 public interface Users {
 
+	String SERVICE_NAME = "users";
+
 	/**
 	 * Creates a new user.
 	 *
