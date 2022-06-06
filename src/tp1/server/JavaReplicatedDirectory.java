@@ -21,10 +21,7 @@ import util.kafka.RecordProcessor;
 import util.kafka.sync.SyncPoint;
 
 import java.net.URI;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -456,18 +453,21 @@ public class JavaReplicatedDirectory implements Directory, RecordProcessor {
 	}
 
 	private Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file, boolean changeFileURL) {
-		URI[] discovered = Discovery.getInstance().knownUrisOf("files");
 		String fileId = String.format("%s_%s", file.getOwner(), file.getFilename());
 
 		Set<URI> uris = URIsPerFile.get(fileId);
-		Set<URI> intersection = uris.stream().filter(uri -> {
-			for (URI discoveredURI : discovered) {
-				if (uri.toString().contains(discoveredURI.toString())) {
-					return true;
+		Set<URI> intersection;
+		do {
+			URI[] discovered = Discovery.getInstance().knownUrisOf("files");
+			intersection = uris.stream().filter(uri -> {
+				for (URI discoveredURI : discovered) {
+					if (uri.toString().contains(discoveredURI.toString())) {
+						return true;
+					}
 				}
-			}
-			return false;
-		}).collect(Collectors.toSet());
+				return false;
+			}).collect(Collectors.toSet());
+		} while (intersection.isEmpty());
 
 		if (intersection.size() != uris.size() && changeFileURL) {
 			file.setFileURL(intersection.toArray()[0].toString());
