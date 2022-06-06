@@ -23,6 +23,6 @@ public class SoapUsersServer extends AbstractSoapServer {
 		Debug.setLogLevel( Level.INFO, Debug.SD2122);
 		Secret.set(args[0]);
 
-		new SoapFilesServer().start();
+		new SoapUsersServer().start();
 	}
 }
