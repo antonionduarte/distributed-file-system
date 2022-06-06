@@ -1,7 +1,6 @@
 package tp1.server.common;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
 

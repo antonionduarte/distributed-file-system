@@ -1,19 +1,12 @@
 package tp1.server.rest;
 
-import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import tp1.api.service.util.Files;
 import tp1.server.rest.resources.FilesProxyResource;
-import tp1.server.rest.resources.FilesResource;
-import tp1.server.util.CustomLoggingFilter;
 import tp1.server.util.GenericExceptionMapper;
 import util.Debug;
-import util.Discovery;
 import util.Secret;
 
-import javax.net.ssl.SSLContext;
-import java.net.InetAddress;
-import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

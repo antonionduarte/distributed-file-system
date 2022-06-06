@@ -1,19 +1,11 @@
 package tp1.server.soap;
 
 
-import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsServer;
-import jakarta.xml.ws.Endpoint;
 import tp1.api.service.util.Directory;
 import tp1.server.soap.services.SoapDirectoryWebService;
 import util.Debug;
-import util.Discovery;
 import util.Secret;
 
-import javax.net.ssl.SSLContext;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

@@ -3,7 +3,6 @@ package tp1.server.soap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
