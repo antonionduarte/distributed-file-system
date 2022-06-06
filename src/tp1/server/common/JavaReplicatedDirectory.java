@@ -96,7 +96,8 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 			return res;
 
 		var getFile = new GetFile(filename, userId, file);
-		pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
+		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
+		this.syncPoint.waitForResult(version);
 
 		file = files.get(fileId);
 		return Result.ok(URI.create(file.getFileURL()));
