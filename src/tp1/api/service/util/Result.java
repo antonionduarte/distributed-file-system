@@ -20,17 +20,29 @@ public interface Result<T> {
 		return new OkResult<>(result);
 	}
 
+	static <T> Result<T> ok(T result, long version) {
+		return new OkResult<>(result, version);
+	}
+
 	/**
 	 * Convenience method for returning non error results without a value
 	 *
 	 * @return non-error result
 	 */
 	static <T> OkResult<T> ok() {
-		return new OkResult<>(null);
+		return new OkResult<>();
 	}
 
 	static <T> OkResult<T> ok(URI uriRedirect) {
 		return new OkResult<>(uriRedirect);
+	}
+
+	static <T> OkResult<T> ok(URI uriRedirect, long version) {
+		return new OkResult<>(uriRedirect, version);
+	}
+
+	static <T> OkResult<T> ok(Long version) {
+		return new OkResult<>(version);
 	}
 
 	/**
@@ -90,22 +102,29 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 
 	URI redirectURI;
 
-	long version = -1;
+	Long version = -1L;
+
+	OkResult() {
+	}
 
 	OkResult(T result) {
 		this.result = result;
+	}
+
+	OkResult(Long version) {
+		this.version = version;
 	}
 
 	OkResult(URI redirectURI) {
 		this.redirectURI = redirectURI;
 	}
 
-	OkResult(T result, long version) {
+	OkResult(T result, Long version) {
 		this.result = result;
 		this.version = version;
 	}
 
-	OkResult(URI redirectURI, long version) {
+	OkResult(URI redirectURI, Long version) {
 		this.redirectURI = redirectURI;
 		this.version = version;
 	}

@@ -3,6 +3,8 @@ package tp1.api.service.rest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
+import static tp1.api.service.rest.RestDirectory.HEADER_VERSION;
+
 @Path(RestFiles.PATH)
 public interface RestFiles {
 
@@ -46,6 +48,6 @@ public interface RestFiles {
 	@GET
 	@Path("/{fileId}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	byte[] getFile(@PathParam("fileId") String fileId,
+	byte[] getFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("fileId") String fileId,
 	               @QueryParam("token") @DefaultValue("") String token);
 }

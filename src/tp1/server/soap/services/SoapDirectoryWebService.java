@@ -64,13 +64,13 @@ public class SoapDirectoryWebService implements SoapDirectory {
 	@Override
 	public byte[] getFile(String filename, String userId, String accUserId, String password) throws DirectoryException {
 		Result<byte[]> resultDir;
-		resultDir = impl.getFile(filename, userId, accUserId, password);
+		resultDir = impl.getFile(-1L, filename, userId, accUserId, password);
 
 		if (resultDir.isOK()) {
 			Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI()).second();
 
 			String fileId = userId + "_" + filename;
-			Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
+			Result<byte[]> resultFiles = filesClient.getFile(-1L, fileId, Token.generate(Secret.get(), fileId));
 			if (resultFiles == null) {
 				throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 			}
@@ -87,7 +87,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 
 	@Override
 	public List<FileInfo> lsFile(String userId, String password) throws DirectoryException {
-		Result<List<FileInfo>> result = impl.lsFile(userId, password);
+		Result<List<FileInfo>> result = impl.lsFile(-1L, userId, password);
 
 		if (result.isOK()) {
 			return result.value();

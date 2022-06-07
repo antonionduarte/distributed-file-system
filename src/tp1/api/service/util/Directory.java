@@ -1,6 +1,7 @@
 package tp1.api.service.util;
 
 import tp1.api.FileInfo;
+import tp1.server.operations.Operation;
 
 import java.util.List;
 
@@ -78,7 +79,7 @@ public interface Directory {
 	 * filename or accUserId does not exist. FORBIDDEN if the password is incorrect or the user cannot access the file.
 	 * BAD_REQUEST otherwise.
 	 */
-	Result<byte[]> getFile(String filename, String userId, String accUserId, String password);
+	Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password);
 
 	/**
 	 * List the files a given user ("userId") has access to - this includes both its own files and the files shared with
@@ -89,13 +90,9 @@ public interface Directory {
 	 * @return OK if success + list of FileInfo; NOT_FOUND if the userId does not exist. FORBIDDEN if the password is
 	 * incorrect. BAD_REQUEST otherwise.
 	 */
-	Result<List<FileInfo>> lsFile(String userId, String password);
+	Result<List<FileInfo>> lsFile(Long version, String userId, String password);
 
-	/**
-	 * Remove all information and files from the provided user.
-	 *
-	 * @param userId - id of the user.
-	 * @param token - secret token
-	 * @return OK if token is correct, FORBIDDEN otherwise
-	 */
+	Result<Void> opFromPrimary(Long version, String operation, String opType, String token);
+
+	Result<List<Operation>> getOperations(Long version, String token);
 }

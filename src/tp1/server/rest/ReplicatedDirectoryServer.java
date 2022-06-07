@@ -25,7 +25,7 @@ public class ReplicatedDirectoryServer extends AbstractRestServer{
 
 	@Override
 	void registerResources(ResourceConfig config) {
-		config.register( new ReplicatedDirectoryResource(syncPoint));
+		config.register( new ReplicatedDirectoryResource());
 		config.register( GenericExceptionMapper.class );
 //		config.register( CustomLoggingFilter.class);
 	}

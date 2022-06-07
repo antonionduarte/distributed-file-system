@@ -10,6 +10,11 @@
 		<authors>58278-58369</authors>
 	</properties>
 	<build>
+        <resources>
+            <resource>
+                <directory>src/config</directory>
+            </resource>
+        </resources>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
 			<plugin>
@@ -164,5 +169,10 @@
 			<artifactId>pac4j-oauth</artifactId>
 			<version>5.4.3</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.8.0</version>
+        </dependency>
 	</dependencies>
 </project>

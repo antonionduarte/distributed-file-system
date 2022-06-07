@@ -1,12 +1,13 @@
 package tp1.server.operations;
 
-public class ShareFile {
+public class ShareFile extends Operation {
 
 	private final String filename;
 	private final String userId;
 	private final String userIdShare;
 
 	public ShareFile(String filename, String userId, String userIdShare) {
+		super(OperationType.SHARE_FILE);
 		this.filename = filename;
 		this.userId = userId;
 		this.userIdShare = userIdShare;

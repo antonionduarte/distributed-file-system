@@ -8,6 +8,8 @@ import tp1.api.service.util.Files;
 import tp1.server.common.JavaFiles;
 import util.ConvertError;
 
+import static tp1.api.service.rest.RestDirectory.HEADER_VERSION;
+
 @Singleton
 public class FilesResource implements RestFiles {
 
@@ -36,11 +38,11 @@ public class FilesResource implements RestFiles {
 	}
 
 	@Override
-	public byte[] getFile(String fileId, String token) {
-		var result = impl.getFile(fileId, token);
+	public byte[] getFile(Long version, String fileId, String token) {
+		var result = impl.getFile(version, fileId, token);
 
 		if (result.isOK()) {
-			return result.value();
+			throw new WebApplicationException(Response.ok().header(HEADER_VERSION, result.version()).entity(result.value()).build());
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);

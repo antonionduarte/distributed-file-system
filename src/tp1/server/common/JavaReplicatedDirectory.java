@@ -2,35 +2,46 @@ package tp1.server.common;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import tp1.api.FileInfo;
 import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
 import tp1.server.operations.*;
+import util.Secret;
+import util.Token;
 import util.kafka.KafkaSubscriber;
 import util.kafka.RecordProcessor;
-import util.kafka.sync.SyncPoint;
+import util.zookeeper.ReplicationManager;
 
-import java.net.URI;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
+import static tp1.server.operations.OperationType.valueOf;
 
 public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Directory, RecordProcessor {
 
-	private static final String DIRECTORY_REPLICATION_TOPIC = "directory_replication";
+	private final ReplicationManager repManager;
 
-	private final SyncPoint<String> syncPoint;
 	private final Gson gson;
 
-	public JavaReplicatedDirectory(SyncPoint<String> syncPoint) {
+	private final List<Operation> listOperations;
+
+	private final static int TOLERABLE_FAILS_DIR = 1;
+
+	public JavaReplicatedDirectory() {
 		super();
-		this.syncPoint = syncPoint;
 		this.gson = new GsonBuilder().create();
-		KafkaSubscriber sub = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DIRECTORY_REPLICATION_TOPIC, DELETE_USER_TOPIC), FROM_BEGINNING);
+		KafkaSubscriber sub = KafkaSubscriber.createSubscriber(KAFKA_BROKERS, List.of(DELETE_USER_TOPIC), FROM_BEGINNING);
 		sub.start(false, this);
+		repManager = ReplicationManager.getInstance(this);
+		listOperations = new LinkedList<>();
 	}
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
+		if (repManager.isSecondary())
+			return redirectToPrimary();
+
 		String fileId = String.format("%s_%s", userId, filename);
 
 		var p = beforeWriteFile(fileId, data, userId, password);
@@ -39,14 +50,22 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 			return res;
 
 		var writeFile = new WriteFile(filename, userId, p.second(), files.get(fileId));
-		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.WRITE_FILE.name(), gson.toJson(writeFile));
-		this.syncPoint.waitForResult(version);
+		dir_writeFile(writeFile);
+		repManager.incVersion();
+		listOperations.add(writeFile);
+		String operation = gson.toJson(writeFile);
 
-		return Result.ok(files.get(fileId));
+		propagateOperationToSecondaries(operation, OperationType.WRITE_FILE);
+
+		return Result.ok(files.get(fileId), repManager.getCurrentVersion());
 	}
+
 
 	@Override
 	public Result<Void> deleteFile(String filename, String userId, String password) {
+		if (repManager.isSecondary())
+			return redirectToPrimary();
+
 		String fileId = String.format("%s_%s", userId, filename);
 
 		var res = beforeDeleteFile(fileId, userId, password);
@@ -54,70 +73,152 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 			return res;
 
 		var deleteFile = new DeleteFile(filename, userId);
-		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.DELETE_FILE.name(), gson.toJson(deleteFile));
-		this.syncPoint.waitForResult(version);
+		dir_deleteFile(deleteFile);
+		repManager.incVersion();
+		listOperations.add(deleteFile);
+		String operation = gson.toJson(deleteFile);
 
-		return Result.ok();
+		propagateOperationToSecondaries(operation, OperationType.DELETE_FILE);
+
+		return Result.ok(repManager.getCurrentVersion());
 	}
 
 	@Override
 	public Result<Void> shareFile(String filename, String userId, String userIdShare, String password) {
+		if (repManager.isSecondary())
+			return redirectToPrimary();
+
 		var res = beforeShareOrUnshareFile(filename, userId, userIdShare, password);
 		if (!res.isOK())
 			return res;
 
 		var shareFile = new ShareFile(filename, userId, userIdShare);
-		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.SHARE_FILE.name(), gson.toJson(shareFile));
-		this.syncPoint.waitForResult(version);
+		dir_shareFile(shareFile);
+		repManager.incVersion();
+		listOperations.add(shareFile);
+		String operation = gson.toJson(shareFile);
 
-		return Result.ok();
+		propagateOperationToSecondaries(operation, OperationType.SHARE_FILE);
+
+		return Result.ok(repManager.getCurrentVersion());
 	}
 
 	@Override
 	public Result<Void> unshareFile(String filename, String userId, String userIdShare, String password) {
+		if (repManager.isSecondary())
+			return redirectToPrimary();
+
 		var res = beforeShareOrUnshareFile(filename, userId, userIdShare, password);
 		if (!res.isOK())
 			return res;
 
 		var unshareFile = new UnshareFile(filename, userId, userIdShare);
-		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.UNSHARE_FILE.name(), gson.toJson(unshareFile));
-		this.syncPoint.waitForResult(version);
+		dir_unshareFile(unshareFile);
+		repManager.incVersion();
+		listOperations.add(unshareFile);
+		String operation = gson.toJson(unshareFile);
+
+		propagateOperationToSecondaries(operation, OperationType.UNSHARE_FILE);
+
+		return Result.ok(repManager.getCurrentVersion());
+	}
+
+	@Override
+	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
+		long currentVersion = repManager.getCurrentVersion();
+		if (currentVersion >= version) {
+			var res = super.getFile(version, filename, userId, accUserId, password);
+			return Result.ok(res.value(), currentVersion);
+		}
+		else
+			return redirectToPrimary();
+	}
+
+	@Override
+	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
+		long currentVersion = repManager.getCurrentVersion();
+		if (currentVersion >= version) {
+			var res = super.lsFile(version, userId, password);
+			return Result.ok(res.value(), currentVersion);
+		}
+		else
+			return redirectToPrimary();
+	}
+
+	@Override
+	public Result<Void> opFromPrimary(Long version, String operation, String opType, String token) {
+		if(Token.notValid(token, Secret.get()))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+
+		switch (valueOf(opType)) {
+			case DELETE_FILE -> {
+				DeleteFile op = gson.fromJson(operation, DeleteFile.class);
+				listOperations.add(op);
+				dir_deleteFile(op);
+			}
+			case SHARE_FILE -> {
+				ShareFile op = gson.fromJson(operation, ShareFile.class);
+				listOperations.add(op);
+				dir_shareFile(op);
+			}
+			case UNSHARE_FILE -> {
+				UnshareFile op = gson.fromJson(operation, UnshareFile.class);
+				listOperations.add(op);
+				dir_unshareFile(op);
+			}
+			case WRITE_FILE -> {
+				WriteFile op = gson.fromJson(operation, WriteFile.class);
+				listOperations.add(op);
+				dir_writeFile(op);
+			}
+		}
+
+		repManager.setVersion(version);
 
 		return Result.ok();
 	}
 
 	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) {
-		String fileId = String.format("%s_%s", userId, filename);
-		FileInfo file = files.get(fileId);
+	public Result<List<Operation>> getOperations(Long version, String token) {
+		if(Token.notValid(token, Secret.get()))
+			return Result.error(Result.ErrorCode.FORBIDDEN);
 
-		var res = beforeGetFile(file, userId, accUserId, password);
-		if (!res.isOK())
-			return res;
+		List<Operation> missingOperations = listOperations.subList((int) Math.max((listOperations.size() - (repManager.getCurrentVersion() - version)), 0), listOperations.size());
 
-		var getFile = new GetFile(filename, userId, file);
-		var version = pub.publish(DIRECTORY_REPLICATION_TOPIC, OperationType.GET_FILE.name(), gson.toJson(getFile));
-		this.syncPoint.waitForResult(version);
-
-		file = files.get(fileId);
-		return Result.ok(URI.create(file.getFileURL()));
+		return Result.ok(missingOperations, repManager.getCurrentVersion());
 	}
 
-	@Override
-	public void onReceive(ConsumerRecord<String, String> record) {
-		if (record.topic().equals(DIRECTORY_REPLICATION_TOPIC)) {
-			var version = record.offset();
-			var result = record.value();
-			switch (OperationType.valueOf(record.key())) {
-				case WRITE_FILE -> dir_writeFile(gson.fromJson(result, WriteFile.class));
-				case GET_FILE -> dir_getFile(gson.fromJson(result, GetFile.class));
-				case SHARE_FILE -> dir_shareFile(gson.fromJson(result, ShareFile.class));
-				case DELETE_FILE -> dir_deleteFile(gson.fromJson(result, DeleteFile.class));
-				case UNSHARE_FILE -> dir_unshareFile(gson.fromJson(result, UnshareFile.class));
-			}
-			this.syncPoint.setResult(version, result);
-		} else {
-			super.onReceive(record);
+	private <T> Result<T> redirectToPrimary() {
+		return Result.ok(repManager.getPrimaryURI());
+	}
+
+
+	private void propagateOperationToSecondaries(String operation, OperationType opType) {
+		var clients = clientFactory.getOtherDirectoryClients();
+		var theadFinishedSignal = new CountDownLatch(TOLERABLE_FAILS_DIR);
+		for (Directory client: clients) {
+			new Thread(() -> {
+				var resultFromDir = client.opFromPrimary(repManager.getCurrentVersion(), operation, opType.name(), Token.generate(Secret.get()));
+				if (resultFromDir != null && resultFromDir.isOK())
+					theadFinishedSignal.countDown();
+			}).start();
+		}
+		try {
+			theadFinishedSignal.await();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
+
+	public void executeOperations(List<Operation> operations) {
+		for (Operation operation : operations) {
+			switch (operation.getOperationType()) {
+				case DELETE_FILE -> dir_deleteFile((DeleteFile) operation);
+				case SHARE_FILE -> dir_shareFile((ShareFile) operation);
+				case UNSHARE_FILE -> dir_unshareFile((UnshareFile) operation);
+				case WRITE_FILE -> dir_writeFile((WriteFile) operation);
+			}
+		}
+	}
+
 }

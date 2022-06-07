@@ -7,7 +7,6 @@ import tp1.server.operations.*;
 import util.kafka.KafkaSubscriber;
 import util.kafka.RecordProcessor;
 
-import java.net.URI;
 import java.util.List;
 
 public class JavaDirectory extends AbstractJavaDirectory implements Directory, RecordProcessor {
@@ -69,20 +68,5 @@ public class JavaDirectory extends AbstractJavaDirectory implements Directory, R
 		dir_unshareFile(unshareFile);
 
 		return Result.ok();
-	}
-
-	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) {
-		String fileId = String.format("%s_%s", userId, filename);
-		FileInfo file = files.get(fileId);
-
-		var res = beforeGetFile(file, userId, accUserId, password);
-		if (!res.isOK())
-			return res;
-
-		var getFile = new GetFile(filename, userId, file);
-		dir_getFile(getFile);
-
-		return Result.ok(URI.create(file.getFileURL()));
 	}
 }

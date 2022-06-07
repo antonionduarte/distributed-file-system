@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class DeleteFile {
+public class DeleteFile extends Operation {
 
 	private final String filename;
 	private final String userId;
@@ -14,6 +14,7 @@ public class DeleteFile {
 	}
 
 	public DeleteFile(String filename, String userId) {
+		super(OperationType.DELETE_FILE);
 		this.filename = filename;
 		this.userId = userId;
 	}

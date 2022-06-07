@@ -7,6 +7,7 @@ import tp1.api.service.soap.DirectoryException;
 import tp1.api.service.soap.SoapDirectory;
 import tp1.api.service.util.Directory;
 import tp1.api.service.util.Result;
+import tp1.server.operations.Operation;
 
 import javax.xml.namespace.QName;
 import java.net.MalformedURLException;
@@ -73,7 +74,7 @@ public class SoapDirectoryClient extends SoapClient implements Directory {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String filename, String userId, String accUserId, String password) {
+	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
 		return super.reTry(() -> {
 			try {
 				return Result.ok(directory.getFile(filename, userId, accUserId, password));
@@ -84,7 +85,7 @@ public class SoapDirectoryClient extends SoapClient implements Directory {
 	}
 
 	@Override
-	public Result<List<FileInfo>> lsFile(String userId, String password) {
+	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
 		return super.reTry(() -> {
 			try {
 				return Result.ok(directory.lsFile(userId, password));
@@ -92,5 +93,15 @@ public class SoapDirectoryClient extends SoapClient implements Directory {
 				return Result.error(Result.ErrorCode.valueOf(e.getMessage()));
 			}
 		});
+	}
+
+	@Override
+	public Result<Void> opFromPrimary(Long version, String operation, String opType, String token) {
+		return Result.error(Result.ErrorCode.FORBIDDEN);
+	}
+
+	@Override
+	public Result<List<Operation>> getOperations(Long version, String token) {
+		return Result.error(Result.ErrorCode.FORBIDDEN);
 	}
 }

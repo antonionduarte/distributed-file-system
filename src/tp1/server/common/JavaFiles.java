@@ -36,14 +36,14 @@ public class JavaFiles implements Files, RecordProcessor {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String fileId, String token) {
+	public Result<byte[]> getFile(Long version, String fileId, String token) {
 		if (Token.notValid(token, Secret.get(), fileId)) {
 			return error(FORBIDDEN);
 		}
 
 		fileId = fileId.replace(DELIMITER, "/");
 		byte[] data = IO.read(new File(ROOT + fileId));
-		return data != null ? ok(data) : error(NOT_FOUND);
+		return data != null ? ok(data, version) : error(NOT_FOUND);
 	}
 
 	@Override

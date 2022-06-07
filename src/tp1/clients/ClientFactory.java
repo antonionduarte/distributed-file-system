@@ -11,6 +11,7 @@ import tp1.clients.rest.RestUsersClient;
 import tp1.clients.soap.SoapDirectoryClient;
 import tp1.clients.soap.SoapFilesClient;
 import tp1.clients.soap.SoapUsersClient;
+import tp1.server.rest.AbstractRestServer;
 import util.Discovery;
 import util.Pair;
 
@@ -82,6 +83,28 @@ public class ClientFactory {
 		} catch (ExecutionException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public Set<Directory> getOtherDirectoryClients() {
+		var serverURIs = discovery.knownUrisOf("directory");
+		Set<Directory> clients = new HashSet<>();
+		for (URI serverURI: serverURIs) {
+			if(!serverURI.toString().equals(AbstractRestServer.SERVER_URI)) {
+				try {
+					clients.add(this.directoryCache.get(serverURI, () -> {
+						if (serverURI.toString().endsWith("rest")) {
+							return new Pair<>(serverURI, new RestDirectoryClient(serverURI));
+						} else {
+							return new Pair<>(serverURI, new SoapDirectoryClient(serverURI));
+						}
+					}).second());
+				} catch (ExecutionException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		return clients;
 	}
 
 	public Set<Pair<URI, Files>> getFilesClients() {

@@ -129,7 +129,7 @@ public class JavaFilesProxy implements Files {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String fileId, String token) {
+	public Result<byte[]> getFile(Long version, String fileId, String token) {
 		if (Token.notValid(token, Secret.get(), fileId)) {
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 		}
@@ -157,7 +157,7 @@ public class JavaFilesProxy implements Files {
 				}
 			}
 
-			return Result.ok(response.getStream().readAllBytes());
+			return Result.ok(response.getStream().readAllBytes(), version);
 		} catch (Exception e) {
 			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
 		}

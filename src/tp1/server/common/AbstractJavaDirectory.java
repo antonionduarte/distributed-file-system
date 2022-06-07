@@ -43,7 +43,7 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 
 	protected final KafkaPublisher pub;
 
-	public AbstractJavaDirectory() {
+	protected AbstractJavaDirectory() {
 		this.pub = KafkaPublisher.createPublisher(KAFKA_BROKERS);
 		this.files = new ConcurrentHashMap<>();
 		this.accessibleFilesPerUser = new ConcurrentHashMap<>();
@@ -51,6 +51,74 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 		this.URIsPerFile = new ConcurrentHashMap<>();
 	}
 
+	@Override
+	public Result<byte[]> getFile(Long version, String filename, String userId, String accUserId, String password) {
+		String fileId = String.format("%s_%s", userId, filename);
+		FileInfo file = files.get(fileId);
+
+		if (file == null) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		Users usersClient = clientFactory.getUsersClient().second();
+		var userResult = usersClient.getUser(userId, "");
+
+		if (userResult == null) {
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
+
+		// check if userid exists
+		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
+			return Result.error(Result.ErrorCode.NOT_FOUND);
+		}
+
+		var accUserResult = usersClient.getUser(accUserId, password);
+
+		if (accUserResult == null) {
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
+
+		// authenticate the user
+		if (!accUserResult.isOK()) {
+			return Result.error(accUserResult.error());
+		}
+		// file not shared with user
+		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId)) {
+			return Result.error(Result.ErrorCode.FORBIDDEN);
+		}
+
+		Set<URI> intersection = intersectionWithDiscoveryOfFiles(file);
+
+		return Result.ok((URI) intersection.toArray()[0]);
+	}
+
+	@Override
+	public Result<List<FileInfo>> lsFile(Long version, String userId, String password) {
+		Users usersClient;
+		usersClient = clientFactory.getUsersClient().second();
+		var userResult = usersClient.getUser(userId, password);
+
+		if (userResult == null) {
+			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
+		}
+
+		// authenticate userId
+		if (!userResult.isOK()) {
+			return Result.error(userResult.error());
+		}
+
+		var list = accessibleFilesPerUser.get(userId);
+		if (list == null) {
+			return Result.ok(new CopyOnWriteArrayList<>());
+		} else {
+			return Result.ok(new CopyOnWriteArrayList<>(list));
+		}
+	}
+
+	@Override
+	public Result<Void> opFromPrimary(Long version, String operation, String opType, String token) {
+		return Result.error(Result.ErrorCode.FORBIDDEN);
+	}
 
 	protected Pair<Result<FileInfo>, Set<URI>> beforeWriteFile(String fileId, byte[] data, String userId, String password) {
 		FileInfo file = files.get(fileId);
@@ -76,7 +144,7 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 		if (file == null) {
 			filesUrisAndClients = clientFactory.getFilesClients();
 		} else {
-			for (URI uri : intersectionWithDiscoveryOfFiles(file, false)) {
+			for (URI uri : intersectionWithDiscoveryOfFiles(file)) {
 				var client = clientFactory.getFilesClient(uri);
 				if (client != null) {
 					filesUrisAndClients.add(client);
@@ -129,7 +197,7 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 
 		pub.publish(DELETE_FILE_TOPIC, fileId);
 
-		for (URI fileURI : intersectionWithDiscoveryOfFiles(file, false)) {
+		for (URI fileURI : intersectionWithDiscoveryOfFiles(file)) {
 			clientFactory.deletedFileFromServer(fileURI);
 		}
 
@@ -167,77 +235,6 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 		}
 
 		return Result.ok();
-	}
-
-	protected Result<byte[]> beforeGetFile(FileInfo file, String userId, String accUserId, String password) {
-		if (file == null) {
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		Users usersClient = clientFactory.getUsersClient().second();
-		var userResult = usersClient.getUser(userId, "");
-
-		if (userResult == null) {
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
-
-		// check if userid exists
-		if (userResult.error() == Result.ErrorCode.NOT_FOUND) {
-			return Result.error(Result.ErrorCode.NOT_FOUND);
-		}
-
-		var accUserResult = usersClient.getUser(accUserId, password);
-
-		if (accUserResult == null) {
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
-
-		// authenticate the user
-		if (!accUserResult.isOK()) {
-			return Result.error(accUserResult.error());
-		}
-		// file not shared with user
-		if (!file.getSharedWith().contains(accUserId) && !file.getOwner().equals(accUserId)) {
-			return Result.error(Result.ErrorCode.FORBIDDEN);
-		}
-
-		intersectionWithDiscoveryOfFiles(file, true);
-
-		return Result.ok();
-	}
-
-	@Override
-	public Result<List<FileInfo>> lsFile(String userId, String password) {
-		Users usersClient;
-		usersClient = clientFactory.getUsersClient().second();
-		var userResult = usersClient.getUser(userId, password);
-
-		if (userResult == null) {
-			return Result.error(Result.ErrorCode.INTERNAL_ERROR);
-		}
-
-		// authenticate userId
-		if (!userResult.isOK()) {
-			return Result.error(userResult.error());
-		}
-
-		var list = accessibleFilesPerUser.get(userId);
-		if (list == null) {
-			return Result.ok(new CopyOnWriteArrayList<>());
-		} else {
-			return Result.ok(new CopyOnWriteArrayList<>(list));
-		}
-	}
-
-	protected void dir_getFile(GetFile getFile) {
-		var userId = getFile.getUserId();
-		var filename = getFile.getFilename();
-
-		String fileId = String.format("%s_%s", userId, filename);
-
-		synchronized (this) {
-			this.files.put(fileId, getFile.getFileInfo());
-		}
 	}
 
 	protected void dir_writeFile(WriteFile writeFile) {
@@ -334,7 +331,7 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 		}
 	}
 
-	protected Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file, boolean changeFileURL) {
+	protected Set<URI> intersectionWithDiscoveryOfFiles(FileInfo file) {
 		String fileId = String.format("%s_%s", file.getOwner(), file.getFilename());
 
 		Set<URI> uris = URIsPerFile.get(fileId);
@@ -351,11 +348,12 @@ public abstract class AbstractJavaDirectory implements Directory, RecordProcesso
 			}).collect(Collectors.toSet());
 		} while (intersection.isEmpty());
 
-		if (intersection.size() != uris.size() && changeFileURL) {
-			file.setFileURL(intersection.toArray()[0].toString());
-		}
-
 		return intersection;
+	}
+
+	@Override
+	public Result<List<Operation>> getOperations(Long version, String token) {
+		return Result.error(Result.ErrorCode.FORBIDDEN);
 	}
 
 	@Override

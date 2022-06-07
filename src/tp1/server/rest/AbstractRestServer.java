@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 public abstract class AbstractRestServer extends AbstractServer {
 
 	protected static final String SERVER_BASE_URI = "https://%s:%s/rest";
+	public static String SERVER_URI;
 
 	protected AbstractRestServer(Logger log, String service, int port) {
 		super(log, service, port);
@@ -24,6 +25,7 @@ public abstract class AbstractRestServer extends AbstractServer {
 	protected void start() throws UnknownHostException, NoSuchAlgorithmException {
 		String ip = InetAddress.getLocalHost().getHostAddress();
 		String serverURI = String.format(SERVER_BASE_URI, ip, port);
+		SERVER_URI = serverURI;
 
 		ResourceConfig config = new ResourceConfig();
 

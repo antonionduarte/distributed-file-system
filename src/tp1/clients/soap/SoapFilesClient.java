@@ -47,7 +47,7 @@ public class SoapFilesClient extends SoapClient implements Files {
 	}
 
 	@Override
-	public Result<byte[]> getFile(String fileId, String token) {
+	public Result<byte[]> getFile(Long version, String fileId, String token) {
 		return super.reTry(() -> {
 			try {
 				return Result.ok(files.getFile(fileId, token));

@@ -10,6 +10,7 @@ import tp1.api.service.util.Files;
 import tp1.api.service.util.Result;
 import tp1.clients.ClientFactory;
 import tp1.server.common.JavaDirectory;
+import tp1.server.operations.Operation;
 import util.ConvertError;
 import util.Secret;
 import util.Token;
@@ -25,9 +26,8 @@ public class DirectoryResource implements RestDirectory {
 	private final ClientFactory clientFactory = ClientFactory.getInstance();
 
 	@Override
-	public FileInfo writeFile(Long header, String filename, byte[] data, String userId, String password) {
-		Result<FileInfo> result;
-		result = impl.writeFile(filename, data, userId, password);
+	public FileInfo writeFile(String filename, byte[] data, String userId, String password) {
+		Result<FileInfo> result = impl.writeFile(filename, data, userId, password);
 
 		if (result.isOK()) {
 			return result.value();
@@ -38,9 +38,8 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void deleteFile(Long header, String filename, String userId, String password) {
-		Result<Void> result;
-		result = impl.deleteFile(filename, userId, password);
+	public void deleteFile(String filename, String userId, String password) {
+		Result<Void> result = impl.deleteFile(filename, userId, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -49,9 +48,8 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void shareFile(Long header, String filename, String userId, String userIdShare, String password) {
-		Result<Void> result;
-		result = impl.shareFile(filename, userId, userIdShare, password);
+	public void shareFile(String filename, String userId, String userIdShare, String password) {
+		Result<Void> result = impl.shareFile(filename, userId, userIdShare, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -60,9 +58,8 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public void unshareFile(Long header, String filename, String userId, String userIdShare, String password) {
-		Result<Void> result;
-		result = impl.unshareFile(filename, userId, userIdShare, password);
+	public void unshareFile(String filename, String userId, String userIdShare, String password) {
+		Result<Void> result = impl.unshareFile(filename, userId, userIdShare, password);
 
 		if (!result.isOK()) {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
@@ -71,9 +68,9 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public byte[] getFile(Long header, String filename, String userId, String accUserId, String password) {
+	public byte[] getFile(Long version, String filename, String userId, String accUserId, String password) {
 		Result<byte[]> result;
-		result = impl.getFile(filename, userId, accUserId, password);
+		result = impl.getFile(version, filename, userId, accUserId, password);
 
 		if (result.isOK()) {
 
@@ -81,7 +78,7 @@ public class DirectoryResource implements RestDirectory {
 			if (result.redirectURI().toString().contains("/soap/")) {
 				Files filesClient = clientFactory.getFilesClient(result.redirectURI()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
+				Result<byte[]> resultFiles = filesClient.getFile(-1L, fileId, Token.generate(Secret.get(), fileId));
 				if (resultFiles == null) {
 					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 				}
@@ -102,8 +99,8 @@ public class DirectoryResource implements RestDirectory {
 	}
 
 	@Override
-	public List<FileInfo> lsFile(String userId, String password) {
-		Result<List<FileInfo>> result = impl.lsFile(userId, password);
+	public List<FileInfo> lsFile(Long version, String userId, String password) {
+		Result<List<FileInfo>> result = impl.lsFile(version, userId, password);
 
 		if (result.isOK()) {
 			return result.value();
@@ -111,5 +108,20 @@ public class DirectoryResource implements RestDirectory {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
 			throw new WebApplicationException(errorCode);
 		}
+	}
+
+	@Override
+	public void opFromPrimary(Long version, String operation, String opType, String token) {
+		Result<Void> result = impl.opFromPrimary(version, operation, opType, token);
+
+		if (!result.isOK()) { //should always be FORBIDDEN
+			var errorCode = ConvertError.resultErrorToWebAppError(result);
+			throw new WebApplicationException(errorCode);
+		}
+	}
+
+	@Override
+	public List<Operation> getOperations(Long version, String token) {
+		throw new WebApplicationException(Response.Status.FORBIDDEN);
 	}
 }

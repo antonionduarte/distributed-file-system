@@ -1,6 +1,6 @@
 package tp1.server.operations;
 
-public class UnshareFile {
+public class UnshareFile extends Operation  {
 
 	private final String filename;
 	private final String userId;
@@ -16,6 +16,7 @@ public class UnshareFile {
 	}
 
 	public UnshareFile(String filename, String userId, String userIdShare) {
+		super(OperationType.UNSHARE_FILE);
 		this.filename = filename;
 		this.userId = userId;
 		this.userIdShare = userIdShare;

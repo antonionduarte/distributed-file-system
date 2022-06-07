@@ -3,6 +3,7 @@ package tp1.api.service.rest;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import tp1.api.FileInfo;
+import tp1.server.operations.Operation;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public interface RestDirectory {
 	@Path("/{userId}/{filename}")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
 	@Produces(MediaType.APPLICATION_JSON)
-	FileInfo writeFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, byte[] data,
+	FileInfo writeFile(@PathParam("filename") String filename, byte[] data,
 	                   @PathParam("userId") String userId, @QueryParam("password") String password);
 
 	/**
@@ -44,7 +45,7 @@ public interface RestDirectory {
 	 */
 	@DELETE
 	@Path("/{userId}/{filename}")
-	void deleteFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename,
+	void deleteFile(@PathParam("filename") String filename,
 	                @PathParam("userId") String userId, @QueryParam("password") String password);
 
 	/**
@@ -62,7 +63,7 @@ public interface RestDirectory {
 	 */
 	@POST
 	@Path("/{userId}/{filename}/share/{userIdShare}")
-	void shareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, @PathParam("userId") String userId,
+	void shareFile(@PathParam("filename") String filename, @PathParam("userId") String userId,
 	               @PathParam("userIdShare") String userIdShare, @QueryParam("password") String password);
 
 	/**
@@ -80,7 +81,7 @@ public interface RestDirectory {
 	 */
 	@DELETE
 	@Path("/{userId}/{filename}/share/{userIdShare}")
-	void unshareFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("filename") String filename, @PathParam("userId") String userId,
+	void unshareFile(@PathParam("filename") String filename, @PathParam("userId") String userId,
 	                 @PathParam("userIdShare") String userIdShare, @QueryParam("password") String password);
 
 	/**
@@ -114,6 +115,15 @@ public interface RestDirectory {
 	@GET
 	@Path("/{userId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<FileInfo> lsFile(@PathParam("userId") String userId,
+	List<FileInfo> lsFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("userId") String userId,
 	                      @QueryParam("password") String password);
+
+	@POST
+	@Path("/operation")
+	@Consumes(MediaType.APPLICATION_JSON)
+	void opFromPrimary(@HeaderParam(HEADER_VERSION) Long version, String operation, @QueryParam("opType") String opType, @QueryParam(TOKEN) String token);
+
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	List<Operation> getOperations(@HeaderParam(HEADER_VERSION) Long version, @QueryParam(TOKEN) String token);
 }

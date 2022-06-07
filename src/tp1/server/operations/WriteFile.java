@@ -5,7 +5,7 @@ import tp1.api.FileInfo;
 import java.net.URI;
 import java.util.Set;
 
-public class WriteFile {
+public class WriteFile extends Operation  {
 
 	private final String filename;
 	private final String userId;
@@ -23,6 +23,7 @@ public class WriteFile {
 	}
 
 	public WriteFile(String filename, String userId, Set<URI> serverUris, FileInfo fileInfo) {
+		super(OperationType.WRITE_FILE);
 		this.filename = filename;
 		this.userId = userId;
 		this.serverUris = serverUris;
