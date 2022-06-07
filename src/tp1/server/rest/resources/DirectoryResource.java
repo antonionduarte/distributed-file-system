@@ -78,7 +78,7 @@ public class DirectoryResource implements RestDirectory {
 			if (result.redirectURI().toString().contains("/soap/")) {
 				Files filesClient = clientFactory.getFilesClient(result.redirectURI()).second();
 
-				Result<byte[]> resultFiles = filesClient.getFile(-1L, fileId, Token.generate(Secret.get(), fileId));
+				Result<byte[]> resultFiles = filesClient.getFile(0L, fileId, Token.generate(Secret.get(), fileId));
 				if (resultFiles == null) {
 					throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 				}
@@ -90,7 +90,7 @@ public class DirectoryResource implements RestDirectory {
 				}
 			} else {
 				URI uriWithToken = URI.create(result.redirectURI().toString()+"?token="+ Token.generate(Secret.get(), fileId));
-				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, -1L).build());
+				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, 0L).build());
 			}
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);

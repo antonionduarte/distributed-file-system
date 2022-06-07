@@ -102,7 +102,7 @@ class OkResult<T> implements tp1.api.service.util.Result<T> {
 
 	URI redirectURI;
 
-	Long version = -1L;
+	Long version = 0L;
 
 	OkResult() {
 	}
@@ -192,7 +192,7 @@ class ErrorResult<T> implements tp1.api.service.util.Result<T> {
 
 	@Override
 	public long version() {
-		return -1;
+		return 0;
 	}
 
 	public String toString() {
