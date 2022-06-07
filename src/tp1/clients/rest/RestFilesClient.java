@@ -34,8 +34,8 @@ public class RestFilesClient extends RestClient implements Files {
 	}
 
 	@Override
-	public Result<byte[]> getFile(Long version, String fileId, String token) {
-		return super.reTry(() -> clt_getFile(version, fileId, token));
+	public Result<byte[]> getFile(String fileId, String token) {
+		return super.reTry(() -> clt_getFile(fileId, token));
 	}
 
 	private Result<Void> clt_writeFile(String fileId, byte[] data, String token) {
@@ -62,12 +62,11 @@ public class RestFilesClient extends RestClient implements Files {
 		return ConvertError.webAppErrorToResultError(response.getStatusInfo().toEnum());
 	}
 
-	private Result<byte[]> clt_getFile(Long version, String fileId, String token) {
+	private Result<byte[]> clt_getFile(String fileId, String token) {
 		Response response = target
 				.path(fileId)
 				.queryParam(RestFiles.TOKEN, token)
 				.request()
-				.header(HEADER_VERSION, version)
 				.accept(MediaType.APPLICATION_OCTET_STREAM)
 				.get();
 

@@ -42,8 +42,8 @@ public class FilesProxyResource implements RestFiles {
 	}
 
 	@Override
-	public byte[] getFile(Long version, String fileId, String token) {
-		var result = impl.getFile(version, fileId, token);
+	public byte[] getFile(String fileId, String token) {
+		var result = impl.getFile(fileId, token);
 
 		if (result.isOK()) {
 			throw new WebApplicationException(Response.ok().header(HEADER_VERSION, result.version()).entity(result.value()).build());

@@ -31,7 +31,7 @@ public class SoapFilesWebService implements SoapFiles {
 
 	@Override
 	public byte[] getFile(String fileId, String token) throws FilesException {
-		var result = impl.getFile(0L, fileId, token);
+		var result = impl.getFile(fileId, token);
 		if (result.isOK()) {
 			return result.value();
 		} else {

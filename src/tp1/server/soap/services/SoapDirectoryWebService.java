@@ -70,7 +70,7 @@ public class SoapDirectoryWebService implements SoapDirectory {
 			Files filesClient = clientFactory.getFilesClient(resultDir.redirectURI()).second();
 
 			String fileId = userId + "_" + filename;
-			Result<byte[]> resultFiles = filesClient.getFile(0L, fileId, Token.generate(Secret.get(), fileId));
+			Result<byte[]> resultFiles = filesClient.getFile(fileId, Token.generate(Secret.get(), fileId));
 			if (resultFiles == null) {
 				throw new DirectoryException(Result.ErrorCode.INTERNAL_ERROR.toString());
 			}

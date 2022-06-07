@@ -48,6 +48,6 @@ public interface RestFiles {
 	@GET
 	@Path("/{fileId}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	byte[] getFile(@HeaderParam(HEADER_VERSION) Long version, @PathParam("fileId") String fileId,
+	byte[] getFile(@PathParam("fileId") String fileId,
 	               @QueryParam("token") @DefaultValue("") String token);
 }
