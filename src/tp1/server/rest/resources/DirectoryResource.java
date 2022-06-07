@@ -90,7 +90,7 @@ public class DirectoryResource implements RestDirectory {
 				}
 			} else {
 				URI uriWithToken = URI.create(result.redirectURI().toString()+"?token="+ Token.generate(Secret.get(), fileId));
-				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).build());
+				throw new WebApplicationException(Response.temporaryRedirect(uriWithToken).header(HEADER_VERSION, result.version()).build());
 			}
 		} else {
 			var errorCode = ConvertError.resultErrorToWebAppError(result);
