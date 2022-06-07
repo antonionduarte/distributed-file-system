@@ -183,7 +183,7 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 		if(Token.notValid(token, Secret.get()))
 			return Result.error(Result.ErrorCode.FORBIDDEN);
 
-		List<Operation> missingOperations = listOperations.subList((int) Math.max((listOperations.size() - (repManager.getCurrentVersion() - version)), 0), listOperations.size());
+		List<Operation> missingOperations = listOperations.subList((int) Math.max((listOperations.size() - (Math.min(repManager.getCurrentVersion() - version, 0))), 0), listOperations.size());
 
 		return Result.ok(missingOperations, repManager.getCurrentVersion());
 	}
