@@ -37,7 +37,7 @@ public class ReplicationManager implements Watcher {
 		try {
 			zk = Zookeeper.getInstance(ROOT);
 			node = zk.createNode(ROOT + RestDirectory.PATH + "_", SERVER_URI.getBytes(), CreateMode.EPHEMERAL_SEQUENTIAL);
-			zk.getChildren(ROOT, this);
+			selectPrimary(zk.getChildren(ROOT, this));
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -72,36 +72,47 @@ public class ReplicationManager implements Watcher {
 		return primaryURI;
 	}
 
+	private void selectPrimary(List<String> nodes) {
+		List<String> orderedNodes = new LinkedList<>(nodes);
+		Collections.sort(orderedNodes);
+		String primaryNode = ROOT + "/" + orderedNodes.get(0);
+
+		System.out.println(primaryNode);
+		System.out.println(node);
+		primary = node.equals(primaryNode);
+
+		try {
+			primaryURI = new URI(new String(zk.client().getData(primaryNode, false, new Stat())));
+		} catch (URISyntaxException | KeeperException | InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public void process(WatchedEvent event) {
-		if (event.getType() == Event.EventType.NodeChildrenChanged) {
-			List<String> orderedNodes = new LinkedList<>(zk.getChildren(ROOT));
-			Collections.sort(orderedNodes);
-			String primaryNode = ROOT + "/" + orderedNodes.get(0);
+		System.out.println(event);
 
-			primary = node.equals(primaryNode);
+		selectPrimary(zk.getChildren(ROOT));
 
-			URI oldPrimaryURI = null;
-			try {
-				if (primaryURI != null) 
-					oldPrimaryURI = new URI(primaryURI.toString());
-				primaryURI = new URI(new String(zk.client().getData(primaryNode, false, new Stat())));
-			} catch (URISyntaxException | KeeperException | InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-			
-			//primary died
-			if (oldPrimaryURI != null && !oldPrimaryURI.equals(primaryURI)) {
-				Set<Directory> clients = ClientFactory.getInstance().getOtherDirectoryClients();
-				List<Operation> biggestList = null;
-				for (Directory client : clients) {
-					var res = client.getOperations(version, Token.generate(Secret.get()));
-					if (biggestList == null || (res != null && res.isOK() && res.value().size() > biggestList.size()))
-						biggestList = res.value();
-				}
-				if (biggestList != null)
-					directory.executeOperations(biggestList);
-			}
+		URI oldPrimaryURI;
+		try {
+			oldPrimaryURI = new URI(primaryURI.toString());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(e);
 		}
+
+		//primary died
+		if (!oldPrimaryURI.equals(primaryURI)) {
+			Set<Directory> clients = ClientFactory.getInstance().getOtherDirectoryClients();
+			List<Operation> biggestList = null;
+			for (Directory client : clients) {
+				var res = client.getOperations(version, Token.generate(Secret.get()));
+				if (biggestList == null || (res != null && res.isOK() && res.value().size() > biggestList.size()))
+					biggestList = res.value();
+			}
+			if (biggestList != null)
+				directory.executeOperations(biggestList);
+		}
+
 	}
 }

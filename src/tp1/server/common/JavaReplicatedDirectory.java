@@ -20,12 +20,10 @@ import static tp1.server.operations.OperationType.valueOf;
 
 public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Directory, RecordProcessor {
 
+	private static JavaReplicatedDirectory instance;
 	private final ReplicationManager repManager;
-
 	private final Gson gson;
-
 	private final List<Operation> listOperations;
-
 	private final static int TOLERABLE_FAILS_DIR = 1;
 
 	public JavaReplicatedDirectory() {
@@ -39,15 +37,20 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 
 	@Override
 	public Result<FileInfo> writeFile(String filename, byte[] data, String userId, String password) {
+		System.out.println(repManager.isSecondary());
 		if (repManager.isSecondary())
 			return redirectToPrimary();
 
 		String fileId = String.format("%s_%s", userId, filename);
 
+		System.out.println(repManager.isSecondary());
+
 		var p = beforeWriteFile(fileId, data, userId, password);
 		var res = p.first();
 		if (!res.isOK())
 			return res;
+		System.out.println(repManager.isSecondary());
+
 
 		var writeFile = new WriteFile(filename, userId, p.second(), files.get(fileId));
 		dir_writeFile(writeFile);
@@ -56,6 +59,8 @@ public class JavaReplicatedDirectory extends AbstractJavaDirectory implements Di
 		String operation = gson.toJson(writeFile);
 
 		propagateOperationToSecondaries(operation, OperationType.WRITE_FILE);
+		System.out.println(repManager.isSecondary());
+
 
 		return Result.ok(files.get(fileId), repManager.getCurrentVersion());
 	}
